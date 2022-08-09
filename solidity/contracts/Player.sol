@@ -21,7 +21,7 @@ contract PlayerContract
 
 
 
-    function createPlayer (string memory _name) public
+    function createPlayer (string calldata _name) public
     {
     	require(addressToPlayer[msg.sender].id == 0, "Player: player already exists for address");
 
@@ -34,8 +34,10 @@ contract PlayerContract
         emit NewPlayerCreated(id, _name);
     }
 
-    // function getPlayer () public returns (Player)
-    // {
+    function getPlayer () public view returns (Player memory)
+    {
+        require(addressToPlayer[msg.sender].id > 0, "Player: player not exist for address");
 
-    // }
+        return addressToPlayer[msg.sender];
+    }
 }
