@@ -28,7 +28,7 @@ contract PlayerContract
 
     	uint id = players.length + 1;
 
-        players.push(Player(players.length + 1, _name, 0, 0));
+        players.push(Player(id, _name, 0, 0));
 
         addressToPlayerId[msg.sender] = id;
 
