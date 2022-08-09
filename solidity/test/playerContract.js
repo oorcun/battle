@@ -58,7 +58,6 @@ contract("PlayerContract", accounts => {
         })
 
         it("should throw error if player not exists for address", async () => {
-            // await instance.getPlayer()
             await utils.shouldThrow(
                 instance.getPlayer(),
                 "Player: player not exist for address"

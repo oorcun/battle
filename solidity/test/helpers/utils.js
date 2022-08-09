@@ -3,8 +3,6 @@ async function shouldThrow (promise, reason)
     try {
         await promise
     } catch (error) {
-        console.log("-------------------------")
-        console.log(error)
         expect(reason).to.equal(getReason(error))
         return
     }
@@ -15,6 +13,11 @@ async function shouldThrow (promise, reason)
 function getReason (error) {
     if (error.reason) {
         return error.reason
+    }
+    for (key in error.data) {
+        if (key.startsWith("0x")) {
+            return error.data[key].reason
+        }
     }
 }
 
