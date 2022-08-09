@@ -11,8 +11,7 @@ contract PlayerContract
     }
 
     Player[] public players;
-
-    mapping (address => uint) public addressToPlayerId;
+    mapping (address => Player) public addressToPlayer;
 
 
 
@@ -24,14 +23,19 @@ contract PlayerContract
 
     function createPlayer (string memory _name) public
     {
-    	require(addressToPlayerId[msg.sender] == 0, "Player: player already exists for address");
+    	require(addressToPlayer[msg.sender].id == 0, "Player: player already exists for address");
 
-    	uint id = players.length + 1;
+        uint id = players.length + 1;
+    	Player memory player = Player(players.length + 1, _name, 0, 0);
 
-        players.push(Player(id, _name, 0, 0));
-
-        addressToPlayerId[msg.sender] = id;
+        players.push(player);
+        addressToPlayer[msg.sender] = player;
 
         emit NewPlayerCreated(id, _name);
     }
+
+    // function getPlayer () public returns (Player)
+    // {
+
+    // }
 }
