@@ -14,23 +14,26 @@ contract("PlayerContract", accounts => {
     context("player creation", async () => {
 
         it("should create player if no player exists for sender", async () => {
-            let playerId = (await instance.addressToPlayerId(sender)).toNumber()
 
-            expect(playerId).to.equal(0)
+            let player = await instance.addressToPlayer(sender)
+            expect(player.id.toNumber()).to.equal(0)
 
             let result = await instance.createPlayer("orcun")
-            let player = await instance.players(0)
-            playerId = (await instance.addressToPlayerId(sender)).toNumber()
 
-            expect(playerId).to.equal(1)
-            expect(result.receipt.status).to.equal(true)
+            player = await instance.players(0)
+            expect(player.id.toNumber()).to.equal(1)
+
+            player = await instance.addressToPlayer(sender)
+
             expect(player.name).to.equal("orcun")
             expect(player.id.toNumber()).to.equal(1)
             expect(player.winCount.toNumber()).to.equal(0)
             expect(player.lossCount.toNumber()).to.equal(0)
+            expect(result.receipt.status).to.equal(true)
             expect(result.logs[0].event).to.equal("NewPlayerCreated")
             expect(result.logs[0].args[0].toNumber()).to.equal(1)
             expect(result.logs[0].args[1]).to.equal("orcun")
+
         })
 
         it("should throw error if player already exists for sender", async () => {
