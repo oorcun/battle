@@ -1,5 +1,5 @@
-const PlayerContract = artifacts.require("PlayerContract");
+const PlayerContract = artifacts.require('PlayerContract')
 
 module.exports = function (deployer) {
-  deployer.deploy(PlayerContract);
-};
+	deployer.deploy(PlayerContract)
+}

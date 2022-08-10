@@ -25,8 +25,11 @@ contract('PlayerContract', accounts => {
 			player = await instance.addressToPlayer(sender)
 			expect(player.name).to.equal('orcun')
 			expect(player.id.toNumber()).to.equal(1)
-			expect(player.winCount.toNumber()).to.equal(0)
-			expect(player.lossCount.toNumber()).to.equal(0)
+			expect(player.attackWinCount.toNumber()).to.equal(0)
+			expect(player.attackLossCount.toNumber()).to.equal(0)
+			expect(player.defendWinCount.toNumber()).to.equal(0)
+			expect(player.defendLossCount.toNumber()).to.equal(0)
+			expect(player.points.toNumber()).to.equal(0)
 
 			expect(result.receipt.status).to.equal(true)
 			expect(result.logs[0].event).to.equal('NewPlayerCreated')
@@ -53,8 +56,11 @@ contract('PlayerContract', accounts => {
 
 			expect(player.name).to.equal('orcun')
 			expect(player.id).to.equal('1')
-			expect(player.winCount).to.equal('0')
-			expect(player.lossCount).to.equal('0')
+			expect(player.attackWinCount.toNumber()).to.equal(0)
+			expect(player.attackLossCount.toNumber()).to.equal(0)
+			expect(player.defendWinCount.toNumber()).to.equal(0)
+			expect(player.defendLossCount.toNumber()).to.equal(0)
+			expect(player.points.toNumber()).to.equal(0)
 		})
 
 		it('should throw error if player not exist for address', async () => {
