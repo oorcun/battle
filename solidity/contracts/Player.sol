@@ -87,7 +87,7 @@ contract PlayerContract
 
     function _getMinute (uint _datetime) internal pure returns (uint)
     {
-        return _datetime / 60;
+        return (_datetime / 60) * 60;
     }
 
     function _hasRegisteredAttack () internal view returns (bool)
