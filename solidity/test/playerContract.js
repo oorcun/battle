@@ -128,7 +128,7 @@ contract('PlayerContract', accounts => {
 			await instance.createPlayer('orcun')
 			await instance.createPlayer('orcun', { from: defender })
 
-			let registered = await instance.addressToRegisteredAttack(sender)
+			let registered = await instance.addressToHasRegisteredAttack(sender)
 			expect(registered).to.equal(false)
 
 			await utils.shouldThrow(
@@ -137,7 +137,7 @@ contract('PlayerContract', accounts => {
 
 			let result = await instance.registerAttack(defender, current + 60, true)
 
-			registered = await instance.addressToRegisteredAttack(sender)
+			registered = await instance.addressToHasRegisteredAttack(sender)
 			expect(registered).to.equal(true)
 
 			let attack = await instance.addressToAttacks(sender, 0)

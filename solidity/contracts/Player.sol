@@ -23,7 +23,7 @@ contract PlayerContract
 
     Player[] public players;
     mapping (address => Player) public addressToPlayer;
-    mapping (address => bool) public addressToRegisteredAttack;
+    mapping (address => bool) public addressToHasRegisteredAttack;
     mapping (address => Attack[]) public addressToAttacks;
 
 
@@ -92,11 +92,11 @@ contract PlayerContract
 
     function _hasRegisteredAttack () internal view returns (bool)
     {
-        return addressToRegisteredAttack[msg.sender];
+        return addressToHasRegisteredAttack[msg.sender];
     }
 
     function _registerAttack () internal
     {
-        addressToRegisteredAttack[msg.sender] = true;
+        addressToHasRegisteredAttack[msg.sender] = true;
     }
 }
