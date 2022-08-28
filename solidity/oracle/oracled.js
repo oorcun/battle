@@ -12,7 +12,7 @@ module.exports = async function (callback) {
 		.NewPlayerCreated()
 		.on('data', event => { console.log(event) })
 
-	setInterval(utils.init, 1000)
+	// setInterval(utils.init, 1000)
 
 	// console.log(PlayerContract.NewPlayerCreated())
 

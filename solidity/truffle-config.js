@@ -42,11 +42,16 @@ module.exports = {
 		// options below to some value.
 		//
 		// development: {
-		//  host: "127.0.0.1",     // Localhost (default: none)
-		//  port: 8545,            // Standard Ethereum port (default: none)
-		//  network_id: "*",       // Any network (default: none)
-		//  provider: () => new HDWalletProvider('scheme onion robust fence suffer theory chronic round sausage hole trial swap', 'http://localhost:8545'),
+		// 	host: "127.0.0.1",     // Localhost (default: none)
+		// 	port: 8545,            // Standard Ethereum port (default: none)
+		// 	network_id: "*",       // Any network (default: none)
 		// },
+		develop: {
+			host: '127.0.0.1',
+			port: 9545,
+			network_id: '*',
+			websockets: true
+		}
 		// Another network with more advanced options...
 		// advanced: {
 		// port: 8777,             // Custom port
