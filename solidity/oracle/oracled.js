@@ -1,21 +1,23 @@
 const utils = require('./utils.js')
 
-// utils.init()
-
 module.exports = async function (callback) {
 
-	const PlayerContract = await artifacts.require('PlayerContract').deployed()
+	try {
 
-	// console.log(PlayerContract)
+		utils.log('oracled started')
 
-	PlayerContract
-		.NewPlayerCreated()
-		.on('data', event => { console.log(event) })
+		const PlayerContract = await artifacts.require('PlayerContract').deployed()
 
-	// setInterval(utils.init, 1000)
+		PlayerContract
+			.AttackRegistered()
+			.on('data', event => { utils.log(event.args.startingMinute.toNumber()) })
 
-	// console.log(PlayerContract.NewPlayerCreated())
+	} catch (e) {
 
-	// callback()
+		utils.log(e)
+
+		callback()
+
+	}
 
 }

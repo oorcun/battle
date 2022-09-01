@@ -34,6 +34,7 @@ module.exports = {
 		'context': 'readonly',
 		'it': 'readonly',
 		'expect': 'readonly',
-		'assert': 'readonly'
+		'assert': 'readonly',
+		'web3': 'readonly'
 	}
 }
