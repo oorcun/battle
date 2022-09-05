@@ -4,17 +4,24 @@ module.exports = async function (callback) {
 
 	try {
 
-		utils.log('oracled started')
+		console.log('oracled started')
+
+		// setTimeout(utils.requestPrice, 4000)
+		// priceRequests.push({ requestTime: 1 })
+		// priceRequests.push({ requestTime: 2 })
 
 		const PlayerContract = await artifacts.require('PlayerContract').deployed()
 
 		PlayerContract
 			.AttackRegistered()
-			.on('data', event => { utils.log(event.args.startingMinute.toNumber()) })
+			.on('data', event => {
+				console.log('attack registered')
+				let startingMinute = event.args.startingMinute.toNumber()
+			})
 
 	} catch (e) {
 
-		utils.log(e)
+		console.log(e)
 
 		callback()
 

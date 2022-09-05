@@ -1,20 +1,20 @@
-// const config = require('../truffle-config.js')
-// const Web3 = require('web3')
-
-function init () {
-
-}
-
-function getCurrentMinute () {
+function getCurrentMinuteTimestamp () {
 	return Math.floor(Math.floor(Date.now() / 1000) / 60) * 60
 }
 
-function log (data) {
-	console.log(data)
+function requestPrice () {
+	//const values = set.values(); // 👉️ iterator
+	// const obj = values.next() // 👉️ {value: 1, done: false}
+	// const first = obj.value;
+	// console.log(priceRequests)
+}
+
+function sendRequest () {
+	console.log('sendRequest')
+	// console.log(priceRequests)
 }
 
 module.exports = {
-	init,
-	getCurrentMinute,
-	log
+	getCurrentMinuteTimestamp,
+	requestPrice
 }

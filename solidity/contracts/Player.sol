@@ -21,7 +21,14 @@ contract PlayerContract
         bool won;
     }
 
+    struct PriceRequest {
+        uint minuteTimestamp;
+        uint price;
+        int increasePercent;
+    }
+
     Player[] public players;
+    PriceRequest[] public priceRequests;
     mapping (address => Player) public addressToPlayer;
     mapping (address => bool) public addressToHasRegisteredAttack;
     mapping (address => Attack[]) public addressToAttacks;
@@ -78,6 +85,9 @@ contract PlayerContract
         _registerAttack();
 
         addressToAttacks[msg.sender].push(Attack(startingMinute, _defender, _side, false, false));
+
+        priceRequests.push(PriceRequest(startingMinute, 0, 0));
+        priceRequests.push(PriceRequest(startingMinute + 60, 0, 0));
 
         emit AttackRegistered(msg.sender, _defender, startingMinute, _side);
     }

@@ -96,7 +96,7 @@ contract('PlayerContract', accounts => {
 			await instance.createPlayer('orcun', { from: defender })
 
 			await utils.shouldThrow(
-				instance.registerAttack(defender, utils.getCurrentMinuteTimestamp(), true),
+				instance.registerAttack(defender, utils.getCurrentMinuteTimestamp() - 60, true),
 				'Player: starting minute must be a future time'
 			)
 		})
@@ -135,6 +135,13 @@ contract('PlayerContract', accounts => {
 				instance.addressToAttacks(sender, 0)
 			)
 
+			await utils.shouldThrow(
+				instance.priceRequests(0)
+			)
+			await utils.shouldThrow(
+				instance.priceRequests(1)
+			)
+
 			let result = await instance.registerAttack(defender, current + 60, true)
 
 			registered = await instance.addressToHasRegisteredAttack(sender)
@@ -146,6 +153,15 @@ contract('PlayerContract', accounts => {
 			expect(attack.side).to.equal(true)
 			expect(attack.finished).to.equal(false)
 			expect(attack.won).to.equal(false)
+
+			let priceRequest = await instance.priceRequests(0)
+			expect(priceRequest.minuteTimestamp.toNumber()).to.equal(current + 60)
+			expect(priceRequest.price.toNumber()).to.equal(0)
+			expect(priceRequest.increasePercent.toNumber()).to.equal(0)
+			priceRequest = await instance.priceRequests(1)
+			expect(priceRequest.minuteTimestamp.toNumber()).to.equal(current + 120)
+			expect(priceRequest.price.toNumber()).to.equal(0)
+			expect(priceRequest.increasePercent.toNumber()).to.equal(0)
 
 			expect(result.receipt.status).to.equal(true)
 			expect(result.logs[0].event).to.equal('AttackRegistered')
