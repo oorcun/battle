@@ -8,11 +8,11 @@ module.exports = async function (callback) {
 
 		const PlayerContract = await artifacts.require('PlayerContract').deployed()
 
-		// await PlayerContract.createPlayer('orcun')
-		// await PlayerContract.createPlayer('orcun2', { from: accounts[1] })
+		await PlayerContract.createPlayer('orcun')
+		await PlayerContract.createPlayer('orcun2', { from: accounts[1] })
 
-		// await PlayerContract.registerAttack(accounts[1], utils.getCurrentMinuteTimestamp() + 60, true)
-		let r = await PlayerContract.registerAttack(accounts[0], utils.getCurrentMinuteTimestamp() + 60, true, { from: accounts[1] })
+		let r = await PlayerContract.registerAttack(accounts[1], utils.getCurrentMinuteTimestamp() + 60, true)
+		// let s = await PlayerContract.registerAttack(accounts[0], utils.getCurrentMinuteTimestamp() + 60, true, { from: accounts[1] })
 
 		console.log(r)
 

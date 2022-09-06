@@ -38,6 +38,7 @@ contract PlayerContract
 
     event NewPlayerCreated(uint id, string name);
     event AttackRegistered(address indexed attacker, address indexed defender, uint startingMinute, bool side);
+    event PriceRequested(uint startingMinute);
 
 
 
@@ -86,8 +87,8 @@ contract PlayerContract
 
         addressToAttacks[msg.sender].push(Attack(startingMinute, _defender, _side, false, false));
 
-        priceRequests.push(PriceRequest(startingMinute, 0, 0));
-        priceRequests.push(PriceRequest(startingMinute + 60, 0, 0));
+        _addPriceRequest(PriceRequest(startingMinute, 0, 0));
+        _addPriceRequest(PriceRequest(startingMinute + 60, 0, 0));
 
         emit AttackRegistered(msg.sender, _defender, startingMinute, _side);
     }
@@ -113,5 +114,20 @@ contract PlayerContract
     function _registerAttack () internal
     {
         addressToHasRegisteredAttack[msg.sender] = true;
+    }
+
+    function _addPriceRequest (PriceRequest memory priceRequest) internal
+    {
+        uint length = priceRequests.length;
+
+        for (uint i = 0; i < length; i++) {
+            if (priceRequests[i].minuteTimestamp == priceRequest.minuteTimestamp) {
+                return;
+            }
+        }
+
+        priceRequests.push(priceRequest);
+
+        emit PriceRequested(priceRequest.minuteTimestamp);
     }
 }
