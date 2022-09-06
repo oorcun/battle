@@ -171,6 +171,23 @@ contract('PlayerContract', accounts => {
 			expect(result.logs[0].args[3]).to.equal(true)
 		})
 
+		it('should successfully fetch all price requests', async () => {
+			let current = utils.getCurrentMinuteTimestamp()
+
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun', { from: defender })
+
+			await instance.registerAttack(defender, current + 60, true)
+
+			let priceRequests = await instance.getPriceRequests()
+			expect(Number(priceRequests[0].minuteTimestamp)).to.equal(current + 60)
+			expect(Number(priceRequests[0].price)).to.equal(0)
+			expect(Number(priceRequests[0].increasePercent)).to.equal(0)
+			expect(Number(priceRequests[1].minuteTimestamp)).to.equal(current + 120)
+			expect(Number(priceRequests[1].price)).to.equal(0)
+			expect(Number(priceRequests[1].increasePercent)).to.equal(0)
+		})
+
 	})
 
 })
