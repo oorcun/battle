@@ -1,5 +1,7 @@
 const OrderedSet = require('./orderedset.js')
 
+let priceRequests
+
 function getCurrentMinuteTimestamp () {
 	return Math.floor(Math.floor(Date.now() / 1000) / 60) * 60
 }
@@ -19,5 +21,6 @@ function sendRequest () {
 module.exports = {
 	getCurrentMinuteTimestamp,
 	requestPrice,
+	priceRequests,
 	OrderedSet
 }

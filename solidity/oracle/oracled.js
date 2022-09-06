@@ -1,5 +1,6 @@
 const utils = require('./utils.js')
 const { OrderedSet } = utils
+let { priceRequests } = utils
 
 module.exports = async function (callback) {
 
@@ -7,23 +8,24 @@ module.exports = async function (callback) {
 
 		console.log('oracled started')
 
-		let o = new OrderedSet
-		o.add(1).add(3).add(2).delete(3)
-		// o.add(3)
-		// o.add(2)
-		console.log(o)
-		// o.add(2)
-		// console.log(o)
-		callback()
+		const PlayerContract = await artifacts.require('PlayerContract').deployed()
 
-		// const PlayerContract = await artifacts.require('PlayerContract').deployed()
+		priceRequests = new OrderedSet(
+			(await PlayerContract.getPriceRequests())
+				.filter(request => request.price === '0')
+				.map(request => Number(request.minuteTimestamp))
+		)
 
-		// PlayerContract
-		// 	.AttackRegistered()
-		// 	.on('data', event => {
-		// 		console.log('attack registered')
-		// 		let startingMinute = event.args.startingMinute.toNumber()
-		// 	})
+		priceRequests.add(2).add(1)
+
+console.log(priceRequests)
+callback()
+		PlayerContract
+			.AttackRegistered()
+			.on('data', event => {
+				console.log('attack registered')
+				let startingMinute = event.args.startingMinute.toNumber()
+			})
 
 	} catch (e) {
 

@@ -52,7 +52,7 @@ contract PlayerContract
 
 
 
-    function createPlayer (string calldata _name) public
+    function createPlayer (string memory _name) public
     {
     	require(addressToPlayer[msg.sender].id == 0, "Player: player already exists for address");
 
@@ -90,6 +90,11 @@ contract PlayerContract
         priceRequests.push(PriceRequest(startingMinute + 60, 0, 0));
 
         emit AttackRegistered(msg.sender, _defender, startingMinute, _side);
+    }
+
+    function getPriceRequests () public view returns (PriceRequest[] memory)
+    {
+        return priceRequests;
     }
 
 
