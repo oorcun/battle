@@ -1,5 +1,5 @@
 const utils = require('./utils.js')
-const OrderedSet = require('./orderedset.js')
+const { OrderedSet } = utils
 
 module.exports = async function (callback) {
 
