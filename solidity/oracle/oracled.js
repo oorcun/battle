@@ -16,15 +16,15 @@ module.exports = async function (callback) {
 				.map(request => Number(request.minuteTimestamp))
 		)
 
-		priceRequests.add(2).add(1)
+		console.log('fetched pending price requests')
 
-console.log(priceRequests)
-callback()
 		PlayerContract
 			.AttackRegistered()
 			.on('data', event => {
 				console.log('attack registered')
-				let startingMinute = event.args.startingMinute.toNumber()
+				priceRequests.add(event.args.startingMinute.toNumber())
+					.add(event.args.startingMinute.toNumber() + 60)
+				console.log('fetched new price requests')
 			})
 
 	} catch (e) {
