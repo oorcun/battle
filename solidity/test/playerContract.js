@@ -136,10 +136,10 @@ contract('PlayerContract', accounts => {
 			)
 
 			await utils.shouldThrow(
-				instance.priceRequests(0)
+				instance.pendingRequests(0)
 			)
 			await utils.shouldThrow(
-				instance.priceRequests(1)
+				instance.pendingRequests(1)
 			)
 
 			let result = await instance.registerAttack(account1, current + 60, true)
@@ -154,11 +154,11 @@ contract('PlayerContract', accounts => {
 			expect(attack.finished).to.equal(false)
 			expect(attack.won).to.equal(false)
 
-			let priceRequest = await instance.priceRequests(0)
+			let priceRequest = await instance.pendingRequests(0)
 			expect(priceRequest.minuteTimestamp.toNumber()).to.equal(current + 60)
 			expect(priceRequest.price.toNumber()).to.equal(0)
 			expect(priceRequest.increasePercent.toNumber()).to.equal(0)
-			priceRequest = await instance.priceRequests(1)
+			priceRequest = await instance.pendingRequests(1)
 			expect(priceRequest.minuteTimestamp.toNumber()).to.equal(current + 120)
 			expect(priceRequest.price.toNumber()).to.equal(0)
 			expect(priceRequest.increasePercent.toNumber()).to.equal(0)
@@ -186,7 +186,7 @@ contract('PlayerContract', accounts => {
 
 			await instance.registerAttack(account1, current + 60, true)
 
-			let priceRequests = await instance.getPriceRequests()
+			let priceRequests = await instance.getPendingRequests()
 			expect(Number(priceRequests[0].minuteTimestamp)).to.equal(current + 60)
 			expect(Number(priceRequests[0].price)).to.equal(0)
 			expect(Number(priceRequests[0].increasePercent)).to.equal(0)
@@ -204,7 +204,7 @@ contract('PlayerContract', accounts => {
 			await instance.registerAttack(account1, current + 60, true)
 			await instance.registerAttack(account0, current + 60, true, { from: account1 })
 
-			let priceRequests = await instance.getPriceRequests()
+			let priceRequests = await instance.getPendingRequests()
 			expect(priceRequests.length).to.equal(2)
 		})
 

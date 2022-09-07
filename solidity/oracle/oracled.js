@@ -10,8 +10,7 @@ module.exports = async function (callback) {
 		const PlayerContract = await artifacts.require('PlayerContract').deployed()
 
 		let priceRequestTimestamps = new OrderedSet(
-			(await PlayerContract.getPriceRequests())
-				.filter(request => request.price === '0')
+			(await PlayerContract.getPendingRequests())
 				.map(request => Number(request.minuteTimestamp))
 		)
 

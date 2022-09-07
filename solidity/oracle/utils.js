@@ -27,6 +27,7 @@ async function sendRequest (firstRequestTimestamp) {
 			).text()
 		)[0][4]
 	).toFixed(2)
+	// send price to sol
 	console.log(price)
 }
 

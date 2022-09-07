@@ -29,6 +29,7 @@ contract PlayerContract
 
     Player[] public players;
     PriceRequest[] public priceRequests;
+    PriceRequest[] public pendingRequests;
     mapping (address => Player) public addressToPlayer;
     mapping (address => bool) public addressToHasRegisteredAttack;
     mapping (address => Attack[]) public addressToAttacks;
@@ -93,9 +94,20 @@ contract PlayerContract
         emit AttackRegistered(msg.sender, _defender, startingMinute, _side);
     }
 
-    function getPriceRequests () public view returns (PriceRequest[] memory)
+    function getPendingRequests () public view returns (PriceRequest[] memory)
     {
-        return priceRequests;
+        return pendingRequests;
+    }
+
+    function setPriceRequest (uint minuteTimestamp, uint price) public
+    {
+        // create pending request logic
+        // add only oracle check
+        // check minute percent
+        // set price
+        // get previous price
+        // if exists
+            // calculate increase percent
     }
 
 
@@ -118,15 +130,15 @@ contract PlayerContract
 
     function _addPriceRequest (PriceRequest memory priceRequest) internal
     {
-        uint length = priceRequests.length;
+        uint length = pendingRequests.length;
 
         for (uint i = 0; i < length; i++) {
-            if (priceRequests[i].minuteTimestamp == priceRequest.minuteTimestamp) {
+            if (pendingRequests[i].minuteTimestamp == priceRequest.minuteTimestamp) {
                 return;
             }
         }
 
-        priceRequests.push(priceRequest);
+        pendingRequests.push(priceRequest);
 
         emit PriceRequested(priceRequest.minuteTimestamp);
     }
