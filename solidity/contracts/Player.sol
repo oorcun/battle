@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.10;
 
-contract PlayerContract
+import "./PriceRequestContract.sol";
+
+contract PlayerContract is PriceRequestContract
 {
 	struct Player {
 		uint id;
@@ -21,15 +23,10 @@ contract PlayerContract
         bool won;
     }
 
-    struct PriceRequest {
-        uint minuteTimestamp;
-        uint price;
-        int increasePercent;
-    }
+
+
 
     Player[] public players;
-    PriceRequest[] public priceRequests;
-    PriceRequest[] public pendingRequests;
     mapping (address => Player) public addressToPlayer;
     mapping (address => bool) public addressToHasRegisteredAttack;
     mapping (address => Attack[]) public addressToAttacks;
@@ -39,7 +36,6 @@ contract PlayerContract
 
     event NewPlayerCreated(uint id, string name);
     event AttackRegistered(address indexed attacker, address indexed defender, uint startingMinute, bool side);
-    event PriceRequested(uint startingMinute);
 
 
 
@@ -94,22 +90,6 @@ contract PlayerContract
         emit AttackRegistered(msg.sender, _defender, startingMinute, _side);
     }
 
-    function getPendingRequests () public view returns (PriceRequest[] memory)
-    {
-        return pendingRequests;
-    }
-
-    function setPriceRequest (uint minuteTimestamp, uint price) public
-    {
-        // create pending request logic
-        // add only oracle check
-        // check minute percent
-        // set price
-        // get previous price
-        // if exists
-            // calculate increase percent
-    }
-
 
 
 
@@ -126,20 +106,5 @@ contract PlayerContract
     function _registerAttack () internal
     {
         addressToHasRegisteredAttack[msg.sender] = true;
-    }
-
-    function _addPriceRequest (PriceRequest memory priceRequest) internal
-    {
-        uint length = pendingRequests.length;
-
-        for (uint i = 0; i < length; i++) {
-            if (pendingRequests[i].minuteTimestamp == priceRequest.minuteTimestamp) {
-                return;
-            }
-        }
-
-        pendingRequests.push(priceRequest);
-
-        emit PriceRequested(priceRequest.minuteTimestamp);
     }
 }
