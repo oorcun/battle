@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.10;
 
-contract PriceRequestContract
+import "./Oracle.sol";
+
+contract PriceRequestContract is Oracle
 {
 	struct PriceRequest {
         uint minuteTimestamp;
@@ -28,7 +30,7 @@ contract PriceRequestContract
         return pendingRequests;
     }
 
-    function setPriceRequest (uint minuteTimestamp, uint price) public
+    function setPriceRequest (uint _minuteTimestamp, uint _price) public
     {
         // add only oracle check
         // check minute percent
@@ -41,18 +43,18 @@ contract PriceRequestContract
 
 
 
-    function _addPriceRequest (PriceRequest memory priceRequest) internal
+    function _addPriceRequest (PriceRequest memory _priceRequest) internal
     {
         uint length = pendingRequests.length;
 
         for (uint i = 0; i < length; i++) {
-            if (pendingRequests[i].minuteTimestamp == priceRequest.minuteTimestamp) {
+            if (pendingRequests[i].minuteTimestamp == _priceRequest.minuteTimestamp) {
                 return;
             }
         }
 
-        pendingRequests.push(priceRequest);
+        pendingRequests.push(_priceRequest);
 
-        emit PriceRequested(priceRequest.minuteTimestamp);
+        emit PriceRequested(_priceRequest.minuteTimestamp);
     }
 }

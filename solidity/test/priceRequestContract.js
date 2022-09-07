@@ -2,7 +2,7 @@ const PlayerContract = artifacts.require('PlayerContract')
 
 const utils = require('./helpers/utils.js')
 
-contract('PlayerContract', accounts => {
+contract('PriceRequestContract', accounts => {
 
 	let instance, account0, account1
 
