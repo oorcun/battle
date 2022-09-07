@@ -22,7 +22,6 @@ async function sendRequest (firstRequestTimestamp) {
 		)[0][4]
 	).toFixed(2)
 	console.log(price)
-	// console.log(priceRequests)
 }
 
 module.exports = {
