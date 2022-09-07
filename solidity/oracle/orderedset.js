@@ -18,6 +18,10 @@ module.exports = class OrderedSet {
 		return this
 	}
 
+	first () {
+		return this.set.values().next().value
+	}
+
 	#order () {
 		this.set = new Set([...this.set].sort((a, b) => a - b))
 	}

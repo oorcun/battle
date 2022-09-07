@@ -7,10 +7,9 @@ function getCurrentMinuteTimestamp () {
 }
 
 function requestPrice () {
-	//const values = set.values(); // 👉️ iterator
-	// const obj = values.next() // 👉️ {value: 1, done: false}
-	// const first = obj.value;
-	// console.log(priceRequests)
+	if (priceRequests.first() <= getCurrentMinuteTimestamp()) {
+		sendRequest()
+	}
 }
 
 function sendRequest () {
