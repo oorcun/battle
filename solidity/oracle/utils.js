@@ -5,11 +5,17 @@ function getCurrentMinuteTimestamp () {
 	return Math.floor(Math.floor(Date.now() / 1000) / 60) * 60
 }
 
-function requestPrice (priceRequestTimestamps) {
+async function requestPrice (priceRequestTimestamps) {
 	let firstRequestTimestamp = priceRequestTimestamps.first()
 	if (firstRequestTimestamp <= getCurrentMinuteTimestamp()) {
 		priceRequestTimestamps.delete(firstRequestTimestamp)
-		sendRequest(firstRequestTimestamp)
+		try {
+			await sendRequest(firstRequestTimestamp)
+		} catch (e) {
+			priceRequestTimestamps.add(firstRequestTimestamp)
+			console.log('sendRequest error')
+			console.log(e)
+		}
 	}
 }
 
