@@ -4,18 +4,18 @@ const utils = require('./helpers/utils.js')
 
 contract('PlayerContract', accounts => {
 
-	let instance, sender, defender
+	let instance, account0, account1
 
 	beforeEach(async () => {
 		instance = await PlayerContract.new()
-		sender = accounts[0]
-		defender = accounts[1]
+		account0 = accounts[0]
+		account1 = accounts[1]
 	})
 
 	context('PLAYER CREATION', async () => {
 
 		it('should create player if no player exists for sender', async () => {
-			let player = await instance.addressToPlayer(sender)
+			let player = await instance.addressToPlayer(account0)
 			expect(player.id.toNumber()).to.equal(0)
 
 			let result = await instance.createPlayer('orcun')
@@ -23,7 +23,7 @@ contract('PlayerContract', accounts => {
 			player = await instance.players(0)
 			expect(player.id.toNumber()).to.equal(1)
 
-			player = await instance.addressToPlayer(sender)
+			player = await instance.addressToPlayer(account0)
 			expect(player.name).to.equal('orcun')
 			expect(player.id.toNumber()).to.equal(1)
 			expect(player.attackWinCount.toNumber()).to.equal(0)
@@ -77,7 +77,7 @@ contract('PlayerContract', accounts => {
 
 		it('should throw if sender does not have a player', async () => {
 			await utils.shouldThrow(
-				instance.registerAttack(defender, utils.getCurrentMinuteTimestamp() + 60, true),
+				instance.registerAttack(account1, utils.getCurrentMinuteTimestamp() + 60, true),
 				'Player: player not exist for address'
 			)
 		})
@@ -86,38 +86,38 @@ contract('PlayerContract', accounts => {
 			await instance.createPlayer('orcun')
 
 			await utils.shouldThrow(
-				instance.registerAttack(defender, utils.getCurrentMinuteTimestamp() + 60, true),
+				instance.registerAttack(account1, utils.getCurrentMinuteTimestamp() + 60, true),
 				'Player: defender not exist'
 			)
 		})
 
 		it('should throw if starting minute is not a future time', async () => {
 			await instance.createPlayer('orcun')
-			await instance.createPlayer('orcun', { from: defender })
+			await instance.createPlayer('orcun', { from: account1 })
 
 			await utils.shouldThrow(
-				instance.registerAttack(defender, utils.getCurrentMinuteTimestamp() - 60, true),
+				instance.registerAttack(account1, utils.getCurrentMinuteTimestamp() - 60, true),
 				'Player: starting minute must be a future time'
 			)
 		})
 
 		it('should throw if starting minute is a too far future time', async () => {
 			await instance.createPlayer('orcun')
-			await instance.createPlayer('orcun', { from: defender })
+			await instance.createPlayer('orcun', { from: account1 })
 
 			await utils.shouldThrow(
-				instance.registerAttack(defender, utils.getCurrentMinuteTimestamp() + 60 * 60 * 24, true),
+				instance.registerAttack(account1, utils.getCurrentMinuteTimestamp() + 60 * 60, true),
 				'Player: starting minute must not be far away'
 			)
 		})
 
 		it('should throw if player already registered for an attack', async () => {
 			await instance.createPlayer('orcun')
-			await instance.createPlayer('orcun', { from: defender })
-			await instance.registerAttack(defender, utils.getCurrentMinuteTimestamp() + 60, true)
+			await instance.createPlayer('orcun', { from: account1 })
+			await instance.registerAttack(account1, utils.getCurrentMinuteTimestamp() + 60, true)
 
 			await utils.shouldThrow(
-				instance.registerAttack(defender, utils.getCurrentMinuteTimestamp() + 60, true),
+				instance.registerAttack(account1, utils.getCurrentMinuteTimestamp() + 60, true),
 				'Player: already registered for an attack'
 			)
 		})
@@ -126,13 +126,13 @@ contract('PlayerContract', accounts => {
 			let current = utils.getCurrentMinuteTimestamp()
 
 			await instance.createPlayer('orcun')
-			await instance.createPlayer('orcun', { from: defender })
+			await instance.createPlayer('orcun', { from: account1 })
 
-			let registered = await instance.addressToHasRegisteredAttack(sender)
+			let registered = await instance.addressToHasRegisteredAttack(account0)
 			expect(registered).to.equal(false)
 
 			await utils.shouldThrow(
-				instance.addressToAttacks(sender, 0)
+				instance.addressToAttacks(account0, 0)
 			)
 
 			await utils.shouldThrow(
@@ -142,14 +142,14 @@ contract('PlayerContract', accounts => {
 				instance.priceRequests(1)
 			)
 
-			let result = await instance.registerAttack(defender, current + 60, true)
+			let result = await instance.registerAttack(account1, current + 60, true)
 
-			registered = await instance.addressToHasRegisteredAttack(sender)
+			registered = await instance.addressToHasRegisteredAttack(account0)
 			expect(registered).to.equal(true)
 
-			let attack = await instance.addressToAttacks(sender, 0)
+			let attack = await instance.addressToAttacks(account0, 0)
 			expect(attack.startingMinute.toNumber()).to.equal(current + 60)
-			expect(attack.defender).to.equal(defender)
+			expect(attack.defender).to.equal(account1)
 			expect(attack.side).to.equal(true)
 			expect(attack.finished).to.equal(false)
 			expect(attack.won).to.equal(false)
@@ -164,20 +164,27 @@ contract('PlayerContract', accounts => {
 			expect(priceRequest.increasePercent.toNumber()).to.equal(0)
 
 			expect(result.receipt.status).to.equal(true)
-			expect(result.logs[0].event).to.equal('AttackRegistered')
-			expect(result.logs[0].args[0]).to.equal(sender)
-			expect(result.logs[0].args[1]).to.equal(defender)
-			expect(result.logs[0].args[2].toNumber()).to.equal(current + 60)
-			expect(result.logs[0].args[3]).to.equal(true)
+
+			expect(result.logs[0].event).to.equal('PriceRequested')
+			expect(result.logs[0].args[0].toNumber()).to.equal(current + 60)
+
+			expect(result.logs[1].event).to.equal('PriceRequested')
+			expect(result.logs[1].args[0].toNumber()).to.equal(current + 120)
+
+			expect(result.logs[2].event).to.equal('AttackRegistered')
+			expect(result.logs[2].args[0]).to.equal(account0)
+			expect(result.logs[2].args[1]).to.equal(account1)
+			expect(result.logs[2].args[2].toNumber()).to.equal(current + 60)
+			expect(result.logs[2].args[3]).to.equal(true)
 		})
 
 		it('should successfully fetch all price requests', async () => {
 			let current = utils.getCurrentMinuteTimestamp()
 
 			await instance.createPlayer('orcun')
-			await instance.createPlayer('orcun', { from: defender })
+			await instance.createPlayer('orcun', { from: account1 })
 
-			await instance.registerAttack(defender, current + 60, true)
+			await instance.registerAttack(account1, current + 60, true)
 
 			let priceRequests = await instance.getPriceRequests()
 			expect(Number(priceRequests[0].minuteTimestamp)).to.equal(current + 60)
@@ -186,6 +193,19 @@ contract('PlayerContract', accounts => {
 			expect(Number(priceRequests[1].minuteTimestamp)).to.equal(current + 120)
 			expect(Number(priceRequests[1].price)).to.equal(0)
 			expect(Number(priceRequests[1].increasePercent)).to.equal(0)
+		})
+
+		it('should not add already added price request', async () => {
+			let current = utils.getCurrentMinuteTimestamp()
+
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun', { from: account1 })
+
+			await instance.registerAttack(account1, current + 60, true)
+			await instance.registerAttack(account0, current + 60, true, { from: account1 })
+
+			let priceRequests = await instance.getPriceRequests()
+			expect(priceRequests.length).to.equal(2)
 		})
 
 	})

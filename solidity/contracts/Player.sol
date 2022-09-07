@@ -79,7 +79,7 @@ contract PlayerContract
         uint currentMinute = _getMinute(block.timestamp);
 
         require(startingMinute > currentMinute, "Player: starting minute must be a future time");
-        require(startingMinute < currentMinute + 1 days, "Player: starting minute must not be far away");
+        require(startingMinute < currentMinute + 1 hours, "Player: starting minute must not be far away");
 
         require(!_hasRegisteredAttack(), "Player: already registered for an attack");
 
