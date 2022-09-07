@@ -46,4 +46,35 @@ contract('PriceRequestContract', accounts => {
 
 	})
 
+	context('PRICE SETTING', async () => {
+
+		it('should throw error if setter is not the oracle', async () => {
+			let current = utils.getCurrentMinuteTimestamp()
+
+			await utils.shouldThrow(
+				instance.setPriceRequest(current, 10000000, { from: account1 }),
+				'Oracle: caller is not the oracle'
+			)
+		})
+
+		it('should throw error if pending request exists', async () => {
+			let current = utils.getCurrentMinuteTimestamp()
+
+			await utils.shouldThrow(
+				instance.setPriceRequest(current, 10000000),
+				'PriceRequestContract: price request not exists'
+			)
+		})
+
+		it('should successfully set price request', async () => {
+			let current = utils.getCurrentMinuteTimestamp()
+
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun', { from: account1 })
+			await instance.registerAttack(account1, current + 60, true)
+			let result = await instance.setPriceRequest(current + 60, 10000000)
+		})
+
+	})
+
 })
