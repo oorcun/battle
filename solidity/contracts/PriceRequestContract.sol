@@ -45,7 +45,7 @@ contract PriceRequestContract is Oracle
 
         require(length == pendingRequests.length + 1, "PriceRequestContract: price request not exists");
 
-        uint increasePercent = 0;
+        int increasePercent = 0;
         PriceRequest memory previousPriceRequest = minuteTimestampToPriceRequest[_minuteTimestamp - 60];
 
         if (previousPriceRequest.minuteTimestamp != 0) {
