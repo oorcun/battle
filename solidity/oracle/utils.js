@@ -5,11 +5,16 @@ function getCurrentMinuteTimestamp () {
 	return Math.floor(Math.floor(Date.now() / 1000) / 60) * 60
 }
 
+function getDate (timestamp) {
+	return new Date(timestamp * 1000)
+}
+
 async function requestPrice (PlayerContract, priceRequestTimestamps) {
 	let firstRequestTimestamp = priceRequestTimestamps.first()
 	if (firstRequestTimestamp <= getCurrentMinuteTimestamp()) {
 		priceRequestTimestamps.delete(firstRequestTimestamp)
 		try {
+			console.log('sending price request')
 			await sendRequest(PlayerContract, firstRequestTimestamp)
 		} catch (e) {
 			priceRequestTimestamps.add(firstRequestTimestamp)
@@ -27,10 +32,16 @@ async function sendRequest (PlayerContract, firstRequestTimestamp) {
 			).text()
 		)[0][4]
 	) * 100
+	console.log('successfully fetched price')
+	console.log({ price })
+	console.log('setting price request')
 	await PlayerContract.setPriceRequest(firstRequestTimestamp, price)
+	console.log('successfully setted price request')
+	console.log({ firstRequestTimestamp, price, firstRequestDatetime: getDate(firstRequestTimestamp) })
 }
 
 module.exports = {
 	requestPrice,
-	OrderedSet
+	OrderedSet,
+	getCurrentMinuteTimestamp
 }
