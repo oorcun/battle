@@ -33,17 +33,9 @@ contract PriceRequestContract is Oracle
 
     function setPriceRequest (uint _minuteTimestamp, uint _price) public onlyOracle
     {
-        uint length = pendingRequests.length;
+        bool removed = _removePendingRequest(_minuteTimestamp);
 
-        for (uint i = 0; i < length; i++) {
-            if (pendingRequests[i].minuteTimestamp == _minuteTimestamp) {
-                pendingRequests[i] = pendingRequests[length - 1];
-                pendingRequests.pop();
-                break;
-            }
-        }
-
-        require(length == pendingRequests.length + 1, "PriceRequestContract: price request not exists");
+        require(removed, "PriceRequestContract: price request not exists");
 
         int increasePercent = 0;
         PriceRequest memory previousPriceRequest = minuteTimestampToPriceRequest[_minuteTimestamp - 60];
@@ -77,6 +69,21 @@ contract PriceRequestContract is Oracle
 
         for (uint i = 0; i < length; i++) {
             if (pendingRequests[i].minuteTimestamp == _minuteTimestamp) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function _removePendingRequest (uint _minuteTimestamp) internal returns (bool)
+    {
+        uint length = pendingRequests.length;
+
+        for (uint i = 0; i < length; i++) {
+            if (pendingRequests[i].minuteTimestamp == _minuteTimestamp) {
+                pendingRequests[i] = pendingRequests[length - 1];
+                pendingRequests.pop();
                 return true;
             }
         }

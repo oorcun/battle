@@ -128,12 +128,11 @@ contract('PlayerContract', accounts => {
 			await instance.createPlayer('orcun')
 			await instance.createPlayer('orcun', { from: account1 })
 
-			let registered = await instance.addressToHasRegisteredAttack(account0)
-			expect(registered).to.equal(false)
-
-			await utils.shouldThrow(
-				instance.addressToAttacks(account0, 0)
-			)
+			let attack = await instance.addressToMinuteTimestampToAttack(account0, current + 60)
+			expect(attack.defender).to.equal('0x0000000000000000000000000000000000000000')
+			expect(attack.side).to.equal(false)
+			expect(attack.finished).to.equal(false)
+			expect(attack.won).to.equal(false)
 
 			await utils.shouldThrow(
 				instance.pendingRequests(0)
@@ -144,15 +143,9 @@ contract('PlayerContract', accounts => {
 
 			let result = await instance.registerAttack(account1, current + 60, true)
 
-			registered = await instance.addressToHasRegisteredAttack(account0)
-			expect(registered).to.equal(true)
-
-			let attack = await instance.addressToAttacks(account0, 0)
-			expect(attack.startingMinute.toNumber()).to.equal(current + 60)
+			attack = await instance.addressToMinuteTimestampToAttack(account0, current + 60)
 			expect(attack.defender).to.equal(account1)
 			expect(attack.side).to.equal(true)
-			expect(attack.finished).to.equal(false)
-			expect(attack.won).to.equal(false)
 
 			let priceRequest = await instance.pendingRequests(0)
 			expect(priceRequest.minuteTimestamp.toNumber()).to.equal(current + 60)
@@ -173,8 +166,8 @@ contract('PlayerContract', accounts => {
 
 			expect(result.logs[2].event).to.equal('AttackRegistered')
 			expect(result.logs[2].args[0]).to.equal(account0)
-			expect(result.logs[2].args[1]).to.equal(account1)
-			expect(result.logs[2].args[2].toNumber()).to.equal(current + 60)
+			expect(result.logs[2].args[1].toNumber()).to.equal(current + 60)
+			expect(result.logs[2].args[2]).to.equal(account1)
 			expect(result.logs[2].args[3]).to.equal(true)
 		})
 

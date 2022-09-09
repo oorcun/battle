@@ -4,6 +4,7 @@ const { OrderedSet } = utils
 module.exports = async function (callback) {
 
 	try {
+
 		console.log('oracled started')
 
 		const PlayerContract = await artifacts.require('PlayerContract').deployed()

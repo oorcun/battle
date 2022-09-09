@@ -16,7 +16,6 @@ contract PlayerContract is PriceRequestContract
     }
 
     struct Attack {
-        uint startingMinute;
         address defender;
         bool side;
         bool finished;
@@ -28,14 +27,13 @@ contract PlayerContract is PriceRequestContract
 
     Player[] public players;
     mapping (address => Player) public addressToPlayer;
-    mapping (address => bool) public addressToHasRegisteredAttack;
-    mapping (address => Attack[]) public addressToAttacks;
+    mapping (address => mapping (uint => Attack)) public addressToMinuteTimestampToAttack;
 
 
 
 
     event NewPlayerCreated(uint id, string name);
-    event AttackRegistered(address indexed attacker, address indexed defender, uint startingMinute, bool side);
+    event AttackRegistered(address indexed attacker, uint indexed startingMinute, address defender, bool side);
 
 
 
@@ -78,16 +76,23 @@ contract PlayerContract is PriceRequestContract
         require(startingMinute > currentMinute, "Player: starting minute must be a future time");
         require(startingMinute < currentMinute + 1 hours, "Player: starting minute must not be far away");
 
-        require(!_hasRegisteredAttack(), "Player: already registered for an attack");
+        require(!_hasRegisteredAttack(startingMinute), "Player: already registered for an attack");
 
-        _registerAttack();
-
-        addressToAttacks[msg.sender].push(Attack(startingMinute, _defender, _side, false, false));
+        _registerAttack(startingMinute, Attack(_defender, _side, false, false));
 
         _addPriceRequest(PriceRequest(startingMinute, 0, 0));
         _addPriceRequest(PriceRequest(startingMinute + 60, 0, 0));
 
-        emit AttackRegistered(msg.sender, _defender, startingMinute, _side);
+        emit AttackRegistered(msg.sender, startingMinute, _defender, _side);
+    }
+
+    function finishAttack (address _attacker, uint _minuteTimestamp) public
+    {
+        // throw if attack not exists
+        // throw if price request for current minute not exists
+        // throw if price request for next minute not exists
+        //
+        // calculate
     }
 
 
@@ -98,13 +103,13 @@ contract PlayerContract is PriceRequestContract
         return (_datetime / 60) * 60;
     }
 
-    function _hasRegisteredAttack () internal view returns (bool)
+    function _hasRegisteredAttack (uint _startingMinute) internal view returns (bool)
     {
-        return addressToHasRegisteredAttack[msg.sender];
+        return addressToMinuteTimestampToAttack[msg.sender][_startingMinute].defender != address(0);
     }
 
-    function _registerAttack () internal
+    function _registerAttack (uint _startingMinute, Attack memory _attack) internal
     {
-        addressToHasRegisteredAttack[msg.sender] = true;
+        addressToMinuteTimestampToAttack[msg.sender][_startingMinute] = _attack;
     }
 }
