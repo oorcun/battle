@@ -52,7 +52,7 @@ contract PriceRequestContract is Oracle
 
 
 
-    function _addPriceRequest (PriceRequest memory _priceRequest) internal
+    function _addPendingRequest (PriceRequest memory _priceRequest) internal
     {
         if (_hasPendingRequest(_priceRequest.minuteTimestamp)) {
             return;

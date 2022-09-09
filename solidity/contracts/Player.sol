@@ -80,8 +80,8 @@ contract PlayerContract is PriceRequestContract
 
         _registerAttack(startingMinute, Attack(_defender, _side, false, false));
 
-        _addPriceRequest(PriceRequest(startingMinute, 0, 0));
-        _addPriceRequest(PriceRequest(startingMinute + 60, 0, 0));
+        _addPendingRequest(PriceRequest(startingMinute, 0, 0));
+        _addPendingRequest(PriceRequest(startingMinute + 60, 0, 0));
 
         emit AttackRegistered(msg.sender, startingMinute, _defender, _side);
     }
