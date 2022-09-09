@@ -16,7 +16,7 @@ module.exports = async function (callback) {
 
 		console.log('fetched pending price requests')
 
-		setInterval(utils.requestPrice, 1000, priceRequestTimestamps)
+		setInterval(utils.requestPrice, 1000, PlayerContract, priceRequestTimestamps)
 
 		setInterval(() => { console.log(priceRequestTimestamps) }, 4000)
 
