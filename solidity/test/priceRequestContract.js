@@ -94,6 +94,34 @@ contract('PriceRequestContract', accounts => {
 			expect(result.logs[0].args[1].toNumber()).to.equal(10000000)
 		})
 
+		it('should successfully calculate increase percent', async () => {
+			let current = utils.getCurrentMinuteTimestamp()
+
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun', { from: account1 })
+			await instance.registerAttack(account1, current + 60, true)
+
+			await instance.setPriceRequest(current + 60, 2074746)
+			await instance.setPriceRequest(current + 120, 2107456)
+
+			let priceRequest = await instance.minuteTimestampToPriceRequest(current + 120)
+			expect(priceRequest.increasePercent.toNumber()).to.equal(157)
+		})
+
+		it('should successfully calculate increase percent if price is decreased', async () => {
+			let current = utils.getCurrentMinuteTimestamp()
+
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun', { from: account1 })
+			await instance.registerAttack(account1, current + 60, true)
+
+			await instance.setPriceRequest(current + 60, 1974725)
+			await instance.setPriceRequest(current + 120, 1910232)
+
+			let priceRequest = await instance.minuteTimestampToPriceRequest(current + 120)
+			expect(priceRequest.increasePercent.toNumber()).to.equal(-327)
+		})
+
 	})
 
 })

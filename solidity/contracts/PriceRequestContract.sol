@@ -49,7 +49,7 @@ contract PriceRequestContract is Oracle
         PriceRequest memory previousPriceRequest = minuteTimestampToPriceRequest[_minuteTimestamp - 60];
 
         if (previousPriceRequest.minuteTimestamp != 0) {
-            increasePercent = 1;
+            increasePercent = 10000 * int(_price) / int(previousPriceRequest.price) - 10000;
         }
 
         minuteTimestampToPriceRequest[_minuteTimestamp] = PriceRequest(_minuteTimestamp, _price, increasePercent);
