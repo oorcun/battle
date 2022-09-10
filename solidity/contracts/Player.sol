@@ -34,6 +34,7 @@ contract PlayerContract is PriceRequestContract
 
     event NewPlayerCreated(uint id, string name);
     event AttackRegistered(address indexed attacker, uint indexed startingMinute, address defender, bool side);
+    event AttackResulted(address indexed attacker, uint indexed startingMinute, address defender, bool won);
 
 
 
@@ -76,7 +77,7 @@ contract PlayerContract is PriceRequestContract
         require(startingMinute > currentMinute, "Player: starting minute must be a future time");
         require(startingMinute < currentMinute + 1 hours, "Player: starting minute must not be far away");
 
-        require(!_hasRegisteredAttack(startingMinute), "Player: already registered for an attack");
+        require(!_hasRegisteredAttack(msg.sender, startingMinute), "Player: already registered for an attack");
 
         _registerAttack(startingMinute, Attack(_defender, _side, false, false));
 
@@ -86,13 +87,49 @@ contract PlayerContract is PriceRequestContract
         emit AttackRegistered(msg.sender, startingMinute, _defender, _side);
     }
 
-    function finishAttack (address _attacker, uint _minuteTimestamp) public
+    function finishAttack (address _attacker, uint _startingMinute) public
     {
-        // throw if attack not exists
-        // throw if price request for current minute not exists
-        // throw if price request for next minute not exists
-        //
-        // calculate
+        require(_hasRegisteredAttack(_attacker, _startingMinute), "Player: attack not exists");
+
+        require(minuteTimestampToPriceRequest[_startingMinute].minuteTimestamp != 0, "Player: price request for battle starting time not exists");
+
+        PriceRequest memory finishTimePriceRequest = minuteTimestampToPriceRequest[_startingMinute + 60];
+
+        require(finishTimePriceRequest.minuteTimestamp != 0, "Player: price request for battle finish time not exists");
+
+        Attack memory attack = addressToMinuteTimestampToAttack[_attacker][_startingMinute];
+
+        attack.finished = true;
+
+        if (finishTimePriceRequest.increasePercent > 0) {
+            attack.won = attack.side ? true : false;
+        } else if (finishTimePriceRequest.increasePercent < 0) {
+            attack.won = attack.side ? false : true;
+        } else {
+            attack.won = true;
+        }
+
+        addressToMinuteTimestampToAttack[_attacker][_startingMinute] = attack;
+
+        Player memory attacker = addressToPlayer[_attacker];
+        Player memory defender = addressToPlayer[attack.defender];
+
+        if (attack.won) {
+            attacker.attackWinCount++;
+            defender.defendLossCount++;
+            attacker.points += 2;
+            defender.points -= 2;
+        } else {
+            attacker.attackLossCount++;
+            defender.defendWinCount++;
+            attacker.points--;
+            defender.points++;
+        }
+
+        addressToPlayer[_attacker] = attacker;
+        addressToPlayer[attack.defender] = defender;
+
+        emit AttackResulted(_attacker, _startingMinute, attack.defender, attack.won);
     }
 
 
@@ -103,9 +140,9 @@ contract PlayerContract is PriceRequestContract
         return (_datetime / 60) * 60;
     }
 
-    function _hasRegisteredAttack (uint _startingMinute) internal view returns (bool)
+    function _hasRegisteredAttack (address _attacker, uint _startingMinute) internal view returns (bool)
     {
-        return addressToMinuteTimestampToAttack[msg.sender][_startingMinute].defender != address(0);
+        return addressToMinuteTimestampToAttack[_attacker][_startingMinute].defender != address(0);
     }
 
     function _registerAttack (uint _startingMinute, Attack memory _attack) internal

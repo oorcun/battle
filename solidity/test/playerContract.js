@@ -173,4 +173,75 @@ contract('PlayerContract', accounts => {
 
 	})
 
+	context('ATTACK FINISHING', async () => {
+
+		it('should throw if attack not exists', async () => {
+			await utils.shouldThrow(
+				instance.finishAttack(account0, 0),
+				'Player: attack not exists'
+			)
+		})
+
+		it('should throw if price request for battle starting time not exists', async () => {
+			let current = utils.getCurrentMinuteTimestamp()
+
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun', { from: account1 })
+			await instance.registerAttack(account1, current + 60, true)
+
+			await utils.shouldThrow(
+				instance.finishAttack(account0, current + 60),
+				'Player: price request for battle starting time not exists'
+			)
+		})
+
+		it('should throw if price request for battle finish time not exists', async () => {
+			let current = utils.getCurrentMinuteTimestamp()
+
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun', { from: account1 })
+			await instance.registerAttack(account1, current + 60, true)
+
+			await instance.setPriceRequest(current + 60, 10000000)
+
+			await utils.shouldThrow(
+				instance.finishAttack(account0, current + 60),
+				'Player: price request for battle finish time not exists'
+			)
+		})
+
+		it('successfully finishes an attack', async () => {
+			let current = utils.getCurrentMinuteTimestamp()
+
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun', { from: account1 })
+			await instance.registerAttack(account1, current + 60, true)
+
+			await instance.setPriceRequest(current + 60, 10000000)
+			await instance.setPriceRequest(current + 120, 11000000)
+
+			let result = await instance.finishAttack(account0, current + 60)
+
+			let attack = await instance.addressToMinuteTimestampToAttack(account0, current + 60)
+			expect(attack.finished).to.equal(true)
+			expect(attack.won).to.equal(true)
+
+			let attacker = await instance.addressToPlayer(account0)
+			expect(attacker.attackWinCount.toNumber()).to.equal(1)
+			expect(attacker.points.toNumber()).to.equal(2)
+
+			let defender = await instance.addressToPlayer(account1)
+			expect(defender.defendLossCount.toNumber()).to.equal(1)
+			expect(defender.points.toNumber()).to.equal(-2)
+
+			expect(result.receipt.status).to.equal(true)
+			expect(result.logs[0].event).to.equal('AttackResulted')
+			expect(result.logs[0].args[0]).to.equal(account0)
+			expect(result.logs[0].args[1].toNumber()).to.equal(current + 60)
+			expect(result.logs[0].args[2]).to.equal(account1)
+			expect(result.logs[0].args[3]).to.equal(true)
+		})
+
+	})
+
 })
