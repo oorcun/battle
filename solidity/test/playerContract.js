@@ -242,6 +242,78 @@ contract('PlayerContract', accounts => {
 			expect(result.logs[0].args[3]).to.equal(true)
 		})
 
+		it('successfully finishes an attack with price decrease while attacker predicting increase', async () => {
+			let current = utils.getCurrentMinuteTimestamp()
+
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun', { from: account1 })
+			await instance.registerAttack(account1, current + 60, true)
+
+			await instance.setPriceRequest(current + 60, 10000000)
+			await instance.setPriceRequest(current + 120, 9000000)
+
+			await instance.finishAttack(account0, current + 60)
+
+			let attack = await instance.addressToMinuteTimestampToAttack(account0, current + 60)
+			expect(attack.won).to.equal(false)
+
+			let attacker = await instance.addressToPlayer(account0)
+			expect(attacker.attackLossCount.toNumber()).to.equal(1)
+			expect(attacker.points.toNumber()).to.equal(-1)
+
+			let defender = await instance.addressToPlayer(account1)
+			expect(defender.defendWinCount.toNumber()).to.equal(1)
+			expect(defender.points.toNumber()).to.equal(1)
+		})
+
+		it('successfully finishes an attack with price decrease while attacker predicting decrease', async () => {
+			let current = utils.getCurrentMinuteTimestamp()
+
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun', { from: account1 })
+			await instance.registerAttack(account1, current + 60, false)
+
+			await instance.setPriceRequest(current + 60, 10000000)
+			await instance.setPriceRequest(current + 120, 9000000)
+
+			await instance.finishAttack(account0, current + 60)
+
+			let attack = await instance.addressToMinuteTimestampToAttack(account0, current + 60)
+			expect(attack.won).to.equal(true)
+
+			let attacker = await instance.addressToPlayer(account0)
+			expect(attacker.attackWinCount.toNumber()).to.equal(1)
+			expect(attacker.points.toNumber()).to.equal(2)
+
+			let defender = await instance.addressToPlayer(account1)
+			expect(defender.defendLossCount.toNumber()).to.equal(1)
+			expect(defender.points.toNumber()).to.equal(-2)
+		})
+
+		it('successfully finishes an attack with price increase while attacker predicting decrease', async () => {
+			let current = utils.getCurrentMinuteTimestamp()
+
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun', { from: account1 })
+			await instance.registerAttack(account1, current + 60, false)
+
+			await instance.setPriceRequest(current + 60, 10000000)
+			await instance.setPriceRequest(current + 120, 11000000)
+
+			await instance.finishAttack(account0, current + 60)
+
+			let attack = await instance.addressToMinuteTimestampToAttack(account0, current + 60)
+			expect(attack.won).to.equal(false)
+
+			let attacker = await instance.addressToPlayer(account0)
+			expect(attacker.attackLossCount.toNumber()).to.equal(1)
+			expect(attacker.points.toNumber()).to.equal(-1)
+
+			let defender = await instance.addressToPlayer(account1)
+			expect(defender.defendWinCount.toNumber()).to.equal(1)
+			expect(defender.points.toNumber()).to.equal(1)
+		})
+
 	})
 
 })
