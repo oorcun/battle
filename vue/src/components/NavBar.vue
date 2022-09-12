@@ -23,7 +23,7 @@ export default {
 				v-for="route in $router.getRoutes()"
 				:key="route.path"
 				:to="route.path"
-			><a class="navbar-item">
+			><a class="navbar-item" :class="{ 'is-active': route.path === $route.path }">
 				{{ route.name }}
 			</a></RouterLink>
 		</div>
