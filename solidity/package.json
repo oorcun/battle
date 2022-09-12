@@ -12,8 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@openzeppelin/contracts": "^4.7.2",
-    "web3": "^1.7.5"
+    "@openzeppelin/contracts": "^4.7.2"
   },
   "devDependencies": {
     "eslint": "^8.21.0"
