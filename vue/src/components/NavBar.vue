@@ -1,5 +1,14 @@
 <script>
 
+import { RouterLink } from 'vue-router'
+
+export default {
+
+	components: {
+		RouterLink
+	}
+}
+
 </script>
 
 
@@ -10,11 +19,12 @@
 <nav class="navbar" role="navigation" aria-label="main navigation">
 	<div id="navbarBasicExample" class="navbar-menu">
 		<div class="navbar-start">
-			<RouterLink to="/"><a class="navbar-item">
-				Players
-			</a></RouterLink>
-			<RouterLink to="/about"><a class="navbar-item">
-				About
+			<RouterLink
+				v-for="route in $router.getRoutes()"
+				:key="route.path"
+				:to="route.path"
+			><a class="navbar-item">
+				{{ route.name }}
 			</a></RouterLink>
 		</div>
     </div>
@@ -29,8 +39,6 @@
 		</div>
 	</div>
 </nav>
-
-<RouterView />
 
 </template>
 
