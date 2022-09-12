@@ -19,11 +19,17 @@ export default {
 
 <template>
 
-	<NavBar />
+	<section class="section">
+		<div class="container">
 
-	<hr>
+			<NavBar />
 
-	<RouterView />
+			<hr>
+
+			<RouterView />
+
+		</div>
+	</section>
 
 </template>
 
