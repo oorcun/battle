@@ -10,12 +10,12 @@
 <nav class="navbar" role="navigation" aria-label="main navigation">
 	<div id="navbarBasicExample" class="navbar-menu">
 		<div class="navbar-start">
-			<a class="navbar-item">
+			<RouterLink to="/"><a class="navbar-item">
 				Players
-			</a>
-			<a class="navbar-item">
+			</a></RouterLink>
+			<RouterLink to="/about"><a class="navbar-item">
 				About
-			</a>
+			</a></RouterLink>
 		</div>
     </div>
 
@@ -29,6 +29,8 @@
 		</div>
 	</div>
 </nav>
+
+<RouterView />
 
 </template>
 
