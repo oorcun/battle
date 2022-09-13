@@ -1,11 +1,13 @@
 <script>
 
 import { RouterLink } from 'vue-router'
+import ProfileButton from './ProfileButton.vue'
 
 export default {
 
 	components: {
-		RouterLink
+		RouterLink,
+		ProfileButton
 	}
 }
 
@@ -32,9 +34,7 @@ export default {
     <div class="navbar-end">
 		<div class="navbar-item">
 			<div class="buttons">
-				<a class="button is-primary">
-					<strong>Connect MetaMask</strong>
-				</a>
+				<ProfileButton />
 			</div>
 		</div>
 	</div>
