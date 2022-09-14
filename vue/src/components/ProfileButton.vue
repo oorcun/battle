@@ -14,6 +14,7 @@ export default {
 				console.log('message')
 			})
 			window.ethereum.on('accountsChanged', () => {
+				this.getAccount()
 				console.log('accountsChanged')
 			})
 			window.ethereum.on('chainChanged', () => {
@@ -41,8 +42,13 @@ export default {
 		isMetamaskInstalled () {
 			return window.ethereum?.isMetaMask
 		},
-		async connect () {
-			this.accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
+		connect () {
+			this.buttonState = ''
+			window.ethereum.request({ method: 'eth_requestAccounts' })
+				.catch(error => {
+					this.buttonState = 'connect'
+					console.error(error)
+				})
 		},
 		getAccount () {
 			window.ethereum.request({ method: 'eth_accounts' })
@@ -63,16 +69,16 @@ export default {
 
 <template>
 
-<a class="button is-primary" v-if="!isMetamaskInstalled()" href="https://metamask.io" target="_blank">
+<a v-if="!isMetamaskInstalled()" class="button is-primary" href="https://metamask.io" target="_blank">
 	<strong>Install MetaMask <ion-icon name="arrow-redo"></ion-icon></strong>
 </a>
-<a class="button is-primary" v-else-if="buttonState === 'address'">
+<RouterLink v-else-if="buttonState === 'address'" to="/profile" class="button is-primary">
 	<strong><ion-icon name="person"></ion-icon> {{ maskedAccount }}</strong>
+</RouterLink>
+<a v-else-if="buttonState === 'connect'" class="button is-primary" @click="connect">
+	<strong><ion-icon name="log-in"></ion-icon> Connect Metamask</strong>
 </a>
-<a class="button is-primary" v-else-if="buttonState === 'connect'" @click="connect">
-	<strong>Connect Metamask</strong>
-</a>
-<a class="button is-primary" v-else>
+<a v-else class="button is-primary">
 	<strong><img src="src/components/gifs/loading-loading-forever.gif"></strong>
 </a>
 
