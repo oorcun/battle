@@ -19,12 +19,21 @@ export default {
 			window.ethereum.on('chainChanged', () => {
 				console.log('chainChanged')
 			})
+
+			this.getAccount()
 		}
 	},
 
 	data () {
 		return {
-			ethereum: 1
+			buttonState: '',
+			account: ''
+		}
+	},
+
+	computed: {
+		maskedAccount () {
+			return this.account.slice(0, 4) + '....' + this.account.slice(40)
 		}
 	},
 
@@ -32,8 +41,16 @@ export default {
 		isMetamaskInstalled () {
 			return window.ethereum?.isMetaMask
 		},
-		isConnected () {
-			return window.ethereum.selectedAddress !== null
+		async connect () {
+			this.accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
+		},
+		getAccount () {
+			window.ethereum.request({ method: 'eth_accounts' })
+				.then(accounts => {
+					this.account = accounts[0] ?? ''
+					this.buttonState = accounts.length > 0 ? 'address' : 'connect'
+				})
+				.catch(console.error)
 		}
 	}
 
@@ -46,10 +63,17 @@ export default {
 
 <template>
 
-<a class="button is-primary">
-	<strong v-if="!isMetamaskInstalled()">Install MetaMask</strong>
-	<strong v-else-if="isConnected()">Connected MetaMask</strong>
-	<strong v-else>Connect MetaMask</strong>
+<a class="button is-primary" v-if="!isMetamaskInstalled()" href="https://metamask.io" target="_blank">
+	<strong>Install MetaMask <ion-icon name="arrow-redo"></ion-icon></strong>
+</a>
+<a class="button is-primary" v-else-if="buttonState === 'address'">
+	<strong><ion-icon name="person"></ion-icon> {{ maskedAccount }}</strong>
+</a>
+<a class="button is-primary" v-else-if="buttonState === 'connect'" @click="connect">
+	<strong>Connect Metamask</strong>
+</a>
+<a class="button is-primary" v-else>
+	<strong><img src="src/components/gifs/loading-loading-forever.gif"></strong>
 </a>
 
 </template>
