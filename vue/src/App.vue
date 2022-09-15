@@ -3,11 +3,14 @@
 import { RouterView } from 'vue-router'
 import NavBar from './components/NavBar.vue'
 import { useMetamaskStore } from './stores/metamask.js'
+import { useWeb3Store } from './stores/web3.js'
 
 export default {
 
 	mounted () {
-		let metamaskStore = useMetamaskStore()
+		const metamaskStore = useMetamaskStore()
+		const web3Store = useWeb3Store()
+
 		if (metamaskStore.isMetamaskInstalled()) {
 			window.ethereum.on('connected', () => {
 				console.log('connected')
@@ -29,6 +32,7 @@ export default {
 		}
 
 		metamaskStore.assignStates()
+		web3Store.assignStates()
 	},
 
 	components: {

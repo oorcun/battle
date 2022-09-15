@@ -35,5 +35,9 @@ module.exports = {
 			'error',
 			'never'
 		]
+	},
+	globals: {
+		'Web3': 'readonly',
+		'require': 'readonly'
 	}
 }
