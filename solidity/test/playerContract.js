@@ -4,12 +4,14 @@ const utils = require('./helpers/utils.js')
 
 contract('PlayerContract', accounts => {
 
-	let instance, account0, account1
+	let instance, account0, account1, account2, account3
 
 	beforeEach(async () => {
 		instance = await PlayerContract.new()
 		account0 = accounts[0]
 		account1 = accounts[1]
+		account2 = accounts[2]
+		account3 = accounts[3]
 	})
 
 	context('PLAYER CREATION', async () => {
@@ -68,6 +70,112 @@ contract('PlayerContract', accounts => {
 			await utils.shouldThrow(
 				instance.getPlayer(),
 				'Player: player not exist for address'
+			)
+		})
+
+		it('should fetch all players', async () => {
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun2', { from: account1 })
+			let players = await instance.getPlayers(0, 0)
+
+			expect(players.length).to.equal(2)
+			expect(players[0].id).to.equal('1')
+			expect(players[1].id).to.equal('2')
+		})
+
+		it('should fetch all players if there is one player', async () => {
+			await instance.createPlayer('orcun')
+			let players = await instance.getPlayers(0, 0)
+
+			expect(players.length).to.equal(1)
+			expect(players[0].id).to.equal('1')
+		})
+
+		it('should throw error if there are no players', async () => {
+			await utils.shouldThrow(
+				instance.getPlayers(0, 0),
+				'Player: start id must be less than end id'
+			)
+		})
+
+		it('should fetch all players with only end id', async () => {
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun2', { from: account1 })
+			await instance.createPlayer('orcun3', { from: account2 })
+			let players = await instance.getPlayers(0, 2)
+
+			expect(players.length).to.equal(2)
+			expect(players[0].id).to.equal('1')
+			expect(players[1].id).to.equal('2')
+		})
+
+		it('should fetch all players with only one player and end id', async () => {
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun2', { from: account1 })
+			let players = await instance.getPlayers(0, 1)
+
+			expect(players.length).to.equal(1)
+			expect(players[0].id).to.equal('1')
+		})
+
+		it('should fetch all players with only start id', async () => {
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun2', { from: account1 })
+			await instance.createPlayer('orcun3', { from: account2 })
+			let players = await instance.getPlayers(2, 0)
+
+			expect(players.length).to.equal(2)
+			expect(players[0].id).to.equal('2')
+			expect(players[1].id).to.equal('3')
+		})
+
+		it('should fetch all players with only one player and start id', async () => {
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun2', { from: account1 })
+			let players = await instance.getPlayers(2, 0)
+
+			expect(players.length).to.equal(1)
+			expect(players[0].id).to.equal('2')
+		})
+
+		it('should throw error if there are no players with only start id', async () => {
+			await instance.createPlayer('orcun')
+
+			await utils.shouldThrow(
+				instance.getPlayers(2, 0),
+				'Player: start id must be less than end id'
+			)
+		})
+
+		it('should fetch all players with both ids', async () => {
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun2', { from: account1 })
+			await instance.createPlayer('orcun3', { from: account2 })
+			await instance.createPlayer('orcun4', { from: account3 })
+			let players = await instance.getPlayers(2, 3)
+
+			expect(players.length).to.equal(2)
+			expect(players[0].id).to.equal('2')
+			expect(players[1].id).to.equal('3')
+		})
+
+		it('should fetch all players with only one player and both ids', async () => {
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun2', { from: account1 })
+			await instance.createPlayer('orcun3', { from: account2 })
+			let players = await instance.getPlayers(2, 2)
+
+			expect(players.length).to.equal(1)
+			expect(players[0].id).to.equal('2')
+		})
+
+		it('should throw error if there are no players with both ids', async () => {
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun2', { from: account1 })
+
+			await utils.shouldThrow(
+				instance.getPlayers(2, 1),
+				'Player: start id must be less than end id'
 			)
 		})
 

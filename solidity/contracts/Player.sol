@@ -67,6 +67,23 @@ contract PlayerContract is PriceRequestContract
         return addressToPlayer[msg.sender];
     }
 
+    function getPlayers (uint _startId, uint _endId) public view returns (Player[] memory)
+    {
+        if (_startId == 0) _startId = 1;
+        if (_endId == 0) _endId = players.length;
+        require(_startId <= _endId, "Player: start id must be less than end id");
+
+        Player[] memory returnData = new Player[](_endId - _startId + 1);
+        uint index = 0;
+
+        for (uint i = 0; i < _endId; i++) {
+            if (i + 1 < _startId) continue;
+            returnData[index++] = players[i];
+        }
+
+        return returnData;
+    }
+
     function registerAttack (address _defender, uint _startingMinute, bool _side) public senderMustExists
     {
         require(addressToPlayer[_defender].id > 0, "Player: defender not exist");
