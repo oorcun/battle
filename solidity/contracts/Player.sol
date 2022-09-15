@@ -33,8 +33,8 @@ contract PlayerContract is PriceRequestContract
 
 
     event NewPlayerCreated(uint id, string name);
-    event AttackRegistered(address indexed attacker, uint indexed startingMinute, address defender, bool side);
-    event AttackResulted(address indexed attacker, uint indexed startingMinute, address defender, bool won);
+    event AttackRegistered(address indexed attacker, uint startingMinute, address defender, bool side);
+    event AttackResulted(address indexed attacker, uint startingMinute, address defender, bool won);
 
 
 
