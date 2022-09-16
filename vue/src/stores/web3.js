@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import config from '../../web3.config.js'
 import playerContractAbi from '../components/abis/PlayerContract.js'
 import { useMetamaskStore } from './metamask.js'
+import { usePlayerStore } from './player.js'
 
 export const useWeb3Store = defineStore('web3', {
 	state: () => ({
@@ -17,13 +18,20 @@ export const useWeb3Store = defineStore('web3', {
 				config.addresses.playerContract
 			)
 		},
-		getPlayer () {
+		call (method, ...params) {
 			const metamaskStore = useMetamaskStore()
-			this.playerContract.methods.getPlayer().call({ from: metamaskStore.account })
+			return this.playerContract.methods[method](...params).call({ from: metamaskStore.account })
+		},
+		getPlayer () {
+			const playerStore = usePlayerStore()
+			this.call('getPlayer')
 				.then(result => {
-					console.log(result)
+					playerStore.player = result
 				})
-				.catch(console.error)
+				.catch(error => {
+					playerStore.player = []
+					console.error(error)
+				})
 		}
 	}
 })
