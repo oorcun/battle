@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import PlayerList from '../components/PlayerList.vue'
-import AboutText from '../components/AboutText.vue'
+import InstructionsView from '../components/InstructionsView.vue'
 import ProfileView from '../components/ProfileView.vue'
 
 const router = createRouter({
@@ -13,9 +13,9 @@ const router = createRouter({
 			component: PlayerList
 		},
 		{
-			path: '/about',
-			name: 'About',
-			component: AboutText
+			path: '/instructions',
+			name: 'Instructions',
+			component: InstructionsView
 		},
 		{
 			path: '/profile',

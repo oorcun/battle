@@ -7,7 +7,7 @@
 
 <template>
 
-<h1>AboutText</h1>
+<h1>InstructionsView</h1>
 
 </template>
 

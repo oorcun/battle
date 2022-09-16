@@ -10,12 +10,11 @@ export default {
 
 	computed: {
 		...mapState(useMetamaskStore, ['metamaskState']),
-		...mapState(usePlayerStore, ['player'])
+		...mapState(usePlayerStore, ['player', 'playerState'])
 	},
 
 	methods: {
-		...mapActions(useWeb3Store, ['getPlayer', 'createPlayer']),
-		...mapActions(usePlayerStore, ['isPlayerExists']),
+		...mapActions(useWeb3Store, ['getPlayer', 'createPlayer'])
 
 	},
 
@@ -47,10 +46,10 @@ export default {
 <hr>
 
 <div v-if="metamaskState === 'connected'" class="box">
-	<template v-if="isPlayerExists()">
+	<template v-if="playerState === 'exist'">
 		<div @click="player = []">{{ player }}</div>
 	</template>
-	<template v-else>
+	<template v-else-if="playerState === 'notExist'">
 		<div class="notification is-info is-light">
 			Please create a player.
 		</div>
@@ -64,6 +63,11 @@ export default {
 			<div class="control">
 				<button class="button is-primary is-rounded" @click="createPlayer('orcun')">Submit</button>
 			</div>
+		</div>
+	</template>
+	<template v-else>
+		<div class="notification is-danger is-light">
+			Player fetching error, check console.
 		</div>
 	</template>
 </div>

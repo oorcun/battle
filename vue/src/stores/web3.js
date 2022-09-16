@@ -41,12 +41,17 @@ export const useWeb3Store = defineStore('web3', {
 			this.call('getPlayer')
 				.then(result => {
 					playerStore.player = result
+					playerStore.playerState = 'exist'
 				})
 				.catch(error => {
 					playerStore.player = []
+					playerStore.playerState = 'unknown'
 					const reason = this.getErrorReason(error)
 					if (reason !== '') {
-						console.error(reason)
+						if (reason === 'Player: player not exist for address') {
+							playerStore.playerState = 'notExist'
+						}
+						console.info('getPlayer', reason)
 					} else {
 						console.error(error)
 					}
