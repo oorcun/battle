@@ -24,9 +24,9 @@ export default {
 			window.ethereum.on('accountsChanged', accounts => {
 				metamaskStore.handleAccountsChanged(accounts)
 				console.log('accountsChanged')
-				console.log(accounts)
 			})
 			window.ethereum.on('chainChanged', () => {
+				web3Store.handleChainChanged()
 				console.log('chainChanged')
 			})
 		}

@@ -25,7 +25,10 @@ export const useWeb3Store = defineStore('web3', {
 			} catch {
 				return ''
 			}
-
+		},
+		handleChainChanged () {
+			this.assignStates()
+			this.getPlayer()
 		},
 		call (method, ...params) {
 			const metamaskStore = useMetamaskStore()
