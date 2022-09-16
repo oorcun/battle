@@ -66,8 +66,8 @@ export default {
 		</div>
 	</template>
 	<template v-else>
-		<div class="notification is-danger is-light">
-			Player fetching error, check console.
+		<div class="notification is-info is-light">
+			Please wait while your player is fetching from the network.
 		</div>
 	</template>
 </div>

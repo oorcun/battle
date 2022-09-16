@@ -33,7 +33,6 @@ export const useWeb3Store = defineStore('web3', {
 		},
 		send (method, ...params) {
 			const metamaskStore = useMetamaskStore()
-			console.log(metamaskStore.account, method, params)
 			return this.playerContract.methods[method](...params).send({ from: metamaskStore.account })
 		},
 		getPlayer () {
@@ -58,17 +57,13 @@ export const useWeb3Store = defineStore('web3', {
 				})
 		},
 		createPlayer (name) {
-			const metamaskStore = useMetamaskStore()
-			this.playerContract.methods.createPlayer(name).send({ from: metamaskStore.account })
-			// this.send('createPlayer', name)
-			// 	.then(receipt => {
-			// 		console.log(receipt)
-			// 		// playerStore.player = receipt
-			// 	})
-			// 	.catch(error => {
-			// 		// playerStore.player = []
-			// 		console.error(error)
-			// 	})
+			this.send('createPlayer', name)
+				.then(() => {
+					this.getPlayer()
+				})
+				.catch(error => {
+					console.error(error)
+				})
 		}
 	}
 })
