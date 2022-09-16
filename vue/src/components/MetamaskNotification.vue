@@ -6,7 +6,7 @@ import { useMetamaskStore } from '../stores/metamask.js'
 export default {
 
 	computed: {
-		...mapState(useMetamaskStore, ['metamaskState', 'account'])
+		...mapState(useMetamaskStore, ['metamaskState'])
 	}
 
 }

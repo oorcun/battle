@@ -5,8 +5,15 @@ import { useMetamaskStore } from '../stores/metamask.js'
 import { useWeb3Store } from '../stores/web3.js'
 import { usePlayerStore } from '../stores/player.js'
 import MetamaskNotification from './MetamaskNotification.vue'
+import SubmitButton from './SubmitButton.vue'
 
 export default {
+
+	data () {
+		return {
+			input: ''
+		}
+	},
 
 	computed: {
 		...mapState(useMetamaskStore, ['metamaskState']),
@@ -14,24 +21,13 @@ export default {
 	},
 
 	methods: {
-		...mapActions(useWeb3Store, ['getPlayer', 'createPlayer'])
-
-	},
-
-	watch: {
-		metamaskState (newMetamaskState) {
-			if (newMetamaskState === 'connected') {
-				this.getPlayer()
-			}
-		}
+		...mapActions(useWeb3Store, ['createPlayer'])
 	},
 
 	components: {
-		MetamaskNotification
+		MetamaskNotification,
+		SubmitButton
 	}
-
-	// show player stats
-	// get past events registered and finished attacks
 }
 
 </script>
@@ -48,6 +44,7 @@ export default {
 <div v-if="metamaskState === 'connected'" class="box">
 	<template v-if="playerState === 'exist'">
 		<div @click="player = []">{{ player }}</div>
+		<div>getpastevents</div>
 	</template>
 	<template v-else-if="playerState === 'notExist'">
 		<div class="notification is-info is-light">
@@ -56,18 +53,18 @@ export default {
 		<div class="field">
 			<label class="label">Name</label>
 			<div class="control">
-				<input class="input is-primary" type="text" placeholder="Enter your player name..." />
+				<input class="input is-primary" type="text" placeholder="Enter your player name..." v-model="input" />
 			</div>
 		</div>
 		<div class="field is-grouped">
 			<div class="control">
-				<button class="button is-primary is-rounded" @click="createPlayer('orcun')">Submit</button>
+				<SubmitButton :method="createPlayer" :params="[input]"/>
 			</div>
 		</div>
 	</template>
 	<template v-else>
 		<div class="notification is-info is-light">
-			Please wait while your player is fetching from the network.
+			Please wait while your player is fetching from the network. <img src="src/components/gifs/loading-loading-forever.gif">
 		</div>
 	</template>
 </div>

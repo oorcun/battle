@@ -26,10 +26,6 @@ export const useWeb3Store = defineStore('web3', {
 				return ''
 			}
 		},
-		handleChainChanged () {
-			this.assignStates()
-			this.getPlayer()
-		},
 		call (method, ...params) {
 			const metamaskStore = useMetamaskStore()
 			return this.playerContract.methods[method](...params).call({ from: metamaskStore.account })
@@ -60,7 +56,7 @@ export const useWeb3Store = defineStore('web3', {
 				})
 		},
 		createPlayer (name) {
-			this.send('createPlayer', name)
+			return this.send('createPlayer', name)
 				.then(() => {
 					this.getPlayer()
 				})
