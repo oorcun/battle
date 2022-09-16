@@ -14,7 +14,9 @@ export default {
 	},
 
 	methods: {
-		...mapActions(useWeb3Store, ['getPlayer'])
+		...mapActions(useWeb3Store, ['getPlayer', 'createPlayer']),
+		...mapActions(usePlayerStore, ['isPlayerExists']),
+
 	},
 
 	watch: {
@@ -45,8 +47,8 @@ export default {
 <hr>
 
 <div v-if="metamaskState === 'connected'" class="box">
-	<template v-if="player.length > 0">
-		{{ player }}
+	<template v-if="isPlayerExists()">
+		<div @click="player = []">{{ player }}</div>
 	</template>
 	<template v-else>
 		<div class="notification is-info is-light">
@@ -60,7 +62,7 @@ export default {
 		</div>
 		<div class="field is-grouped">
 			<div class="control">
-				<button class="button is-primary is-rounded">Submit</button>
+				<button class="button is-primary is-rounded" @click="createPlayer('orcun')">Submit</button>
 			</div>
 		</div>
 	</template>
