@@ -36,7 +36,7 @@ export default {
 		:disabled="waiting"
 		@click="submit()"
 	>
-		Submit
+		<slot>Submit</slot>
 	</button>
 
 </template>
