@@ -8,6 +8,7 @@ contract PlayerContract is PriceRequestContract
 	struct Player {
 		uint id;
         string name;
+        address owner;
         uint attackWinCount;
         uint attackLossCount;
         uint defendWinCount;
@@ -54,7 +55,7 @@ contract PlayerContract is PriceRequestContract
     	require(addressToPlayer[msg.sender].id == 0, "Player: player already exists for address");
 
         uint id = players.length + 1;
-    	Player memory player = Player(players.length + 1, _name, 0, 0, 0, 0, 0);
+    	Player memory player = Player(players.length + 1, _name, msg.sender, 0, 0, 0, 0, 0);
 
         players.push(player);
         addressToPlayer[msg.sender] = player;

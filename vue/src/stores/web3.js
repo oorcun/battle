@@ -17,6 +17,9 @@ export const useWeb3Store = defineStore('web3', {
 				config.addresses.playerContract
 			)
 		},
+		decToHex (number) {
+			return this.web3.utils.toHex(number)
+		},
 		getErrorReason (error) {
 			try {
 				const string = error.toString()

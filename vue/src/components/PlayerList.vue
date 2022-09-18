@@ -27,14 +27,14 @@ export default {
 	},
 
 	methods: {
-		...mapActions(useWeb3Store, ['getPlayers']),
+		...mapActions(useWeb3Store, ['getPlayers', 'decToHex']),
 		getPlayerList () {
 			this.getPlayers(0, 0)
 				.then(result => this.players = result)
 				.catch(() => { this.error = true })
 		},
-		redirectToAttacks (playerId) {
-			this.$router.push({ name: 'registeredAttacks', params: { playerId: playerId } })
+		redirectToAttacks (address) {
+			this.$router.push({ name: 'registeredAttacks', params: { address: address } })
 		}
 	},
 
@@ -71,12 +71,13 @@ export default {
 	<table class="table is-hoverable is-fullwidth is-striped">
 		<tbody>
 			<tr v-for="p in players" :key="p.id">
-				<th>{{ p.id }}</th>
-				<td>{{ p.name }}</td>
+				<th>{{ p[0] }}</th>
+				<td>{{ p[1] }}</td>
+				<td>{{ this.decToHex(p[2]) }}</td>
 				<td><button
 					v-if="p.id !== player.id"
 					class="button is-danger is-rounded"
-					@click="redirectToAttacks(p.id)"
+					@click="redirectToAttacks(p[2])"
 				>
 					Attack <ion-icon name="arrow-redo"></ion-icon>
 				</button></td>

@@ -28,6 +28,7 @@ contract('PlayerContract', accounts => {
 			player = await instance.addressToPlayer(account0)
 			expect(player.name).to.equal('orcun')
 			expect(player.id.toNumber()).to.equal(1)
+			expect(player.owner).to.equal(account0)
 			expect(player.attackWinCount.toNumber()).to.equal(0)
 			expect(player.attackLossCount.toNumber()).to.equal(0)
 			expect(player.defendWinCount.toNumber()).to.equal(0)
@@ -57,8 +58,9 @@ contract('PlayerContract', accounts => {
 			await instance.createPlayer('orcun')
 			let player = await instance.getPlayer()
 
-			expect(player.name).to.equal('orcun')
 			expect(player.id).to.equal('1')
+			expect(player.name).to.equal('orcun')
+			expect(player.owner).to.equal(account0)
 			expect(player.attackWinCount).to.equal('0')
 			expect(player.attackLossCount).to.equal('0')
 			expect(player.defendWinCount).to.equal('0')
@@ -80,6 +82,13 @@ contract('PlayerContract', accounts => {
 
 			expect(players.length).to.equal(2)
 			expect(players[0].id).to.equal('1')
+			expect(players[0].name).to.equal('orcun')
+			expect(players[0].owner).to.equal(account0)
+			expect(players[0].attackWinCount).to.equal('0')
+			expect(players[0].attackLossCount).to.equal('0')
+			expect(players[0].defendWinCount).to.equal('0')
+			expect(players[0].defendLossCount).to.equal('0')
+			expect(players[0].points).to.equal('0')
 			expect(players[1].id).to.equal('2')
 		})
 

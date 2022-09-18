@@ -21,7 +21,7 @@ export default {
 	},
 
 	methods: {
-		...mapActions(useWeb3Store, ['createPlayer'])
+		...mapActions(useWeb3Store, ['createPlayer', 'decToHex'])
 	},
 
 	components: {
@@ -48,12 +48,13 @@ export default {
 			<tbody>
 				<tr><th>ID</th><td>{{ player[0] }}</td></tr>
 				<tr><th>Name</th><td>{{ player[1] }}</td></tr>
-				<tr><th>Attacking Wins</th><td>{{ player[2] }}</td></tr>
-				<tr><th>Attacking Losses</th><td>{{ player[3] }}</td></tr>
-				<tr><th>Defending Wins</th><td>{{ player[4] }}</td></tr>
-				<tr><th>Defending Losses</th><td>{{ player[5] }}</td></tr>
-				<tr><th>Total Wins</th><td>{{ parseInt(player[2]) + parseInt(player[4]) }}</td></tr>
-				<tr><th>Total Losses</th><td>{{ parseInt(player[3]) + parseInt(player[5]) }}</td></tr>
+				<tr><th>Address</th><td>{{ this.decToHex(player[2]) }}</td></tr>
+				<tr><th>Attacking Wins</th><td>{{ player[3] }}</td></tr>
+				<tr><th>Attacking Losses</th><td>{{ player[4] }}</td></tr>
+				<tr><th>Defending Wins</th><td>{{ player[5] }}</td></tr>
+				<tr><th>Defending Losses</th><td>{{ player[6] }}</td></tr>
+				<tr><th>Total Wins</th><td>{{ parseInt(player[3]) + parseInt(player[5]) }}</td></tr>
+				<tr><th>Total Losses</th><td>{{ parseInt(player[4]) + parseInt(player[6]) }}</td></tr>
 				<tr><th>Points</th><td>{{ player[6] }}</td></tr>
 			</tbody>
 		</table>
