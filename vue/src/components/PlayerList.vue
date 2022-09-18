@@ -3,8 +3,8 @@
 import { mapState, mapActions } from 'pinia'
 import { useMetamaskStore } from '../stores/metamask.js'
 import { useWeb3Store } from '../stores/web3.js'
+import { usePlayerStore } from '../stores/player.js'
 import MetamaskNotification from './MetamaskNotification.vue'
-import SubmitButton from './SubmitButton.vue'
 
 export default {
 
@@ -16,12 +16,14 @@ export default {
 
 	data () {
 		return {
-			players: []
+			players: [],
+			error: false
 		}
 	},
 
 	computed: {
-		...mapState(useMetamaskStore, ['metamaskState'])
+		...mapState(useMetamaskStore, ['metamaskState']),
+		...mapState(usePlayerStore, ['player'])
 	},
 
 	methods: {
@@ -29,12 +31,15 @@ export default {
 		getPlayerList () {
 			this.getPlayers(0, 0)
 				.then(result => this.players = result)
+				.catch(() => { this.error = true })
+		},
+		redirectToAttacks (playerId) {
+			this.$router.push({ name: 'registeredAttacks', params: { playerId: playerId } })
 		}
 	},
 
 	components: {
-		MetamaskNotification,
-		SubmitButton
+		MetamaskNotification
 	},
 
 	watch: {
@@ -58,13 +63,23 @@ export default {
 
 <hr>
 
+<div v-if="error" class="notification is-danger">
+	Error fetching players.
+</div>
+
 <div v-if="metamaskState === 'connected'" class="box">
-	<table class="table is-hoverable">
+	<table class="table is-hoverable is-fullwidth is-striped">
 		<tbody>
-			<tr v-for="player in players" :key="player.id">
-				<th>{{ player.id }}</th>
-				<td>{{ player.name }}</td>
-				<td><SubmitButton>Attack</SubmitButton></td>
+			<tr v-for="p in players" :key="p.id">
+				<th>{{ p.id }}</th>
+				<td>{{ p.name }}</td>
+				<td><button
+					v-if="p.id !== player.id"
+					class="button is-danger is-rounded"
+					@click="redirectToAttacks(p.id)"
+				>
+					Attack <ion-icon name="arrow-redo"></ion-icon>
+				</button></td>
 			</tr>
 		</tbody>
 	</table>

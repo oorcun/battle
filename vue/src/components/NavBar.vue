@@ -23,11 +23,11 @@ export default {
 	<div id="navbarBasicExample" class="navbar-menu">
 		<div class="navbar-start">
 			<RouterLink
-				v-for="route in $router.getRoutes().filter(route => route.path !== '/profile')"
+				v-for="route in $router.getRoutes().filter(route => route.name !== 'profile')"
 				:key="route.path"
 				:to="route.path"
-			><a class="navbar-item" :class="{ 'is-active': route.path === $route.path }">
-				{{ route.name }}
+			><a class="navbar-item" :class="{ 'is-active': route.name === $route.name }">
+				{{ route.meta.text }}
 			</a></RouterLink>
 		</div>
     </div>

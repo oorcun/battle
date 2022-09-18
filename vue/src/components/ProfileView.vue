@@ -44,7 +44,7 @@ export default {
 <div v-if="metamaskState === 'connected'" class="box">
 
 	<template v-if="playerState === 'exist'">
-		<table class="table">
+		<table class="table is-fullwidth is-striped is-hoverable">
 			<tbody>
 				<tr><th>ID</th><td>{{ player[0] }}</td></tr>
 				<tr><th>Name</th><td>{{ player[1] }}</td></tr>

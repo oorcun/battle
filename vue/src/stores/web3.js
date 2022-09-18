@@ -66,7 +66,10 @@ export const useWeb3Store = defineStore('web3', {
 		},
 		getPlayers (startId, endId) {
 			return this.call('getPlayers', startId, endId)
-				.catch(console.error)
+				.catch(error => {
+					console.error(error)
+					throw error
+				})
 		},
 	}
 })
