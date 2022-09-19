@@ -68,7 +68,7 @@ export default {
 		<div class="field">
 			<label class="label">Name</label>
 			<div class="control">
-				<input class="input is-primary" type="text" placeholder="Enter your player name..." v-model="input" />
+				<input class="input is-primary is-rounded" type="text" placeholder="Enter your player name..." v-model="input" />
 			</div>
 		</div>
 		<div class="field is-grouped">
