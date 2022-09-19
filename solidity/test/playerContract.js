@@ -82,6 +82,13 @@ contract('PlayerContract', accounts => {
 			expect(player.points).to.equal('0')
 		})
 
+		it('should throw if player not exist', async () => {
+			await utils.shouldThrow(
+				instance.getAnyPlayer(account0),
+				'Player: player not exist'
+			)
+		})
+
 		it('should throw error if player not exist for address', async () => {
 			await utils.shouldThrow(
 				instance.getPlayer(),
@@ -300,6 +307,26 @@ contract('PlayerContract', accounts => {
 			expect(result.logs[2].args[1].toNumber()).to.equal(current + 60)
 			expect(result.logs[2].args[2]).to.equal(account1)
 			expect(result.logs[2].args[3]).to.equal(true)
+		})
+
+		it('should fetch true in attack register check if attack registered', async () => {
+			let current = utils.getCurrentMinuteTimestamp()
+
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun', { from: account1 })
+			await instance.registerAttack(account1, current + 60, true)
+
+			let result = await instance.hasRegisteredAttack(account0, current + 60)
+
+			expect(result).to.equal(true)
+		})
+
+		it('should fetch false in attack register check if attack not registered', async () => {
+			await instance.createPlayer('orcun')
+
+			let result = await instance.hasRegisteredAttack(account0, 60)
+
+			expect(result).to.equal(false)
 		})
 
 	})

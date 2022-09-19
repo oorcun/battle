@@ -70,6 +70,8 @@ contract PlayerContract is PriceRequestContract
 
     function getAnyPlayer (address _owner) public view returns (Player memory)
     {
+        require(addressToPlayer[_owner].id > 0, "Player: player not exist");
+
         return addressToPlayer[_owner];
     }
 
@@ -100,7 +102,7 @@ contract PlayerContract is PriceRequestContract
         require(startingMinute > currentMinute, "Player: starting minute must be a future time");
         require(startingMinute < currentMinute + 1 hours, "Player: starting minute must not be far away");
 
-        require(!_hasRegisteredAttack(msg.sender, startingMinute), "Player: already registered for an attack");
+        require(!hasRegisteredAttack(msg.sender, startingMinute), "Player: already registered for an attack");
 
         _registerAttack(startingMinute, Attack(_defender, _side, false, false));
 
@@ -112,7 +114,7 @@ contract PlayerContract is PriceRequestContract
 
     function finishAttack (address _attacker, uint _startingMinute) public
     {
-        require(_hasRegisteredAttack(_attacker, _startingMinute), "Player: attack not exists");
+        require(hasRegisteredAttack(_attacker, _startingMinute), "Player: attack not exists");
 
         require(minuteTimestampToPriceRequest[_startingMinute].minuteTimestamp != 0, "Player: price request for battle starting time not exists");
 
@@ -155,17 +157,17 @@ contract PlayerContract is PriceRequestContract
         emit AttackResulted(_attacker, _startingMinute, attack.defender, attack.won);
     }
 
+    function hasRegisteredAttack (address _attacker, uint _startingMinute) public view returns (bool)
+    {
+        return addressToMinuteTimestampToAttack[_attacker][_startingMinute].defender != address(0);
+    }
+
 
 
 
     function _getMinute (uint _datetime) internal pure returns (uint)
     {
         return (_datetime / 60) * 60;
-    }
-
-    function _hasRegisteredAttack (address _attacker, uint _startingMinute) internal view returns (bool)
-    {
-        return addressToMinuteTimestampToAttack[_attacker][_startingMinute].defender != address(0);
     }
 
     function _registerAttack (uint _startingMinute, Attack memory _attack) internal
