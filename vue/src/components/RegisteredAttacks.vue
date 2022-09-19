@@ -17,7 +17,13 @@ export default {
 	data () {
 		return {
 			address: '',
+			addressStyle: {
+				inputClass: 'is-danger',
+				ionIconName: 'alert-circle',
+				ionIconStyle: { color: 'rgb(150, 11, 39)' }
+			},
 			selectedMinute: '',
+			selectedPrediction: 'increase',
 			minutes: {},
 			minutesLength: 4,
 			currentDate: {}
@@ -71,9 +77,6 @@ export default {
 					const minute = minuteDate.getMinutes()
 					this.minutes[i].minute = (hour < 10 ? '0' + hour : hour) + ':' + (minute < 10 ? '0' + minute : minute)
 				}
-				if (this.minutes[0] !== undefined) {
-					return this.minutes[0].minute
-				}
 			}
 		},
 		minutes: {
@@ -83,6 +86,22 @@ export default {
 				}
 			},
 			deep: true
+		},
+		address (newAddress) {
+			if (newAddress.match(/^0x[0-9A-Fa-f]{4}$/)) {
+				// get player (loading state) if exist green if not danger if error yellow
+				this.addressStyle = {
+					inputClass: 'is-primary',
+					ionIconName: 'checkmark-circle',
+					ionIconStyle: { color: 'rgb(0, 192, 164)' }
+				}
+			} else {
+				this.addressStyle = {
+					inputClass: 'is-danger',
+					ionIconName: 'alert-circle',
+					ionIconStyle: { color: 'rgb(150, 11, 39)' }
+				}
+			}
 		}
 	},
 
@@ -99,18 +118,23 @@ export default {
 
 
 <template>
-{{currentDate}}
+
 <MetamaskNotification />
-{{selectedMinute}}
+
 <hr>
 
 <template v-if="metamaskState === 'connected'">
+
 	<div class="field">
 		<label class="label">Address</label>
-		<div class="control">
-			<input class="input is-primary is-rounded" type="text" placeholder="Enter opponent address..." v-model="address" />
+		<div class="control has-icons-right">
+			<input class="input is-rounded" :class="addressStyle.inputClass" type="text" placeholder="Enter opponent address..." v-model="address" />
+			<span class="icon is-small is-right">
+				<ion-icon :name="addressStyle.ionIconName" :style="addressStyle.ionIconStyle"></ion-icon>
+			</span>
 		</div>
 	</div>
+
 	<div class="field">
 		<label class="label">Starting minute</label>
 		<div class="control">
@@ -126,11 +150,27 @@ export default {
 			</div>
 		</div>
 	</div>
-	<div class="field is-grouped">
+
+	<div class="field">
+		<label class="label">Prediction</label>
 		<div class="control">
-			<SubmitButton :method="registerAttack" :params="[address]">Register Attack</SubmitButton>
+			<label class="radio">
+				<input type="radio" name="prediction" value="increase" v-model="selectedPrediction">
+				Increase
+			</label>
+			<label class="radio">
+				<input type="radio" name="prediction" value="decrease" v-model="selectedPrediction">
+				Decrease
+			</label>
 		</div>
 	</div>
+
+	<div class="field is-grouped">
+		<div class="control">
+			<SubmitButton :method="registerAttack" :params="[address.value]">Register Attack</SubmitButton>
+		</div>
+	</div>
+
 </template>
 
 </template>
