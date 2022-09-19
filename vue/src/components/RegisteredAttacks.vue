@@ -17,6 +17,7 @@ export default {
 	data () {
 		return {
 			address: '',
+			selectedMinute: '',
 			minutes: {},
 			minutesLength: 4,
 			currentDate: {}
@@ -70,7 +71,18 @@ export default {
 					const minute = minuteDate.getMinutes()
 					this.minutes[i].minute = (hour < 10 ? '0' + hour : hour) + ':' + (minute < 10 ? '0' + minute : minute)
 				}
+				if (this.minutes[0] !== undefined) {
+					return this.minutes[0].minute
+				}
 			}
+		},
+		minutes: {
+			handler (newMinute) {
+				if (Object.values(newMinute).every(minute => minute.minute !== this.selectedMinute)) {
+					this.selectedMinute = newMinute[0].minute
+				}
+			},
+			deep: true
 		}
 	},
 
@@ -89,7 +101,7 @@ export default {
 <template>
 {{currentDate}}
 <MetamaskNotification />
-{{minutes}}
+{{selectedMinute}}
 <hr>
 
 <template v-if="metamaskState === 'connected'">
@@ -103,7 +115,7 @@ export default {
 		<label class="label">Starting minute</label>
 		<div class="control">
 			<div class="select is-primary is-rounded">
-				<select>
+				<select v-model="selectedMinute">
 					<option
 						v-for="minute of minutes"
 						:key="minute.timestamp"
