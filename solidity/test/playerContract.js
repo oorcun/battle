@@ -68,6 +68,20 @@ contract('PlayerContract', accounts => {
 			expect(player.points).to.equal('0')
 		})
 
+		it('should fetch any player', async () => {
+			await instance.createPlayer('orcun', { from: account1 })
+			let player = await instance.getAnyPlayer(account1)
+
+			expect(player.id).to.equal('1')
+			expect(player.name).to.equal('orcun')
+			expect(player.owner).to.equal(account1)
+			expect(player.attackWinCount).to.equal('0')
+			expect(player.attackLossCount).to.equal('0')
+			expect(player.defendWinCount).to.equal('0')
+			expect(player.defendLossCount).to.equal('0')
+			expect(player.points).to.equal('0')
+		})
+
 		it('should throw error if player not exist for address', async () => {
 			await utils.shouldThrow(
 				instance.getPlayer(),

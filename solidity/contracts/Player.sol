@@ -68,6 +68,11 @@ contract PlayerContract is PriceRequestContract
         return addressToPlayer[msg.sender];
     }
 
+    function getAnyPlayer (address _owner) public view returns (Player memory)
+    {
+        return addressToPlayer[_owner];
+    }
+
     function getPlayers (uint _startId, uint _endId) public view returns (Player[] memory)
     {
         if (_startId == 0) _startId = 1;

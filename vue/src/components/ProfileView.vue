@@ -48,7 +48,7 @@ export default {
 			<tbody>
 				<tr><th>ID</th><td>{{ player[0] }}</td></tr>
 				<tr><th>Name</th><td>{{ player[1] }}</td></tr>
-				<tr><th>Address</th><td>{{ this.decToHex(player[2]) }}</td></tr>
+				<tr><th>Owner</th><td>{{ this.decToHex(player[2]) }}</td></tr>
 				<tr><th>Attacking Wins</th><td>{{ player[3] }}</td></tr>
 				<tr><th>Attacking Losses</th><td>{{ player[4] }}</td></tr>
 				<tr><th>Defending Wins</th><td>{{ player[5] }}</td></tr>
