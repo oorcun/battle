@@ -192,6 +192,11 @@ export default [
 				"type": "string"
 			},
 			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
 				"internalType": "uint256",
 				"name": "attackWinCount",
 				"type": "uint256"
@@ -361,6 +366,11 @@ export default [
 				"type": "string"
 			},
 			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
 				"internalType": "uint256",
 				"name": "attackWinCount",
 				"type": "uint256"
@@ -471,6 +481,73 @@ export default [
 						"type": "string"
 					},
 					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "attackWinCount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "attackLossCount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "defendWinCount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "defendLossCount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "int256",
+						"name": "points",
+						"type": "int256"
+					}
+				],
+				"internalType": "struct PlayerContract.Player",
+				"name": "",
+				"type": "tuple"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function",
+		"constant": true
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_owner",
+				"type": "address"
+			}
+		],
+		"name": "getAnyPlayer",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
 						"internalType": "uint256",
 						"name": "attackWinCount",
 						"type": "uint256"
@@ -531,6 +608,11 @@ export default [
 						"internalType": "string",
 						"name": "name",
 						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
 					},
 					{
 						"internalType": "uint256",
@@ -607,5 +689,30 @@ export default [
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_attacker",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_startingMinute",
+				"type": "uint256"
+			}
+		],
+		"name": "hasRegisteredAttack",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function",
+		"constant": true
 	}
 ]

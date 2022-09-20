@@ -18,6 +18,7 @@ export default {
 		return {
 			address: '',
 			addressStyle: {
+				state: 'wrongAddress',
 				inputClass: 'is-danger',
 				ionIconName: 'alert-circle',
 				ionIconStyle: { color: 'rgb(150, 11, 39)' }
@@ -35,7 +36,7 @@ export default {
 	},
 
 	methods: {
-		...mapActions(useWeb3Store, ['registerAttack']),
+		...mapActions(useWeb3Store, ['registerAttack', 'getAnyPlayer']),
 		setCurrentDate () {
 			const date = new Date
 			this.currentDate = {
@@ -88,15 +89,45 @@ export default {
 			deep: true
 		},
 		address (newAddress) {
-			if (newAddress.match(/^0x[0-9A-Fa-f]{4}$/)) {
+			if (newAddress.match(/^0x[0-9A-Fa-f]{40}$/)) {
+				// you cannot attack yourself
 				// get player (loading state) if exist green if not danger if error yellow
+				// 0x2769144e0d5a297090e401b8f00c286a7540e989
 				this.addressStyle = {
-					inputClass: 'is-primary',
-					ionIconName: 'checkmark-circle',
-					ionIconStyle: { color: 'rgb(0, 192, 164)' }
+					state: 'loading',
+					inputClass: '',
+					ionIconName: '',
+					ionIconStyle: {}
 				}
+				this.getAnyPlayer(newAddress)
+					.then(() => {
+						this.addressStyle = {
+							state: 'ok',
+							inputClass: 'is-primary',
+							ionIconName: 'checkmark-circle',
+							ionIconStyle: { color: 'rgb(0, 192, 164)' }
+						}
+					})
+					.catch(error => {
+						if (error.message === 'Player: player not exist') {
+							this.addressStyle = {
+								state: 'noPlayer',
+								inputClass: 'is-danger',
+								ionIconName: 'alert-circle',
+								ionIconStyle: { color: 'rgb(150, 11, 39)' }
+							}
+						} else {
+							this.addressStyle = {
+								state: 'networkError',
+								inputClass: 'is-warning',
+								ionIconName: 'warning',
+								ionIconStyle: { color: 'rgb(137, 101, 0)' }
+							}
+						}
+					})
 			} else {
 				this.addressStyle = {
+					state: 'wrongAddress',
 					inputClass: 'is-danger',
 					ionIconName: 'alert-circle',
 					ionIconStyle: { color: 'rgb(150, 11, 39)' }
@@ -127,12 +158,14 @@ export default {
 
 	<div class="field">
 		<label class="label">Address</label>
-		<div class="control has-icons-right">
+		<div class="control has-icons-right" :class="{ 'is-loading': this.addressStyle.state === 'loading' }">
 			<input class="input is-rounded" :class="addressStyle.inputClass" type="text" placeholder="Enter opponent address..." v-model="address" />
-			<span class="icon is-small is-right">
+			<span v-if="addressStyle.state !== 'loading'" class="icon is-small is-right">
 				<ion-icon :name="addressStyle.ionIconName" :style="addressStyle.ionIconStyle"></ion-icon>
 			</span>
 		</div>
+		<p v-if="addressStyle.state === 'networkError'" class="help" :class="addressStyle.inputClass">Network error when fetching player, please check console.</p>
+		<p v-else-if="addressStyle.state === 'noPlayer'" class="help" :class="addressStyle.inputClass">This player doesn't exist.</p>
 	</div>
 
 	<div class="field">
@@ -167,7 +200,7 @@ export default {
 
 	<div class="field is-grouped">
 		<div class="control">
-			<SubmitButton :method="registerAttack" :params="[address.value]">Register Attack</SubmitButton>
+			<SubmitButton :method="registerAttack" :params="[address.value]" disabled>Register Attack</SubmitButton>
 		</div>
 	</div>
 

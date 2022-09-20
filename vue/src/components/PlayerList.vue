@@ -64,7 +64,7 @@ export default {
 <hr>
 
 <div v-if="error" class="notification is-danger">
-	Error fetching players.
+	Error fetching players, please check console for details.
 </div>
 
 <div v-if="metamaskState === 'connected'" class="box">

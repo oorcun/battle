@@ -79,5 +79,20 @@ export const useWeb3Store = defineStore('web3', {
 				})
 				.catch(console.error)
 		},
+		getAnyPlayer (owner) {
+			return this.call('getAnyPlayer', owner)
+				.catch(error => {
+					const reason = this.getErrorReason(error)
+					if (reason !== '') {
+						console.info('getAnyPlayer', reason)
+						if (reason === 'Player: player not exist') {
+							throw new Error(reason)
+						}
+					} else {
+						console.error(error)
+					}
+					throw error
+				})
+		}
 	}
 })
