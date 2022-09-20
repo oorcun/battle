@@ -4,7 +4,6 @@ import { mapState, mapActions } from 'pinia'
 import { useMetamaskStore } from '../stores/metamask.js'
 import { useWeb3Store } from '../stores/web3.js'
 import { usePlayerStore } from '../stores/player.js'
-import { useRouteStore } from '../stores/route.js'
 import MetamaskNotification from './MetamaskNotification.vue'
 
 export default {
@@ -24,8 +23,7 @@ export default {
 
 	computed: {
 		...mapState(useMetamaskStore, ['metamaskState']),
-		...mapState(usePlayerStore, ['player']),
-		...mapState(useRouteStore, ['redirectParams'])
+		...mapState(usePlayerStore, ['player'])
 	},
 
 	methods: {
@@ -36,8 +34,7 @@ export default {
 				.catch(() => { this.error = true })
 		},
 		redirectToAttacks (address) {
-			this.redirectParams.push(address)
-			this.$router.push({ name: 'registeredAttacks' })
+			this.$router.push({ name: 'registeredAttacks', query: { address: address } })
 		}
 	},
 

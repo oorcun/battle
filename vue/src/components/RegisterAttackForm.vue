@@ -3,7 +3,6 @@
 import { mapState, mapActions } from 'pinia'
 import { useWeb3Store } from '../stores/web3.js'
 import { usePlayerStore } from '../stores/player.js'
-import { useRouteStore } from '../stores/route.js'
 import SubmitButton from './SubmitButton.vue'
 
 export default {
@@ -12,8 +11,8 @@ export default {
 		this.setCurrentDate()
 		this.setMinutes()
 		setInterval(this.setCurrentDate, 1000)
-		if (this.redirectParams.length === 1) {
-			this.address = this.redirectParams.shift()
+		if (this.$route.query.address !== undefined) {
+			this.address = this.$route.query.address
 		}
 	},
 
@@ -35,8 +34,7 @@ export default {
 	},
 
 	computed: {
-		...mapState(usePlayerStore, ['player']),
-		...mapState(useRouteStore, ['redirectParams'])
+		...mapState(usePlayerStore, ['player'])
 	},
 
 	methods: {
