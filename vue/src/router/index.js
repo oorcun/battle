@@ -11,19 +11,19 @@ const router = createRouter({
 		{
 			path: '/',
 			name: 'players',
-			meta: { text: 'Players' },
+			meta: { text: 'Players', order: 1 },
 			component: PlayerList
 		},
 		{
 			path: '/attacks',
 			name: 'registeredAttacks',
-			meta: { text: 'Registered Attacks' },
+			meta: { text: 'Registered Attacks', order: 2 },
 			component: RegisteredAttacks
 		},
 		{
 			path: '/instructions',
 			name: 'instructions',
-			meta: { text: 'Instructions' },
+			meta: { text: 'Instructions', order: 3 },
 			component: InstructionsView
 		},
 		{

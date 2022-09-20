@@ -3,6 +3,8 @@
 import { mapState, mapActions } from 'pinia'
 import { useMetamaskStore } from '../stores/metamask.js'
 import { useWeb3Store } from '../stores/web3.js'
+import { usePlayerStore } from '../stores/player.js'
+import { useRouteStore } from '../stores/route.js'
 import MetamaskNotification from './MetamaskNotification.vue'
 import SubmitButton from './SubmitButton.vue'
 
@@ -12,6 +14,9 @@ export default {
 		this.setCurrentDate()
 		this.setMinutes()
 		setInterval(this.setCurrentDate, 1000)
+		if (this.redirectParams.length === 1) {
+			this.address = this.redirectParams.shift()
+		}
 	},
 
 	data () {
@@ -32,7 +37,9 @@ export default {
 	},
 
 	computed: {
-		...mapState(useMetamaskStore, ['metamaskState'])
+		...mapState(useMetamaskStore, ['metamaskState']),
+		...mapState(usePlayerStore, ['player']),
+		...mapState(useRouteStore, ['redirectParams'])
 	},
 
 	methods: {
@@ -89,9 +96,9 @@ export default {
 			deep: true
 		},
 		address (newAddress) {
-			if (newAddress.match(/^0x[0-9A-Fa-f]{40}$/)) {
+			if (newAddress.match(/^0x[0-9A-Fa-f]{40}$/) && newAddress !== this.player[2]) {
 				// you cannot attack yourself
-				// get player (loading state) if exist green if not danger if error yellow
+				// address auto filled
 				// 0x2769144e0d5a297090e401b8f00c286a7540e989
 				this.addressStyle = {
 					state: 'loading',

@@ -6,6 +6,12 @@ import ProfileButton from './ProfileButton.vue'
 
 export default {
 
+	methods: {
+		routes () {
+			return this.$router.getRoutes().filter(route => route.name !== 'profile').sort((route1, route2) => route1.meta.order - route2.meta.order)
+		}
+	},
+
 	components: {
 		RouterLink,
 		ProfileButton
@@ -23,9 +29,9 @@ export default {
 	<div id="navbarBasicExample" class="navbar-menu">
 		<div class="navbar-start">
 			<RouterLink
-				v-for="route in $router.getRoutes().filter(route => route.name !== 'profile')"
+				v-for="route in routes()"
 				:key="route.path"
-				:to="route.path"
+				:to="{ name: route.name }"
 			><a class="navbar-item" :class="{ 'is-active': route.name === $route.name }">
 				{{ route.meta.text }}
 			</a></RouterLink>
