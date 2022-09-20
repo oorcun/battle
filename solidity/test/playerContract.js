@@ -260,6 +260,15 @@ contract('PlayerContract', accounts => {
 			)
 		})
 
+		it('should throw if player attacks itself', async () => {
+			await instance.createPlayer('orcun')
+
+			await utils.shouldThrow(
+				instance.registerAttack(account0, 60, true),
+				'Player: defender and attacker are same'
+			)
+		})
+
 		it('should successfully register for an attack', async () => {
 			let current = utils.getCurrentMinuteTimestamp()
 

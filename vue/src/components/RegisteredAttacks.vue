@@ -97,9 +97,6 @@ export default {
 		},
 		address (newAddress) {
 			if (newAddress.match(/^0x[0-9A-Fa-f]{40}$/) && newAddress !== this.player[2]) {
-				// you cannot attack yourself
-				// address auto filled
-				// 0x2769144e0d5a297090e401b8f00c286a7540e989
 				this.addressStyle = {
 					state: 'loading',
 					inputClass: '',

@@ -96,6 +96,8 @@ contract PlayerContract is PriceRequestContract
     {
         require(addressToPlayer[_defender].id > 0, "Player: defender not exist");
 
+        require(_defender != msg.sender, "Player: defender and attacker are same");
+
         uint startingMinute = _getMinute(_startingMinute);
         uint currentMinute = _getMinute(block.timestamp);
 
