@@ -22,7 +22,7 @@ export default {
 			selectedMinute: '',
 			minuteState: 'unknown',
 			selectedPrediction: 'increase',
-			isSecondHalfInMinute: false
+			isSecondHalfInMinute: undefined
 		}
 	},
 
@@ -83,13 +83,38 @@ export default {
 			default:
 				return {}
 			}
+		},
+		minuteStyle () {
+			switch (this.minuteState) {
+			case 'ok':
+				return {
+					selectClass: 'is-primary'
+				}
+			case 'unknown':
+				return {
+					selectClass: ''
+				}
+			case 'registered':
+				return {
+					selectClass: 'is-danger'
+				}
+			case 'networkError':
+				return {
+					selectClass: 'is-warning'
+				}
+			default:
+				return {}
+			}
 		}
 	},
 
 	methods: {
-		...mapActions(useWeb3Store, ['registerAttack', 'getAnyPlayer']),
+		...mapActions(useWeb3Store, ['registerAttack', 'getAnyPlayer', 'hasRegisteredAttack']),
 		setHalfInMinute () {
 			this.isSecondHalfInMinute = (new Date).getSeconds() >= 30 ? true : false
+		},
+		getMinuteTimestamp (minuteAsText) {
+			return Object.values(this.minutes).find(minute => minute.minute === minuteAsText).timestamp
 		}
 	},
 
@@ -106,9 +131,7 @@ export default {
 			if (newAddress.match(/^0x[0-9A-Fa-f]{40}$/) && newAddress !== this.player[2]) {
 				this.addressState = 'loading'
 				this.getAnyPlayer(newAddress)
-					.then(() => {
-						this.addressState = 'ok'
-					})
+					.then(() => { this.addressState = 'ok' })
 					.catch(error => {
 						if (error.message === 'Player: player not exist') {
 							this.addressState = 'noPlayer'
@@ -118,6 +141,24 @@ export default {
 					})
 			} else {
 				this.addressState = 'wrongAddress'
+			}
+		},
+		addressState (newAddressState) {
+			if (newAddressState === 'ok') {
+				this.hasRegisteredAttack(this.player[2], this.getMinuteTimestamp(this.selectedMinute))
+					.then(receipt => { this.minuteState = receipt ? 'registered' : 'ok' })
+					.catch(() => { this.minuteState = 'networkError' })
+			} else {
+				this.minuteState = 'unknown'
+			}
+		},
+		selectedMinute (newSelectedMinute) {
+			if (this.addressState === 'ok') {
+				this.hasRegisteredAttack(this.player[2], this.getMinuteTimestamp(newSelectedMinute))
+					.then(receipt => { this.minuteState = receipt ? 'registered' : 'ok' })
+					.catch(() => { this.minuteState = 'networkError' })
+			} else {
+				this.minuteState = 'unknown'
 			}
 		}
 	},
@@ -134,7 +175,7 @@ export default {
 
 
 <template>
-
+{{minuteState}}
 <div class="field">
 	<label class="label">Address</label>
 	<div class="control has-icons-right" :class="{ 'is-loading': this.addressState === 'loading' }">
@@ -150,7 +191,7 @@ export default {
 <div class="field">
 	<label class="label">Starting minute</label>
 	<div class="control">
-		<div class="select is-rounded">
+		<div class="select is-rounded" :class="minuteStyle.selectClass">
 			<select v-model="selectedMinute">
 				<option
 					v-for="minute of minutes"
@@ -161,6 +202,8 @@ export default {
 			</select>
 		</div>
 	</div>
+	<p v-if="minuteState === 'networkError'" class="help" :class="minuteStyle.selectClass">Network error when fetching register information, please check console.</p>
+	<p v-else-if="minuteState === 'registered'" class="help" :class="minuteStyle.selectClass">An attack already registered at this time.</p>
 </div>
 
 <div class="field">

@@ -93,6 +93,13 @@ export const useWeb3Store = defineStore('web3', {
 					}
 					throw error
 				})
+		},
+		hasRegisteredAttack (attacker, startingMinute) {
+			return this.call('hasRegisteredAttack', attacker, startingMinute)
+				.catch(error => {
+					console.error(error)
+					throw error
+				})
 		}
 	}
 })
