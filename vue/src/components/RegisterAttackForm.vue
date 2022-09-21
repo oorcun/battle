@@ -8,9 +8,8 @@ import SubmitButton from './SubmitButton.vue'
 export default {
 
 	mounted () {
-		this.setCurrentDate()
-		this.setMinutes()
-		setInterval(this.setCurrentDate, 1000)
+		this.setHalfInMinute()
+		setInterval(this.setHalfInMinute, 1000)
 		if (this.$route.query.address !== undefined) {
 			this.address = this.$route.query.address
 		}
@@ -27,34 +26,21 @@ export default {
 			},
 			selectedMinute: '',
 			selectedPrediction: 'increase',
-			minutes: {},
-			minutesLength: 4,
-			currentDate: {}
+			isSecondHalfInMinute: false
 		}
 	},
 
 	computed: {
-		...mapState(usePlayerStore, ['player'])
-	},
-
-	methods: {
-		...mapActions(useWeb3Store, ['registerAttack', 'getAnyPlayer']),
-		setCurrentDate () {
-			const date = new Date
-			this.currentDate = {
-				date: date,
-				firstHalf: date.getSeconds() < 30 ? true : false
-			}
-		},
-		setMinutes () {
-			let date = new Date(this.currentDate.date)
+		...mapState(usePlayerStore, ['player']),
+		minutes () {
+			let date = new Date
 			date.setSeconds(0)
 			date.setMinutes(date.getMinutes() + 1)
-			if (!this.currentDate.firstHalf) {
+			if (this.isSecondHalfInMinute) {
 				date.setMinutes(date.getMinutes() + 1)
 			}
 			let minutes = {}
-			for (let i = 0; i < this.minutesLength; i++, date.setMinutes(date.getMinutes() + 1)) {
+			for (let i = 0; i < 4; i++, date.setMinutes(date.getMinutes() + 1)) {
 				let minuteDate = new Date(date)
 				const hour = minuteDate.getHours()
 				const minute = minuteDate.getMinutes()
@@ -64,24 +50,18 @@ export default {
 					minute: (hour < 10 ? '0' + hour : hour) + ':' + (minute < 10 ? '0' + minute : minute)
 				}
 			}
-			this.minutes = minutes
+			return minutes
+		}
+	},
+
+	methods: {
+		...mapActions(useWeb3Store, ['registerAttack', 'getAnyPlayer']),
+		setHalfInMinute () {
+			this.isSecondHalfInMinute = (new Date).getSeconds() >= 30 ? true : false
 		}
 	},
 
 	watch: {
-		'currentDate.firstHalf' (newFirstHalf, oldFirstHalf) {
-			if (oldFirstHalf !== undefined && !newFirstHalf) {
-				for (let i = 0; i < this.minutesLength; i++) {
-					const minuteDate = new Date(this.minutes[i].date)
-					minuteDate.setMinutes(minuteDate.getMinutes() + 1)
-					this.minutes[i].date = minuteDate
-					this.minutes[i].timestamp += 60
-					const hour = minuteDate.getHours()
-					const minute = minuteDate.getMinutes()
-					this.minutes[i].minute = (hour < 10 ? '0' + hour : hour) + ':' + (minute < 10 ? '0' + minute : minute)
-				}
-			}
-		},
 		minutes: {
 			handler (newMinute) {
 				if (Object.values(newMinute).every(minute => minute.minute !== this.selectedMinute)) {
@@ -163,7 +143,7 @@ export default {
 <div class="field">
 	<label class="label">Starting minute</label>
 	<div class="control">
-		<div class="select is-primary is-rounded">
+		<div class="select is-rounded">
 			<select v-model="selectedMinute">
 				<option
 					v-for="minute of minutes"
