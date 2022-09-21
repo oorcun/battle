@@ -18,13 +18,9 @@ export default {
 	data () {
 		return {
 			address: '',
-			addressStyle: {
-				state: 'wrongAddress',
-				inputClass: 'is-danger',
-				ionIconName: 'alert-circle',
-				ionIconStyle: { color: 'rgb(150, 11, 39)' }
-			},
+			addressState: 'wrongAddress',
 			selectedMinute: '',
+			minuteState: 'unknown',
 			selectedPrediction: 'increase',
 			isSecondHalfInMinute: false
 		}
@@ -51,6 +47,42 @@ export default {
 				}
 			}
 			return minutes
+		},
+		addressStyle () {
+			switch (this.addressState) {
+			case 'ok':
+				return {
+					inputClass: 'is-primary',
+					ionIconName: 'checkmark-circle',
+					ionIconStyle: { color: 'rgb(0, 192, 164)' }
+				}
+			case 'loading':
+				return {
+					inputClass: '',
+					ionIconName: '',
+					ionIconStyle: {}
+				}
+			case 'noPlayer':
+				return {
+					inputClass: 'is-danger',
+					ionIconName: 'alert-circle',
+					ionIconStyle: { color: 'rgb(150, 11, 39)' }
+				}
+			case 'wrongAddress':
+				return {
+					inputClass: 'is-danger',
+					ionIconName: 'alert-circle',
+					ionIconStyle: { color: 'rgb(150, 11, 39)' }
+				}
+			case 'networkError':
+				return {
+					inputClass: 'is-warning',
+					ionIconName: 'warning',
+					ionIconStyle: { color: 'rgb(137, 101, 0)' }
+				}
+			default:
+				return {}
+			}
 		}
 	},
 
@@ -72,45 +104,20 @@ export default {
 		},
 		address (newAddress) {
 			if (newAddress.match(/^0x[0-9A-Fa-f]{40}$/) && newAddress !== this.player[2]) {
-				this.addressStyle = {
-					state: 'loading',
-					inputClass: '',
-					ionIconName: '',
-					ionIconStyle: {}
-				}
+				this.addressState = 'loading'
 				this.getAnyPlayer(newAddress)
 					.then(() => {
-						this.addressStyle = {
-							state: 'ok',
-							inputClass: 'is-primary',
-							ionIconName: 'checkmark-circle',
-							ionIconStyle: { color: 'rgb(0, 192, 164)' }
-						}
+						this.addressState = 'ok'
 					})
 					.catch(error => {
 						if (error.message === 'Player: player not exist') {
-							this.addressStyle = {
-								state: 'noPlayer',
-								inputClass: 'is-danger',
-								ionIconName: 'alert-circle',
-								ionIconStyle: { color: 'rgb(150, 11, 39)' }
-							}
+							this.addressState = 'noPlayer'
 						} else {
-							this.addressStyle = {
-								state: 'networkError',
-								inputClass: 'is-warning',
-								ionIconName: 'warning',
-								ionIconStyle: { color: 'rgb(137, 101, 0)' }
-							}
+							this.addressState = 'networkError'
 						}
 					})
 			} else {
-				this.addressStyle = {
-					state: 'wrongAddress',
-					inputClass: 'is-danger',
-					ionIconName: 'alert-circle',
-					ionIconStyle: { color: 'rgb(150, 11, 39)' }
-				}
+				this.addressState = 'wrongAddress'
 			}
 		}
 	},
@@ -130,14 +137,14 @@ export default {
 
 <div class="field">
 	<label class="label">Address</label>
-	<div class="control has-icons-right" :class="{ 'is-loading': this.addressStyle.state === 'loading' }">
+	<div class="control has-icons-right" :class="{ 'is-loading': this.addressState === 'loading' }">
 		<input class="input is-rounded" :class="addressStyle.inputClass" type="text" placeholder="Enter opponent address..." v-model="address" />
-		<span v-if="addressStyle.state !== 'loading'" class="icon is-small is-right">
+		<span v-if="addressState !== 'loading'" class="icon is-small is-right">
 			<ion-icon :name="addressStyle.ionIconName" :style="addressStyle.ionIconStyle"></ion-icon>
 		</span>
 	</div>
-	<p v-if="addressStyle.state === 'networkError'" class="help" :class="addressStyle.inputClass">Network error when fetching player, please check console.</p>
-	<p v-else-if="addressStyle.state === 'noPlayer'" class="help" :class="addressStyle.inputClass">This player doesn't exist.</p>
+	<p v-if="addressState === 'networkError'" class="help" :class="addressStyle.inputClass">Network error when fetching player, please check console.</p>
+	<p v-else-if="addressState === 'noPlayer'" class="help" :class="addressStyle.inputClass">This player doesn't exist.</p>
 </div>
 
 <div class="field">
