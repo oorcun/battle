@@ -93,9 +93,9 @@ export default {
 
 <style scoped>
 
-	img {
-		height: 1em;
-		width: auto;
-	}
+img {
+	height: 1em;
+	width: auto;
+}
 
 </style>

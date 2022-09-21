@@ -173,61 +173,65 @@ export default {
 
 <template>
 
-<div class="field">
-	<label class="label">Address</label>
-	<div class="control has-icons-right" :class="{ 'is-loading': this.addressState === 'loading' }">
-		<input class="input is-rounded" :class="addressStyle.inputClass" type="text" placeholder="Enter opponent address..." v-model="address" />
-		<span v-if="addressState !== 'loading'" class="icon is-small is-right">
-			<ion-icon :name="addressStyle.ionIconName" :style="addressStyle.ionIconStyle"></ion-icon>
-		</span>
-	</div>
-	<p v-if="addressState === 'networkError'" class="help" :class="addressStyle.inputClass">Network error when fetching player, please check console.</p>
-	<p v-else-if="addressState === 'noPlayer'" class="help" :class="addressStyle.inputClass">This player doesn't exist.</p>
-</div>
+<div class="box">
 
-<div class="field">
-	<label class="label">Starting minute</label>
-	<div class="control">
-		<div class="select is-rounded" :class="minuteStyle.selectClass">
-			<select v-model="selectedMinute">
-				<option
-					v-for="minute of minutes"
-					:key="minute.timestamp"
-				>
-					{{ minute.minute }}
-				</option>
-			</select>
+	<div class="field">
+		<label class="label">Address</label>
+		<div class="control has-icons-right" :class="{ 'is-loading': this.addressState === 'loading' }">
+			<input class="input is-rounded" :class="addressStyle.inputClass" type="text" placeholder="Enter opponent address..." v-model="address" />
+			<span v-if="addressState !== 'loading'" class="icon is-small is-right">
+				<ion-icon :name="addressStyle.ionIconName" :style="addressStyle.ionIconStyle"></ion-icon>
+			</span>
+		</div>
+		<p v-if="addressState === 'networkError'" class="help" :class="addressStyle.inputClass">Network error when fetching player, please check console.</p>
+		<p v-else-if="addressState === 'noPlayer'" class="help" :class="addressStyle.inputClass">This player doesn't exist.</p>
+	</div>
+
+	<div class="field">
+		<label class="label">Starting minute</label>
+		<div class="control">
+			<div class="select is-rounded" :class="minuteStyle.selectClass">
+				<select v-model="selectedMinute">
+					<option
+						v-for="minute of minutes"
+						:key="minute.timestamp"
+					>
+						{{ minute.minute }}
+					</option>
+				</select>
+			</div>
+		</div>
+		<p v-if="minuteState === 'networkError'" class="help" :class="minuteStyle.selectClass">Network error when fetching register information, please check console.</p>
+		<p v-else-if="minuteState === 'registered'" class="help" :class="minuteStyle.selectClass">An attack already registered at this time.</p>
+	</div>
+
+	<div class="field">
+		<label class="label">Prediction</label>
+		<div class="control">
+			<label class="radio">
+				<input type="radio" name="prediction" value="increase" v-model="selectedPrediction">
+				Increase
+			</label>
+			<label class="radio">
+				<input type="radio" name="prediction" value="decrease" v-model="selectedPrediction">
+				Decrease
+			</label>
 		</div>
 	</div>
-	<p v-if="minuteState === 'networkError'" class="help" :class="minuteStyle.selectClass">Network error when fetching register information, please check console.</p>
-	<p v-else-if="minuteState === 'registered'" class="help" :class="minuteStyle.selectClass">An attack already registered at this time.</p>
-</div>
 
-<div class="field">
-	<label class="label">Prediction</label>
-	<div class="control">
-		<label class="radio">
-			<input type="radio" name="prediction" value="increase" v-model="selectedPrediction">
-			Increase
-		</label>
-		<label class="radio">
-			<input type="radio" name="prediction" value="decrease" v-model="selectedPrediction">
-			Decrease
-		</label>
+	<div class="field is-grouped">
+		<div class="control">
+			<SubmitButton
+				:method="registerAttack"
+				:params="[address, getMinuteTimestamp(selectedMinute), selectedPrediction === 'increase' ? true : false]"
+				:disabled="isDisabled"
+				@processed="playerhasRegisteredAttack(player[2], getMinuteTimestamp(selectedMinute))"
+			>
+				Register Attack
+			</SubmitButton>
+		</div>
 	</div>
-</div>
 
-<div class="field is-grouped">
-	<div class="control">
-		<SubmitButton
-			:method="registerAttack"
-			:params="[address, getMinuteTimestamp(selectedMinute), selectedPrediction === 'increase' ? true : false]"
-			:disabled="isDisabled"
-			@processed="playerhasRegisteredAttack(player[2], getMinuteTimestamp(selectedMinute))"
-		>
-			Register Attack
-		</SubmitButton>
-	</div>
 </div>
 
 </template>
@@ -238,4 +242,3 @@ export default {
 <style scoped>
 
 </style>
-
