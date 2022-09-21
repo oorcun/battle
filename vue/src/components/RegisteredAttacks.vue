@@ -35,6 +35,8 @@ export default {
 
 	<RegisterAttackForm />
 
+	<hr>
+
 </template>
 
 </template>

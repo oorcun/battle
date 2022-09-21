@@ -34,8 +34,8 @@ contract PlayerContract is PriceRequestContract
 
 
     event NewPlayerCreated(uint id, string name);
-    event AttackRegistered(address indexed attacker, uint startingMinute, address defender, bool side);
-    event AttackResulted(address indexed attacker, uint startingMinute, address defender, bool won);
+    event AttackRegistered(address indexed attacker, address indexed defender, uint startingMinute, bool side);
+    event AttackResulted(address indexed attacker, address indexed defender, uint startingMinute, bool won);
 
 
 
@@ -111,7 +111,7 @@ contract PlayerContract is PriceRequestContract
         _addPendingRequest(PriceRequest(startingMinute, 0, 0));
         _addPendingRequest(PriceRequest(startingMinute + 60, 0, 0));
 
-        emit AttackRegistered(msg.sender, startingMinute, _defender, _side);
+        emit AttackRegistered(msg.sender, _defender, startingMinute, _side);
     }
 
     function finishAttack (address _attacker, uint _startingMinute) public
@@ -156,7 +156,7 @@ contract PlayerContract is PriceRequestContract
         addressToPlayer[_attacker] = attacker;
         addressToPlayer[attack.defender] = defender;
 
-        emit AttackResulted(_attacker, _startingMinute, attack.defender, attack.won);
+        emit AttackResulted(_attacker, attack.defender, _startingMinute, attack.won);
     }
 
     function hasRegisteredAttack (address _attacker, uint _startingMinute) public view returns (bool)

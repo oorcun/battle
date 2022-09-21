@@ -313,8 +313,8 @@ contract('PlayerContract', accounts => {
 
 			expect(result.logs[2].event).to.equal('AttackRegistered')
 			expect(result.logs[2].args[0]).to.equal(account0)
-			expect(result.logs[2].args[1].toNumber()).to.equal(current + 60)
-			expect(result.logs[2].args[2]).to.equal(account1)
+			expect(result.logs[2].args[1]).to.equal(account1)
+			expect(result.logs[2].args[2].toNumber()).to.equal(current + 60)
 			expect(result.logs[2].args[3]).to.equal(true)
 		})
 
@@ -404,8 +404,8 @@ contract('PlayerContract', accounts => {
 			expect(result.receipt.status).to.equal(true)
 			expect(result.logs[0].event).to.equal('AttackResulted')
 			expect(result.logs[0].args[0]).to.equal(account0)
-			expect(result.logs[0].args[1].toNumber()).to.equal(current + 60)
-			expect(result.logs[0].args[2]).to.equal(account1)
+			expect(result.logs[0].args[1]).to.equal(account1)
+			expect(result.logs[0].args[2].toNumber()).to.equal(current + 60)
 			expect(result.logs[0].args[3]).to.equal(true)
 		})
 
