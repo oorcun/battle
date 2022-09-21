@@ -10,14 +10,19 @@ export default {
 
 	props: {
 		method: Function,
-		params: Array
+		params: Array,
+		disabled: Boolean
 	},
 
 	methods: {
 		submit () {
+			this.$emit('clicked')
 			this.waiting = true
 			this.method(...this.params)
-				.finally(() => { this.waiting = false })
+				.finally(() => {
+					this.waiting = false
+					this.$emit('processed')
+				})
 		}
 	}
 
@@ -33,7 +38,7 @@ export default {
 	<button
 		class="button is-primary is-rounded"
 		:class="{ 'is-loading ': waiting }"
-		:disabled="waiting"
+		:disabled="waiting || disabled"
 		@click="submit()"
 	>
 		<slot>Submit</slot>

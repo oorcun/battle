@@ -87,24 +87,19 @@ export default {
 		minuteStyle () {
 			switch (this.minuteState) {
 			case 'ok':
-				return {
-					selectClass: 'is-primary'
-				}
+				return { selectClass: 'is-primary' }
 			case 'unknown':
-				return {
-					selectClass: ''
-				}
+				return { selectClass: '' }
 			case 'registered':
-				return {
-					selectClass: 'is-danger'
-				}
+				return { selectClass: 'is-danger' }
 			case 'networkError':
-				return {
-					selectClass: 'is-warning'
-				}
+				return { selectClass: 'is-warning' }
 			default:
 				return {}
 			}
+		},
+		isDisabled () {
+			return this.addressState !== 'ok' || this.minuteState !== 'ok'
 		}
 	},
 
@@ -114,7 +109,13 @@ export default {
 			this.isSecondHalfInMinute = (new Date).getSeconds() >= 30 ? true : false
 		},
 		getMinuteTimestamp (minuteAsText) {
-			return Object.values(this.minutes).find(minute => minute.minute === minuteAsText).timestamp
+			const minute = Object.values(this.minutes).find(minute => minute.minute === minuteAsText)
+			return minute !== undefined ? minute.timestamp : 0
+		},
+		playerhasRegisteredAttack (playerAddress, startingMinute) {
+			this.hasRegisteredAttack(playerAddress, startingMinute)
+				.then(receipt => { this.minuteState = receipt ? 'registered' : 'ok' })
+				.catch(() => { this.minuteState = 'networkError' })
 		}
 	},
 
@@ -145,18 +146,14 @@ export default {
 		},
 		addressState (newAddressState) {
 			if (newAddressState === 'ok') {
-				this.hasRegisteredAttack(this.player[2], this.getMinuteTimestamp(this.selectedMinute))
-					.then(receipt => { this.minuteState = receipt ? 'registered' : 'ok' })
-					.catch(() => { this.minuteState = 'networkError' })
+				this.playerhasRegisteredAttack(this.player[2], this.getMinuteTimestamp(this.selectedMinute))
 			} else {
 				this.minuteState = 'unknown'
 			}
 		},
 		selectedMinute (newSelectedMinute) {
 			if (this.addressState === 'ok') {
-				this.hasRegisteredAttack(this.player[2], this.getMinuteTimestamp(newSelectedMinute))
-					.then(receipt => { this.minuteState = receipt ? 'registered' : 'ok' })
-					.catch(() => { this.minuteState = 'networkError' })
+				this.playerhasRegisteredAttack(this.player[2], this.getMinuteTimestamp(newSelectedMinute))
 			} else {
 				this.minuteState = 'unknown'
 			}
@@ -175,7 +172,7 @@ export default {
 
 
 <template>
-{{minuteState}}
+
 <div class="field">
 	<label class="label">Address</label>
 	<div class="control has-icons-right" :class="{ 'is-loading': this.addressState === 'loading' }">
@@ -222,7 +219,14 @@ export default {
 
 <div class="field is-grouped">
 	<div class="control">
-		<SubmitButton :method="registerAttack" :params="[address.value]" disabled>Register Attack</SubmitButton>
+		<SubmitButton
+			:method="registerAttack"
+			:params="[address, getMinuteTimestamp(selectedMinute), selectedPrediction === 'increase' ? true : false]"
+			:disabled="isDisabled"
+			@processed="playerhasRegisteredAttack(player[2], getMinuteTimestamp(selectedMinute))"
+		>
+			Register Attack
+		</SubmitButton>
 	</div>
 </div>
 

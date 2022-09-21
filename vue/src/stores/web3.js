@@ -74,9 +74,6 @@ export const useWeb3Store = defineStore('web3', {
 		},
 		registerAttack (defenderAddress, startingMinuteTimestamp, side) {
 			return this.send('registerAttack', defenderAddress, startingMinuteTimestamp, side)
-				.then(() => {
-					console.log('success')
-				})
 				.catch(console.error)
 		},
 		getAnyPlayer (owner) {
