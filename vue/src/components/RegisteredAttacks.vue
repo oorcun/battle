@@ -48,7 +48,17 @@ export default {
 		},
 		setPlayerName (address) {
 			this.getAnyPlayer(address)
-				.then(console.log)
+				.then(player => {
+					this.attacks.forEach(attack => {
+						if (attack.attacker.address === player[2]) {
+							attack.attacker.name = player[1]
+							return
+						}
+						if (attack.defender.address === player[2]) {
+							attack.defender.name = player[1]
+						}
+					})
+				})
 				.catch(() => { this.setPlayerNameError = true })
 		},
 		sanitizeAttacks (events) {
@@ -136,7 +146,12 @@ export default {
 
 		<hr>
 
-		<div v-if="attackGetError" class="notification is-light is-danger">Error fetching past events, please check console.</div>
+		<div v-if="attackGetError" class="notification is-light is-danger">
+			Error fetching past events, please check console.
+		</div>
+		<div v-if="setPlayerNameError" class="notification is-light is-danger">
+			Error fetching a player, please check console.
+		</div>
 
 		<div class="box">
 			<div class="tile is-ancestor">
