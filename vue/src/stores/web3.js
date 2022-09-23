@@ -29,6 +29,13 @@ export const useWeb3Store = defineStore('web3', {
 				return ''
 			}
 		},
+		getPastEvents (event, options) {
+			return this.playerContract.getPastEvents(event, { fromBlock: 'earliest', ...options })
+				.catch(error => {
+					console.error(error)
+					throw error
+				})
+		},
 		call (method, ...params) {
 			const metamaskStore = useMetamaskStore()
 			return this.playerContract.methods[method](...params).call({ from: metamaskStore.account })
@@ -82,13 +89,11 @@ export const useWeb3Store = defineStore('web3', {
 					const reason = this.getErrorReason(error)
 					if (reason !== '') {
 						console.info('getAnyPlayer', reason)
-						if (reason === 'Player: player not exist') {
-							throw new Error(reason)
-						}
+						throw new Error(reason)
 					} else {
 						console.error(error)
+						throw error
 					}
-					throw error
 				})
 		},
 		hasRegisteredAttack (attacker, startingMinute) {

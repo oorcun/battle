@@ -1,16 +1,113 @@
 <script>
 
-import { mapState } from 'pinia'
+import { mapState, mapActions } from 'pinia'
 import { useMetamaskStore } from '../stores/metamask.js'
 import { usePlayerStore } from '../stores/player.js'
+import { useWeb3Store } from '../stores/web3.js'
 import RegisterAttackForm from './RegisterAttackForm.vue'
 import MetamaskNotification from './MetamaskNotification.vue'
 
 export default {
 
+	mounted () {
+		this.getPastAttacks()
+		setInterval(this.setCurrentMinute, 1000)
+	},
+
+	data () {
+		return {
+			currentMinute: (new Date).getMinutes(),
+			attacks: [],
+			attackGetError: false,
+			setPlayerNameError: false
+		}
+	},
+
 	computed: {
 		...mapState(useMetamaskStore, ['metamaskState']),
-		...mapState(usePlayerStore, ['playerState']),
+		...mapState(usePlayerStore, ['playerState', 'player']),
+		...mapState(useWeb3Store, ['getAnyPlayer']),
+	},
+
+	methods: {
+		...mapActions(useWeb3Store, ['getPastEvents']),
+		setCurrentMinute () {
+			this.currentMinute = (new Date).getMinutes()
+		},
+		calculateAttackStates () {
+			const timestamp = Math.floor(Date.now() / 1000)
+			this.attacks.forEach(attack => {
+				if (attack.startingMinute > timestamp) {
+					attack.state = 'registered'
+				} else if (attack.startingMinute <= timestamp && timestamp <= attack.startingMinute + 60) {
+					attack.state = 'fighting'
+				} else {
+					attack.state = 'finished'
+				}
+			})
+		},
+		setPlayerName (address) {
+			this.getAnyPlayer(address)
+				.then(console.log)
+				.catch(() => { this.setPlayerNameError = true })
+		},
+		sanitizeAttacks (events) {
+			Object.values(events).forEach(event => {
+				const attacker = event.returnValues.attacker
+				const defender = event.returnValues.defender
+				let attackerName = ''
+				let defenderName = ''
+				let attackerIsCurrentPlayer = false
+				let defenderIsCurrentPlayer = false
+				if (attacker === this.player[2]) {
+					attackerName = this.player[1]
+					this.setPlayerName(defender)
+					attackerIsCurrentPlayer = true
+					defenderIsCurrentPlayer = false
+				} else {
+					this.setPlayerName(attacker)
+					defenderName = this.player[1]
+					attackerIsCurrentPlayer = false
+					defenderIsCurrentPlayer = true
+				}
+				this.attacks.push({
+					attacker: {
+						name: attackerName,
+						address: attacker,
+						isCurrentPlayer: attackerIsCurrentPlayer
+					},
+					defender: {
+						name: defenderName,
+						address: defender,
+						isCurrentPlayer: defenderIsCurrentPlayer
+					},
+					side: event.returnValues.side,
+					startingMinute: Number(event.returnValues.startingMinute),
+					state: 'registered'
+				})
+			})
+			this.attacks.sort((attack1, attack2) => attack1.startingMinute - attack2.startingMinute)
+			this.calculateAttackStates()
+		},
+		getPastAttacks () {
+			if (this.attacks.length === 0 && this.metamaskState === 'connected' && this.playerState === 'exist') {
+				this.getPastEvents('AttackRegistered', { filter: { attacker: this.player[2] } })
+					.then(this.sanitizeAttacks)
+					.catch(() => { this.attackGetError = true })
+				this.getPastEvents('AttackRegistered', { filter: { defender: this.player[2] } })
+					.then(this.sanitizeAttacks)
+					.catch(() => { this.attackGetError = true })
+			}
+		}
+	},
+
+	watch: {
+		playerState () {
+			this.getPastAttacks()
+		},
+		currentMinute () {
+			this.calculateAttackStates()
+		}
 	},
 
 	components: {
@@ -26,7 +123,7 @@ export default {
 
 
 <template>
-
+{{attacks}}
 <MetamaskNotification />
 
 <hr>
@@ -35,9 +132,11 @@ export default {
 
 	<template v-if="playerState === 'exist'">
 
-		<!-- <RegisterAttackForm /> -->
+		<RegisterAttackForm />
 
 		<hr>
+
+		<div v-if="attackGetError" class="notification is-light is-danger">Error fetching past events, please check console.</div>
 
 		<div class="box">
 			<div class="tile is-ancestor">

@@ -31,7 +31,7 @@ async function sendRequest (PlayerContract, firstRequestTimestamp) {
 			await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&startTime=${firstRequestTimestamp - 60}&endTime=${firstRequestTimestamp * 1000}`)
 		).text()
 	)
-	if (response.length <= 1) {
+	if (response.length < 2) {
 		throw Error('request sent too soon')
 	}
 	const price = Number(response[0][4]) * 100

@@ -11,10 +11,10 @@ module.exports = async function (callback) {
 		// let r = await PlayerContract.getPlayers(0, 0)
 
 		// await PlayerContract.createPlayer('orcun')
-		// await PlayerContract.createPlayer('orcun2', { from: accounts[1] })
+		// await PlayerContract.createPlayer('orcun3', { from: accounts[2] })
 
 		// let r = await PlayerContract.registerAttack(accounts[1], utils.getCurrentMinuteTimestamp() + 60, true)
-		let s = await PlayerContract.registerAttack(accounts[0], utils.getCurrentMinuteTimestamp() + 240, true, { from: accounts[1] })
+		let s = await PlayerContract.registerAttack(accounts[0], utils.getCurrentMinuteTimestamp() + 60, true, { from: accounts[1] })
 
 		console.log(s)
 
