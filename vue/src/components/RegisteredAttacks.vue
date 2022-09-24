@@ -57,11 +57,13 @@ export default {
 			}
 		},
 		getMinutePrice (minuteTimestamp) {
+			console.log(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&startTime=${(minuteTimestamp - 60) * 1000}&endTime=${minuteTimestamp * 1000}`)
 			return fetch(
 				`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&startTime=${(minuteTimestamp - 60) * 1000}&endTime=${minuteTimestamp * 1000}`
 			)
 				.then(response => response.json())
 				.then(data => {
+					console.log(data)
 					if (data.length !== 2) {
 						return 0
 					}
@@ -167,7 +169,7 @@ export default {
 		},
 		currentMinute () {
 			this.calculateAttackStates()
-			this.setMinutePrices()
+			setTimeout(this.setMinutePrices, 1000)
 		}
 	},
 
