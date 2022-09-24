@@ -19,14 +19,15 @@ export default {
 			currentMinute: (new Date).getMinutes(),
 			attacks: [],
 			attackGetError: false,
-			setPlayerNameError: false
+			setPlayerNameError: false,
+			priceGetError: false
 		}
 	},
 
 	computed: {
 		...mapState(useMetamaskStore, ['metamaskState']),
 		...mapState(usePlayerStore, ['playerState', 'player']),
-		...mapState(useWeb3Store, ['getAnyPlayer']),
+		...mapState(useWeb3Store, ['getAnyPlayer'])
 	},
 
 	methods: {
@@ -43,6 +44,51 @@ export default {
 					attack.state = 'fighting'
 				} else {
 					attack.state = 'finished'
+				}
+			})
+		},
+		setWinner (attack) {
+			if (attack.endPrice !== 0 && attack.endPrice !== 0) {
+				if (attack.side) {
+					attack.winner = attack.startPrice <= attack.endPrice ? 'attacker' : 'defender'
+				} else {
+					attack.winner = attack.startPrice >= attack.endPrice ? 'attacker' : 'defender'
+				}
+			}
+		},
+		getMinutePrice (minuteTimestamp) {
+			return fetch(
+				`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&startTime=${(minuteTimestamp - 60) * 1000}&endTime=${minuteTimestamp * 1000}`
+			)
+				.then(response => response.json())
+				.then(data => {
+					if (data.length !== 2) {
+						return 0
+					}
+					return data[0][4]
+				})
+				.catch(error => {
+					console.error(error)
+					throw error
+				})
+		},
+		setMinutePrices () {
+			this.attacks.forEach(attack => {
+				if (attack.startPrice === 0) {
+					this.getMinutePrice(attack.startingMinute)
+						.then(price => {
+							attack.startPrice = price
+							this.setWinner(attack)
+						})
+						.catch(() => { this.priceGetError = true })
+				}
+				if (attack.endPrice === 0) {
+					this.getMinutePrice(attack.startingMinute + 60)
+						.then(price => {
+							attack.endPrice = price
+							this.setWinner(attack)
+						})
+						.catch(() => { this.priceGetError = true })
 				}
 			})
 		},
@@ -93,11 +139,15 @@ export default {
 					},
 					side: event.returnValues.side,
 					startingMinute: Number(event.returnValues.startingMinute),
-					state: 'registered'
+					state: 'registered',
+					startPrice: 0,
+					endPrice: 0,
+					winner: ''
 				})
 			})
 			this.attacks.sort((attack1, attack2) => attack1.startingMinute - attack2.startingMinute)
 			this.calculateAttackStates()
+			this.setMinutePrices()
 		},
 		getPastAttacks () {
 			if (this.attacks.length === 0 && this.metamaskState === 'connected' && this.playerState === 'exist') {
@@ -117,6 +167,7 @@ export default {
 		},
 		currentMinute () {
 			this.calculateAttackStates()
+			this.setMinutePrices()
 		}
 	},
 
@@ -133,7 +184,7 @@ export default {
 
 
 <template>
-{{attacks}}
+<pre>{{attacks}}</pre>
 <MetamaskNotification />
 
 <hr>
@@ -152,8 +203,14 @@ export default {
 		<div v-if="setPlayerNameError" class="notification is-light is-danger">
 			Error fetching a player, please check console.
 		</div>
+		<div v-if="priceGetError" class="notification is-light is-danger">
+			Error fetching a price, please check console.
+		</div>
 
 		<div class="box">
+			<div class="tile is-ancestor">
+				<p>This attack finished.</p>
+			</div>
 			<div class="tile is-ancestor">
 				<div class="tile is-parent notification is-info is-light is-5 custom-left-tile has-text-right">
 					<div class="tile is-child">

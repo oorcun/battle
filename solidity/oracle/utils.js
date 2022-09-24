@@ -27,11 +27,10 @@ async function requestPrice (PlayerContract, priceRequestTimestamps) {
 async function sendRequest (PlayerContract, firstRequestTimestamp) {
 	const response = JSON.parse(
 		await (
-			// start time end time and check request length must be 2
-			await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&startTime=${firstRequestTimestamp - 60}&endTime=${firstRequestTimestamp * 1000}`)
-		).text()
+			await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&startTime=${(firstRequestTimestamp - 60) * 1000}&endTime=${firstRequestTimestamp * 1000}`)
+		).json()
 	)
-	if (response.length < 2) {
+	if (response.length !== 2) {
 		throw Error('request sent too soon')
 	}
 	const price = Number(response[0][4]) * 100
