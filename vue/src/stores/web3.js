@@ -36,6 +36,10 @@ export const useWeb3Store = defineStore('web3', {
 					throw error
 				})
 		},
+		listenEvent (event, filter) {
+			return this.playerContract.events[event](filter)
+				.on('error', console.log)
+		},
 		call (method, ...params) {
 			const metamaskStore = useMetamaskStore()
 			return this.playerContract.methods[method](...params).call({ from: metamaskStore.account })

@@ -11,7 +11,19 @@ export default {
 
 	mounted () {
 		this.getPastAttacks()
+		this.listenAttacks()
 		setInterval(this.setCurrentMinute, 1000)
+	},
+
+	unmounted () {
+		if (this.attackerEvent !== undefined) {
+			this.attackerEvent.removeAllListeners('data')
+			this.attackerEvent.removeAllListeners('error')
+		}
+		if (this.defenderEvent !== undefined) {
+			this.defenderEvent.removeAllListeners('data')
+			this.defenderEvent.removeAllListeners('error')
+		}
 	},
 
 	data () {
@@ -20,14 +32,16 @@ export default {
 			attacks: [],
 			attackGetError: false,
 			setPlayerNameError: false,
-			priceGetError: false
+			priceGetError: false,
+			attackerEvent: undefined,
+			defenderEvent: undefined
 		}
 	},
 
 	computed: {
 		...mapState(useMetamaskStore, ['metamaskState']),
 		...mapState(usePlayerStore, ['playerState', 'player']),
-		...mapState(useWeb3Store, ['getAnyPlayer'])
+		...mapState(useWeb3Store, ['getAnyPlayer', 'listenEvent'])
 	},
 
 	methods: {
@@ -35,17 +49,23 @@ export default {
 		setCurrentMinute () {
 			this.currentMinute = (new Date).getMinutes()
 		},
-		calculateAttackStates () {
+		listenAttacks () {
+			if (this.metamaskState === 'connected' && this.playerState === 'exist') {
+				this.attackerEvent = this.listenEvent('AttackRegistered', { filter: { attacker: this.player[2] } })
+					.on('data', this.setAttack)
+				this.defenderEvent = this.listenEvent('AttackRegistered', { filter: { defender: this.player[2] } })
+					.on('data', this.setAttack)
+			}
+		},
+		calculateAttackStates (attack) {
 			const timestamp = Math.floor(Date.now() / 1000)
-			this.attacks.forEach(attack => {
-				if (attack.startingMinute > timestamp) {
-					attack.state = 'registered'
-				} else if (attack.startingMinute <= timestamp && timestamp <= attack.startingMinute + 60) {
-					attack.state = 'fighting'
-				} else {
-					attack.state = 'finished'
-				}
-			})
+			if (attack.startingMinute > timestamp) {
+				attack.state = 'registered'
+			} else if (attack.startingMinute <= timestamp && timestamp <= attack.startingMinute + 60) {
+				attack.state = 'fighting'
+			} else {
+				attack.state = 'finished'
+			}
 		},
 		setWinner (attack) {
 			if (attack.endPrice !== 0 && attack.endPrice !== 0) {
@@ -72,25 +92,28 @@ export default {
 					throw error
 				})
 		},
-		setMinutePrices () {
-			this.attacks.forEach(attack => {
-				if (attack.startPrice === 0) {
-					this.getMinutePrice(attack.startingMinute)
-						.then(price => {
-							attack.startPrice = price
-							this.setWinner(attack)
-						})
-						.catch(() => { this.priceGetError = true })
-				}
-				if (attack.endPrice === 0) {
-					this.getMinutePrice(attack.startingMinute + 60)
-						.then(price => {
-							attack.endPrice = price
-							this.setWinner(attack)
-						})
-						.catch(() => { this.priceGetError = true })
-				}
+		setMinutePrices (attack) {
+			let reactiveAttack = this.attacks.find(item => {
+				return attack.attacker.address === item.attacker.address
+					&& attack.defender.address === item.defender.address
+					&& attack.startingMinute === item.startingMinute
 			})
+			if (reactiveAttack.startPrice === 0) {
+				this.getMinutePrice(reactiveAttack.startingMinute)
+					.then(price => {
+						reactiveAttack.startPrice = price
+						this.setWinner(reactiveAttack)
+					})
+					.catch(() => { this.priceGetError = true })
+			}
+			if (reactiveAttack.endPrice === 0) {
+				this.getMinutePrice(reactiveAttack.startingMinute + 60)
+					.then(price => {
+						reactiveAttack.endPrice = price
+						this.setWinner(reactiveAttack)
+					})
+					.catch(() => { this.priceGetError = true })
+			}
 		},
 		setPlayerName (address) {
 			this.getAnyPlayer(address)
@@ -107,55 +130,57 @@ export default {
 				})
 				.catch(() => { this.setPlayerNameError = true })
 		},
-		sanitizeAttacks (events) {
-			Object.values(events).forEach(event => {
-				const attacker = event.returnValues.attacker
-				const defender = event.returnValues.defender
-				let attackerName = ''
-				let defenderName = ''
-				let attackerIsCurrentPlayer = false
-				let defenderIsCurrentPlayer = false
-				if (attacker === this.player[2]) {
-					attackerName = this.player[1]
-					this.setPlayerName(defender)
-					attackerIsCurrentPlayer = true
-					defenderIsCurrentPlayer = false
-				} else {
-					this.setPlayerName(attacker)
-					defenderName = this.player[1]
-					attackerIsCurrentPlayer = false
-					defenderIsCurrentPlayer = true
-				}
-				this.attacks.push({
-					attacker: {
-						name: attackerName,
-						address: attacker,
-						isCurrentPlayer: attackerIsCurrentPlayer
-					},
-					defender: {
-						name: defenderName,
-						address: defender,
-						isCurrentPlayer: defenderIsCurrentPlayer
-					},
-					side: event.returnValues.side,
-					startingMinute: Number(event.returnValues.startingMinute),
-					state: 'registered',
-					startPrice: 0,
-					endPrice: 0,
-					winner: ''
-				})
-			})
+		setAttack (event) {
+			const attacker = event.returnValues.attacker
+			const defender = event.returnValues.defender
+			let attackerName = ''
+			let defenderName = ''
+			let attackerIsCurrentPlayer = false
+			let defenderIsCurrentPlayer = false
+			if (attacker === this.player[2]) {
+				attackerName = this.player[1]
+				this.setPlayerName(defender)
+				attackerIsCurrentPlayer = true
+				defenderIsCurrentPlayer = false
+			} else {
+				this.setPlayerName(attacker)
+				defenderName = this.player[1]
+				attackerIsCurrentPlayer = false
+				defenderIsCurrentPlayer = true
+			}
+			let attack = {
+				attacker: {
+					name: attackerName,
+					address: attacker,
+					isCurrentPlayer: attackerIsCurrentPlayer
+				},
+				defender: {
+					name: defenderName,
+					address: defender,
+					isCurrentPlayer: defenderIsCurrentPlayer
+				},
+				side: event.returnValues.side,
+				startingMinute: Number(event.returnValues.startingMinute),
+				state: 'registered',
+				startPrice: 0,
+				endPrice: 0,
+				winner: ''
+			}
+			this.attacks.push(attack)
 			this.attacks.sort((attack1, attack2) => attack1.startingMinute - attack2.startingMinute)
-			this.calculateAttackStates()
-			this.setMinutePrices()
+			this.setMinutePrices(attack)
+			this.calculateAttackStates(attack)
+		},
+		setAttacks (events) {
+			Object.values(events).forEach(this.setAttack)
 		},
 		getPastAttacks () {
 			if (this.attacks.length === 0 && this.metamaskState === 'connected' && this.playerState === 'exist') {
 				this.getPastEvents('AttackRegistered', { filter: { attacker: this.player[2] } })
-					.then(this.sanitizeAttacks)
+					.then(this.setAttacks)
 					.catch(() => { this.attackGetError = true })
 				this.getPastEvents('AttackRegistered', { filter: { defender: this.player[2] } })
-					.then(this.sanitizeAttacks)
+					.then(this.setAttacks)
 					.catch(() => { this.attackGetError = true })
 			}
 		}
@@ -164,10 +189,11 @@ export default {
 	watch: {
 		playerState () {
 			this.getPastAttacks()
+			this.listenAttacks()
 		},
 		currentMinute () {
-			this.calculateAttackStates()
-			setTimeout(this.setMinutePrices, 1000)
+			this.attacks.forEach(this.calculateAttackStates)
+			setTimeout(this.attacks.forEach(this.setMinutePrices), 1000)
 		}
 	},
 
@@ -184,6 +210,7 @@ export default {
 
 
 <template>
+<pre>{{attacks.length}}</pre>
 <pre>{{attacks}}</pre>
 <MetamaskNotification />
 
@@ -209,7 +236,7 @@ export default {
 
 		<div class="box">
 			<div class="tile is-ancestor">
-				<p>This attack finished.</p>
+				<p class="title">This attack is finished.</p>
 			</div>
 			<div class="tile is-ancestor">
 				<div class="tile is-parent notification is-info is-light is-5 custom-left-tile has-text-right">
