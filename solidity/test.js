@@ -12,7 +12,7 @@ module.exports = async function (callback) {
 		// await PlayerContract.createPlayer('orcun3', { from: accounts[2] })
 
 		// await PlayerContract.registerAttack(accounts[1], utils.getCurrentMinuteTimestamp() + 60, true)
-		await PlayerContract.registerAttack(accounts[0], utils.getCurrentMinuteTimestamp() + 180, true, { from: accounts[1] })
+		await PlayerContract.registerAttack(accounts[0], utils.getCurrentMinuteTimestamp() + 60, true, { from: accounts[1] })
 		// await PlayerContract.registerAttack(accounts[2], utils.getCurrentMinuteTimestamp() + 120, true, { from: accounts[1] })
 
 		// console.log(s)

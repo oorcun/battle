@@ -193,7 +193,7 @@ export default {
 		},
 		currentMinute () {
 			this.attacks.forEach(this.calculateAttackStates)
-			setTimeout(this.attacks.forEach(this.setMinutePrices), 1000)
+			this.attacks.forEach(attack => { setTimeout(this.setMinutePrices, 1000, attack) })
 		}
 	},
 
