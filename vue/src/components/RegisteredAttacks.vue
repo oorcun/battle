@@ -15,14 +15,12 @@ export default {
 		setInterval(this.setCurrentMinute, 1000)
 	},
 
-	unmounted () {
-		if (this.attackerEvent !== undefined) {
-			this.attackerEvent.removeAllListeners('data')
-			this.attackerEvent.removeAllListeners('error')
+	beforeUnmount () {
+		if (this.registeredAttacksAttackerListener !== undefined) {
+			this.registeredAttacksAttackerListener.unsubscribe()
 		}
-		if (this.defenderEvent !== undefined) {
-			this.defenderEvent.removeAllListeners('data')
-			this.defenderEvent.removeAllListeners('error')
+		if (this.registeredAttacksDefenderListener !== undefined) {
+			this.registeredAttacksDefenderListener.unsubscribe()
 		}
 	},
 
@@ -30,11 +28,12 @@ export default {
 		return {
 			currentMinute: (new Date).getMinutes(),
 			attacks: [],
+			attackId: 1,
 			attackGetError: false,
 			setPlayerNameError: false,
 			priceGetError: false,
-			attackerEvent: undefined,
-			defenderEvent: undefined
+			registeredAttacksAttackerListener: undefined,
+			registeredAttacksDefenderListener: undefined
 		}
 	},
 
@@ -51,10 +50,12 @@ export default {
 		},
 		listenAttacks () {
 			if (this.metamaskState === 'connected' && this.playerState === 'exist') {
-				this.attackerEvent = this.listenEvent('AttackRegistered', { filter: { attacker: this.player[2] } })
-					.on('data', this.setAttack)
-				this.defenderEvent = this.listenEvent('AttackRegistered', { filter: { defender: this.player[2] } })
-					.on('data', this.setAttack)
+				this.registeredAttacksAttackerListener = this.listenEvent(
+					'AttackRegistered', { filter: { attacker: this.player[2] } }
+				).on('data', this.setAttack)
+				this.registeredAttacksDefenderListener = this.listenEvent(
+					'AttackRegistered', { filter: { defender: this.player[2] } }
+				).on('data', this.setAttack)
 			}
 		},
 		calculateAttackStates (attack) {
@@ -85,7 +86,7 @@ export default {
 					if (data.length !== 2) {
 						return 0
 					}
-					return data[0][4]
+					return Number(data[0][4]).toFixed(2)
 				})
 				.catch(error => {
 					console.error(error)
@@ -93,11 +94,7 @@ export default {
 				})
 		},
 		setMinutePrices (attack) {
-			let reactiveAttack = this.attacks.find(item => {
-				return attack.attacker.address === item.attacker.address
-					&& attack.defender.address === item.defender.address
-					&& attack.startingMinute === item.startingMinute
-			})
+			let reactiveAttack = this.attacks.find(item => item.id === attack.id)
 			if (reactiveAttack.startPrice === 0) {
 				this.getMinutePrice(reactiveAttack.startingMinute)
 					.then(price => {
@@ -149,6 +146,7 @@ export default {
 				defenderIsCurrentPlayer = true
 			}
 			let attack = {
+				id: this.attackId++,
 				attacker: {
 					name: attackerName,
 					address: attacker,
@@ -210,8 +208,7 @@ export default {
 
 
 <template>
-<pre>{{attacks.length}}</pre>
-<pre>{{attacks}}</pre>
+
 <MetamaskNotification />
 
 <hr>
@@ -234,24 +231,29 @@ export default {
 			Error fetching a price, please check console.
 		</div>
 
-		<div class="box">
+		<div v-for="attack in attacks" :key="attack.id" class="box">
 			<div class="tile is-ancestor">
-				<p class="title">This attack is finished.</p>
+				<p v-if="attack.state === 'registered'" class="title">Waiting for battle to start</p>
+				<p v-else-if="attack.state === 'finished'" class="title">This battle is finished</p>
 			</div>
 			<div class="tile is-ancestor">
 				<div class="tile is-parent notification is-info is-light is-5 custom-left-tile has-text-right">
 					<div class="tile is-child">
-						<p class="title">orcun <ion-icon name="arrow-up-circle"></ion-icon></p>
-						<p>0x6f9eB65FC703dd3D9e5251ae581f3612f9289A7a</p>
+						<p class="title">
+							{{ attack.attacker.name }}
+							<ion-icon v-if="attack.side" class="arrow-up-circle" name="arrow-up-circle"></ion-icon>
+							<ion-icon v-else class="arrow-down-circle" name="arrow-down-circle"></ion-icon>
+						</p>
+						<p>{{ attack.attacker.address }}</p>
 					</div>
 					<div class="tile is-child">
-						<p class="title"><ion-icon name="person"></ion-icon></p>
+						<p class="title"><ion-icon class="person" name="person"></ion-icon></p>
 					</div>
 				</div>
 				<div class="tile is-2 is-parent is-vertical has-text-centered">
 					<div class="tile is-child">
-						<p class="title">19399.16</p>
-						<p class="title">19414.59</p>
+						<p class="title">{{ attack.startPrice }}</p>
+						<p class="title">{{ attack.endPrice }}</p>
 					</div>
 				</div>
 				<div class="tile is-parent notification is-info is-light is-5">
@@ -274,7 +276,8 @@ export default {
 	</template>
 
 </template>
-
+<pre>{{attacks.length}}</pre>
+<pre>{{attacks}}</pre>
 </template>
 
 
@@ -282,15 +285,15 @@ export default {
 
 <style scoped>
 
-ion-icon[name="person"] {
+.person {
 	font-size: 128px;
 }
 
-ion-icon[name="arrow-up-circle"] {
+.arrow-up-circle {
 	color: #48c78e;
 }
 
-ion-icon[name="arrow-down-circle"] {
+.arrow-down-circle {
 	color: rgb(150, 11, 39);
 }
 

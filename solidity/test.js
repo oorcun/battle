@@ -8,6 +8,7 @@ module.exports = async function (callback) {
 
 		const PlayerContract = await artifacts.require('PlayerContract').deployed()
 
+		// await PlayerContract.createPlayer('orcun')
 		// await PlayerContract.createPlayer('orcun2', { from: accounts[1] })
 		// await PlayerContract.createPlayer('orcun3', { from: accounts[2] })
 
