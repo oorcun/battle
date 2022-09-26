@@ -33,7 +33,8 @@ export default {
 			setPlayerNameError: false,
 			priceGetError: false,
 			registeredAttacksAttackerListener: undefined,
-			registeredAttacksDefenderListener: undefined
+			registeredAttacksDefenderListener: undefined,
+			battles: {}
 		}
 	},
 
@@ -64,8 +65,10 @@ export default {
 				attack.state = 'registered'
 			} else if (attack.startingMinute <= timestamp && timestamp <= attack.startingMinute + 60) {
 				attack.state = 'fighting'
-			} else {
+				this.startBattle(attack.id)
+			} else if (attack.state !== 'finished') {
 				attack.state = 'finished'
+				this.endBattle(attack.id)
 			}
 		},
 		setWinner (attack) {
@@ -181,6 +184,14 @@ export default {
 					.then(this.setAttacks)
 					.catch(() => { this.attackGetError = true })
 			}
+		},
+		startBattle (attackId) {
+			console.log('startBattle', attackId)
+			this.battles[attackId] = { width: 50.00 }
+		},
+		endBattle (attackId) {
+			console.log('endBattle', attackId)
+			delete this.battles[attackId]
 		}
 	},
 
@@ -302,7 +313,7 @@ export default {
 					</div>
 				</div>
 			</div>
-			<div class="tile battle-bar"></div>
+			<div v-show="attack.state === 'fighting'" class="tile battle-bar"></div>
 		</div>
 
 	</template>
@@ -312,6 +323,7 @@ export default {
 	</template>
 
 </template>
+<pre>{{battles}}</pre>
 <pre>{{attacks.length}}</pre>
 </template>
 
@@ -336,7 +348,7 @@ export default {
 .battle-bar {
 	background-color: #48c78e;
 	height: 36px;
-	width: 30%;
+	width: 50%;
 }
 
 </style>
