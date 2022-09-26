@@ -190,7 +190,7 @@ export default {
 			this.listenAttacks()
 		},
 		currentMinute () {
-			this.attacks.forEach(this.calculateAttackStates)
+			this.attacks.forEach(attack => { setTimeout(this.calculateAttackStates, 2000, attack) })
 			this.attacks.forEach(attack => { setTimeout(this.setMinutePrices, 1000, attack) })
 		}
 	},
@@ -233,16 +233,32 @@ export default {
 
 		<div v-for="attack in attacks" :key="attack.id" class="box">
 			<div class="tile is-ancestor">
-				<p v-if="attack.state === 'registered'" class="title">Waiting for battle to start</p>
-				<p v-else-if="attack.state === 'finished'" class="title">This battle is finished</p>
+				<p v-if="attack.state === 'registered'" class="title">Waiting for battle to start...</p>
+				<p v-else-if="attack.state === 'finished'" class="title">
+					Battle finished,
+					<template v-if="attack.winner === 'attacker' && attack.attacker.isCurrentPlayer || attack.winner === 'defender' && attack.defender.isCurrentPlayer">
+						you won!
+					</template>
+					<template v-else>
+						you lost!
+					</template>
+				</p>
 			</div>
 			<div class="tile is-ancestor">
-				<div class="tile is-parent notification is-info is-light is-5 custom-left-tile has-text-right">
+				<div
+					class="tile is-parent notification is-5 custom-left-tile has-text-right"
+					:class="{
+						'is-primary': attack.winner === 'attacker',
+						'is-danger': attack.winner === 'defender',
+						'is-info': attack.winner === '',
+						'is-light': attack.state !== 'fighting'
+					}"
+				>
 					<div class="tile is-child">
 						<p class="title">
 							{{ attack.attacker.name }}
-							<ion-icon v-if="attack.side" class="arrow-up-circle" name="arrow-up-circle"></ion-icon>
-							<ion-icon v-else class="arrow-down-circle" name="arrow-down-circle"></ion-icon>
+							<ion-icon v-if="attack.side" class="has-text-primary" name="arrow-up-circle"></ion-icon>
+							<ion-icon v-else class="has-text-danger" name="arrow-down-circle"></ion-icon>
 						</p>
 						<p>{{ attack.attacker.address }}</p>
 					</div>
@@ -253,16 +269,36 @@ export default {
 				<div class="tile is-2 is-parent is-vertical has-text-centered">
 					<div class="tile is-child">
 						<p class="title">{{ attack.startPrice }}</p>
-						<p class="title">{{ attack.endPrice }}</p>
+						<p
+							class="title"
+							:class="{
+								'has-text-primary': attack.state === 'finished' && attack.startPrice <= attack.endPrice,
+								'has-text-danger': attack.state === 'finished' && attack.startPrice > attack.endPrice
+							}"
+						>
+							{{ attack.endPrice }}
+						</p>
 					</div>
 				</div>
-				<div class="tile is-parent notification is-info is-light is-5">
+				<div
+					class="tile is-parent notification is-5"
+					:class="{
+						'is-primary': attack.winner === 'defender',
+						'is-danger': attack.winner === 'attacker',
+						'is-info': attack.winner === '',
+						'is-light': attack.state !== 'fighting'
+					}"
+				>
 					<div class="tile is-child">
-						<p class="title"><ion-icon name="person"></ion-icon></p>
+						<p class="title"><ion-icon class="person" name="person"></ion-icon></p>
 					</div>
 					<div class="tile is-child">
-						<p class="title"><ion-icon name="arrow-down-circle"></ion-icon> orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2orcun2</p>
-						<p>0x2769144e0d5A297090e401B8f00C286a7540E989</p>
+						<p class="title">
+							<ion-icon v-if="attack.side" class="has-text-danger" name="arrow-down-circle"></ion-icon>
+							<ion-icon v-else class="has-text-primary" name="arrow-up-circle"></ion-icon>
+							{{ attack.defender.name }}
+						</p>
+						<p>{{ attack.defender.address }}</p>
 					</div>
 				</div>
 			</div>
@@ -277,7 +313,6 @@ export default {
 
 </template>
 <pre>{{attacks.length}}</pre>
-<pre>{{attacks}}</pre>
 </template>
 
 
@@ -287,14 +322,6 @@ export default {
 
 .person {
 	font-size: 128px;
-}
-
-.arrow-up-circle {
-	color: #48c78e;
-}
-
-.arrow-down-circle {
-	color: rgb(150, 11, 39);
 }
 
 .custom-left-tile {
