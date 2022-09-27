@@ -13,6 +13,7 @@ export default {
 		this.getPastAttacks()
 		this.listenAttacks()
 		setInterval(this.setCurrentMinute, 1000)
+		this.openSocket()
 	},
 
 	beforeUnmount () {
@@ -22,6 +23,7 @@ export default {
 		if (this.registeredAttacksDefenderListener !== undefined) {
 			this.registeredAttacksDefenderListener.unsubscribe()
 		}
+		this.closeSocket()
 	},
 
 	data () {
@@ -34,7 +36,10 @@ export default {
 			priceGetError: false,
 			registeredAttacksAttackerListener: undefined,
 			registeredAttacksDefenderListener: undefined,
-			battles: {}
+			battles: {},
+			socket: {},
+			socketError: false,
+			listeners: {}
 		}
 	},
 
@@ -65,10 +70,9 @@ export default {
 				attack.state = 'registered'
 			} else if (attack.startingMinute <= timestamp && timestamp <= attack.startingMinute + 60) {
 				attack.state = 'fighting'
-				this.startBattle(attack.id)
+				this.startBattle(attack)
 			} else if (attack.state !== 'finished') {
 				attack.state = 'finished'
-				this.endBattle(attack.id)
 			}
 		},
 		setWinner (attack) {
@@ -185,12 +189,35 @@ export default {
 					.catch(() => { this.attackGetError = true })
 			}
 		},
-		startBattle (attackId) {
-			console.log('startBattle', attackId)
-			this.battles[attackId] = { width: 50.00 }
+		setBarWidth (attack) {
+			return event => {
+				const data = JSON.parse(event.data)
+				console.log(data.T, data.p, attack.id)
+			}
+		},
+		openSocket () {
+			this.socket = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@trade'),
+			this.socket.addEventListener('error', error => {
+				this.socketError = true
+				console.error(error)
+			})
+		},
+		closeSocket () {
+			Object.values(this.listeners).forEach(listener => {
+				this.socket.removeEventListener('message', listener)
+			})
+			this.listeners = {}
+			this.socket.close()
+		},
+		startBattle (attack) {
+			this.battles[attack.id] = { width: 50.00, startingMinute: attack.startingMinute }
+			this.listeners[attack.id] = this.setBarWidth(attack)
+			this.socket.addEventListener('message', this.listeners[attack.id])
 		},
 		endBattle (attackId) {
-			console.log('endBattle', attackId)
+			console.log(1)
+			this.closeSocket()
+			console.log(this.listeners)
 			delete this.battles[attackId]
 		}
 	},
@@ -227,8 +254,9 @@ export default {
 <template v-if="metamaskState === 'connected'">
 
 	<template v-if="playerState === 'exist'">
-
-		<RegisterAttackForm />
+<button @click="startBattle({id:2,startingMinute:100})">start</button>
+<button @click="endBattle(2)">end</button>
+		<!-- <RegisterAttackForm /> -->
 
 		<hr>
 
@@ -314,6 +342,7 @@ export default {
 				</div>
 			</div>
 			<div v-show="attack.state === 'fighting'" class="tile battle-bar"></div>
+			<div v-if="socketError" class="notification is-light is-danger">Error on socket connection, please check console.</div>
 		</div>
 
 	</template>
@@ -348,7 +377,6 @@ export default {
 .battle-bar {
 	background-color: #48c78e;
 	height: 36px;
-	width: 50%;
 }
 
 </style>
