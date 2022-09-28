@@ -69,8 +69,8 @@ export default {
 			if (attack.startingMinute > timestamp) {
 				attack.state = 'registered'
 			} else if (attack.startingMinute <= timestamp && timestamp <= attack.startingMinute + 60) {
-				attack.state = 'fighting'
 				this.startBattle(attack)
+				attack.state = 'fighting'
 			} else if (attack.state !== 'finished') {
 				attack.state = 'finished'
 			}
@@ -93,7 +93,7 @@ export default {
 					if (data.length !== 2) {
 						return 0
 					}
-					return Number(data[0][4]).toFixed(2)
+					return Number(Number(data[0][4]).toFixed(2))
 				})
 				.catch(error => {
 					console.error(error)
@@ -175,6 +175,10 @@ export default {
 			this.attacks.sort((attack1, attack2) => attack1.startingMinute - attack2.startingMinute)
 			this.setMinutePrices(attack)
 			this.calculateAttackStates(attack)
+			this.battles[attack.id] = {
+				width: 50.00,
+				startingMinute: attack.startingMinute,
+			}
 		},
 		setAttacks (events) {
 			Object.values(events).forEach(this.setAttack)
@@ -191,8 +195,13 @@ export default {
 		},
 		setBarWidth (attack) {
 			return event => {
+				if (attack.startPrice === 0) {
+					return
+				}
 				const data = JSON.parse(event.data)
-				console.log(data.T, data.p, attack.id)
+				const width = Number((50 + (Number(data.p) / attack.startPrice - 1) / 0.0002).toFixed(2))
+				this.battles[attack.id].width = width
+				console.log(data.p, width)
 			}
 		},
 		openSocket () {
@@ -210,9 +219,9 @@ export default {
 			this.socket.close()
 		},
 		startBattle (attack) {
-			this.battles[attack.id] = { width: 50.00, startingMinute: attack.startingMinute }
 			this.listeners[attack.id] = this.setBarWidth(attack)
 			this.socket.addEventListener('message', this.listeners[attack.id])
+			setTimeout(() => { this.socket.removeEventListener('message', this.listeners[attack.id]) }, 4000)
 		},
 		endBattle (attackId) {
 			console.log(1)
@@ -254,8 +263,7 @@ export default {
 <template v-if="metamaskState === 'connected'">
 
 	<template v-if="playerState === 'exist'">
-<button @click="startBattle({id:2,startingMinute:100})">start</button>
-<button @click="endBattle(2)">end</button>
+<button @click="startBattle({id:1,startingMinute:100,startPrice:19600})">start</button>
 		<!-- <RegisterAttackForm /> -->
 
 		<hr>
@@ -341,7 +349,14 @@ export default {
 					</div>
 				</div>
 			</div>
-			<div v-show="attack.state === 'fighting'" class="tile battle-bar"></div>
+			<div :class="battles[attack.id].width >= 50 ? 'has-background-danger' : 'has-background-primary'">
+				<div
+					v-show="attack.state !== 'fighting'"
+					class="tile"
+					:class="[`battle-bar-${attack.id}`, battles[attack.id].width >= 50 ? 'has-background-primary' : 'has-background-danger']"
+					:style="{ width: battles[attack.id].width + '%' }"
+				></div>
+			</div>
 			<div v-if="socketError" class="notification is-light is-danger">Error on socket connection, please check console.</div>
 		</div>
 
@@ -354,19 +369,23 @@ export default {
 </template>
 <pre>{{battles}}</pre>
 <pre>{{attacks.length}}</pre>
+<pre>{{listeners}}</pre>
+<pre>{{attacks}}</pre>
 </template>
 
 
 
 
-<style scoped>
+<style>
+
+/* csslint important: false, regex-selectors: false */
 
 .person {
 	font-size: 128px;
 }
 
 .custom-left-tile {
-	margin-bottom: 0;
+	margin-bottom: 0 !important;
 }
 
 .is-ancestor {
@@ -374,8 +393,7 @@ export default {
 	white-space: nowrap;
 }
 
-.battle-bar {
-	background-color: #48c78e;
+div[class*=" battle-bar-"] {
 	height: 36px;
 }
 
