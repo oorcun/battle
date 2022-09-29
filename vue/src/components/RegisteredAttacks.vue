@@ -73,6 +73,7 @@ export default {
 				attack.state = 'fighting'
 			} else if (attack.state !== 'finished') {
 				attack.state = 'finished'
+				delete this.battles[attack.id]
 			}
 		},
 		setWinner (attack) {
@@ -171,14 +172,15 @@ export default {
 				endPrice: 0,
 				winner: ''
 			}
+			this.battles[attack.id] = {
+				width: 50.00,
+				startingMinute: attack.startingMinute,
+				price: 0
+			}
 			this.attacks.push(attack)
 			this.attacks.sort((attack1, attack2) => attack1.startingMinute - attack2.startingMinute)
 			this.setMinutePrices(attack)
 			this.calculateAttackStates(attack)
-			this.battles[attack.id] = {
-				width: 50.00,
-				startingMinute: attack.startingMinute,
-			}
 		},
 		setAttacks (events) {
 			Object.values(events).forEach(this.setAttack)
@@ -199,9 +201,15 @@ export default {
 					return
 				}
 				const data = JSON.parse(event.data)
-				const width = Number((50 + (Number(data.p) / attack.startPrice - 1) / 0.0002).toFixed(2))
+				const price = Number(data.p)
+				let widthDifference = Number(((price / attack.startPrice - 1) / 0.0002).toFixed(2))
+				const width = 50 + (attack.side ? widthDifference : -widthDifference)
+				this.battles[attack.id].price = price
 				this.battles[attack.id].width = width
-				console.log(data.p, width)
+				if ((attack.startingMinute + 60) * 1000 < data.T) {
+					this.socket.removeEventListener('message', this.listeners[attack.id])
+					delete this.listeners[attack.id]
+				}
 			}
 		},
 		openSocket () {
@@ -221,13 +229,6 @@ export default {
 		startBattle (attack) {
 			this.listeners[attack.id] = this.setBarWidth(attack)
 			this.socket.addEventListener('message', this.listeners[attack.id])
-			setTimeout(() => { this.socket.removeEventListener('message', this.listeners[attack.id]) }, 4000)
-		},
-		endBattle (attackId) {
-			console.log(1)
-			this.closeSocket()
-			console.log(this.listeners)
-			delete this.battles[attackId]
 		}
 	},
 
@@ -263,7 +264,7 @@ export default {
 <template v-if="metamaskState === 'connected'">
 
 	<template v-if="playerState === 'exist'">
-<button @click="startBattle({id:1,startingMinute:100,startPrice:19600})">start</button>
+
 		<!-- <RegisterAttackForm /> -->
 
 		<hr>
@@ -319,11 +320,11 @@ export default {
 						<p
 							class="title"
 							:class="{
-								'has-text-primary': attack.state === 'finished' && attack.startPrice <= attack.endPrice,
-								'has-text-danger': attack.state === 'finished' && attack.startPrice > attack.endPrice
+								'has-text-primary': attack.state === 'finished' && attack.startPrice <= attack.endPrice || attack.state === 'fighting' && attack.startPrice <= battles[attack.id].price,
+								'has-text-danger': attack.state === 'finished' && attack.startPrice > attack.endPrice || attack.state === 'fighting' && attack.startPrice > battles[attack.id].price
 							}"
 						>
-							{{ attack.endPrice }}
+							{{ attack.state === 'fighting' ? battles[attack.id].price : attack.endPrice }}
 						</p>
 					</div>
 				</div>
@@ -349,9 +350,11 @@ export default {
 					</div>
 				</div>
 			</div>
-			<div :class="battles[attack.id].width >= 50 ? 'has-background-danger' : 'has-background-primary'">
+			<div
+				v-if="attack.state === 'fighting'"
+				:class="battles[attack.id].width >= 50 ? 'has-background-danger' : 'has-background-primary'"
+			>
 				<div
-					v-show="attack.state !== 'fighting'"
 					class="tile"
 					:class="[`battle-bar-${attack.id}`, battles[attack.id].width >= 50 ? 'has-background-primary' : 'has-background-danger']"
 					:style="{ width: battles[attack.id].width + '%' }"
@@ -368,8 +371,8 @@ export default {
 
 </template>
 <pre>{{battles}}</pre>
-<pre>{{attacks.length}}</pre>
 <pre>{{listeners}}</pre>
+<pre>{{attacks.length}}</pre>
 <pre>{{attacks}}</pre>
 </template>
 
