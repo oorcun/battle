@@ -6,12 +6,18 @@ export default {
 		initialAttack: Object,
 		currentMinute: Number,
 		minutePrices: Object,
-		playerNames: Object
+		playerNames: Object,
+		socket: Object
+	},
+
+	mounted () {
+		this.setPlayerNames()
 	},
 
 	data () {
 		return {
-			attack: this.initialAttack
+			attack: this.initialAttack,
+			battle: { price: 0, width: 50 }
 		}
 	},
 
@@ -50,19 +56,40 @@ export default {
 			}
 		},
 		setPlayerNames () {
-			if (this.playerNames[this.attack.attacker.address] !== undefined) {
-				this.attack.attacker.name = this.playerNames[this.attack.attacker.address]
-			} else {
-				this.$parent.fetchPlayerName(this.attack.attacker.address)
-					.then(name => { this.attack.attacker.name = name })
+			if (this.attack.attacker.name === '') {
+				if (this.playerNames[this.attack.attacker.address] !== undefined) {
+					this.attack.attacker.name = this.playerNames[this.attack.attacker.address]
+				} else {
+					this.$parent.fetchPlayerName(this.attack.attacker.address)
+						.then(name => { this.attack.attacker.name = name })
+				}
 			}
-			if (this.playerNames[this.attack.defender.address] !== undefined) {
-				this.attack.defender.name = this.playerNames[this.attack.defender.address]
-			} else {
-				this.$parent.fetchPlayerName(this.attack.defender.address)
-					.then(name => { this.attack.defender.name = name })
+			if (this.attack.defender.name === '') {
+				if (this.playerNames[this.attack.defender.address] !== undefined) {
+					this.attack.defender.name = this.playerNames[this.attack.defender.address]
+				} else {
+					this.$parent.fetchPlayerName(this.attack.defender.address)
+						.then(name => { this.attack.defender.name = name })
+				}
 			}
 		},
+		setBarWidth (event) {
+			if (this.attack.startPrice === 0) {
+				return
+			}
+			const data = JSON.parse(event.data)
+			const price = Number(data.p)
+			let widthDifference = Number(((price / this.attack.startPrice - 1) / 0.0002).toFixed(2))
+			const width = 50 + (this.attack.side ? widthDifference : -widthDifference)
+			this.battle.price = price
+			this.battle.width = width
+			if ((this.attack.startingMinute + 60) * 1000 < data.T) {
+				this.socket.removeEventListener('message', this.setBarWidth)
+			}
+		},
+		startBattle () {
+			this.socket.addEventListener('message', this.setBarWidth)
+		}
 	}
 }
 
@@ -74,18 +101,28 @@ export default {
 <template>
 
 <div class="box">
+
 	<div class="tile is-ancestor">
-		<p v-if="attack.state === 'registered'" class="title">Waiting for battle to start...</p>
+		<p v-if="attack.state === 'registered'" class="title">
+			Waiting for battle to start...
+		</p>
 		<p v-else-if="attack.state === 'finished'" class="title">
 			Battle finished,
-			<template v-if="attack.winner === 'attacker' && attack.attacker.isCurrentPlayer || attack.winner === 'defender' && attack.defender.isCurrentPlayer">
+			<template
+				v-if="attack.winner === 'attacker' && attack.attacker.isCurrentPlayer
+					|| attack.winner === 'defender' && attack.defender.isCurrentPlayer"
+			>
 				you won!
 			</template>
 			<template v-else>
 				you lost!
 			</template>
 		</p>
+		<p v-else class="title">
+			Fighting...
+		</p>
 	</div>
+
 	<div class="tile is-ancestor">
 		<div
 			class="tile is-parent notification is-5 custom-left-tile has-text-right"
@@ -114,11 +151,13 @@ export default {
 				<p
 					class="title"
 					:class="{
-						'has-text-primary': attack.state === 'finished' && attack.startPrice <= attack.endPrice || attack.state === 'fighting' && attack.startPrice <= battles[attack.id].price,
-						'has-text-danger': attack.state === 'finished' && attack.startPrice > attack.endPrice || attack.state === 'fighting' && attack.startPrice > battles[attack.id].price
+						'has-text-primary': attack.state === 'finished' && attack.startPrice <= attack.endPrice
+							|| attack.state === 'fighting' && attack.startPrice <= battle.price,
+						'has-text-danger': attack.state === 'finished' && attack.startPrice > attack.endPrice
+							|| attack.state === 'fighting' && attack.startPrice > battle.price
 					}"
 				>
-					{{ attack.state === 'fighting' ? battles[attack.id].price : attack.endPrice }}
+					{{ attack.state === 'fighting' ? battle.price : attack.endPrice }}
 				</p>
 			</div>
 		</div>
@@ -144,17 +183,18 @@ export default {
 			</div>
 		</div>
 	</div>
+
 	<div
 		v-if="attack.state === 'fighting'"
-		:class="battles[attack.id].width >= 50 ? 'has-background-danger' : 'has-background-primary'"
+		:class="battle.width >= 50 ? 'has-background-danger' : 'has-background-primary'"
 	>
 		<div
-			class="tile"
-			:class="[`battle-bar-${attack.id}`, battles[attack.id].width >= 50 ? 'has-background-primary' : 'has-background-danger']"
-			:style="{ width: battles[attack.id].width + '%' }"
+			class="tile battle-bar"
+			:class="battle >= 50 ? 'has-background-primary' : 'has-background-danger'"
+			:style="{ width: battle.width + '%' }"
 		></div>
 	</div>
-	<div v-if="socketError" class="notification is-light is-danger">Error on socket connection, please check console.</div>
+
 </div>
 
 </template>
@@ -164,7 +204,7 @@ export default {
 
 <style>
 
-/* csslint important: false, regex-selectors: false */
+/* csslint important: false */
 
 .person {
 	font-size: 128px;
@@ -179,7 +219,7 @@ export default {
 	white-space: nowrap;
 }
 
-div[class*=" battle-bar-"] {
+.battle-bar {
 	height: 36px;
 }
 

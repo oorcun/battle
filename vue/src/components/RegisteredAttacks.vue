@@ -11,9 +11,6 @@ import RegisteredAttack from './RegisteredAttack.vue'
 export default {
 
 	mounted () {
-		this.getPastAttacks()
-		this.listenAttacks()
-		this.setCurrentPlayerName()
 		this.openSocket()
 		setInterval(this.setCurrentMinute, 1000)
 	},
@@ -40,7 +37,6 @@ export default {
 			registeredAttacksDefenderListener: undefined,
 			socket: {},
 			socketError: false,
-			listeners: {},
 			minutePrices: {},
 			playerNames: {}
 		}
@@ -90,14 +86,13 @@ export default {
 				})
 		},
 		fetchPlayerName (address) {
-			this.getAnyPlayer(address)
+			return this.getAnyPlayer(address)
 				.then(player => {
 					this.playerNames.address = player[1]
 					return this.playerNames.address
 				})
 				.catch(() => { this.fetchPlayerNameError = true })
 		},
-
 		setAttack (event) {
 			const attacker = event.returnValues.attacker
 			const defender = event.returnValues.defender
@@ -107,13 +102,9 @@ export default {
 			let defenderIsCurrentPlayer = false
 			if (attacker === this.player[2]) {
 				attackerName = this.player[1]
-				this.setPlayerName(defender)
 				attackerIsCurrentPlayer = true
-				defenderIsCurrentPlayer = false
 			} else {
-				this.setPlayerName(attacker)
 				defenderName = this.player[1]
-				attackerIsCurrentPlayer = false
 				defenderIsCurrentPlayer = true
 			}
 			let attack = {
@@ -135,15 +126,8 @@ export default {
 				endPrice: 0,
 				winner: ''
 			}
-			this.battles[attack.id] = {
-				width: 50.00,
-				startingMinute: attack.startingMinute,
-				price: 0
-			}
 			this.attacks.push(attack)
 			this.attacks.sort((attack1, attack2) => attack1.startingMinute - attack2.startingMinute)
-			this.setMinutePrices(attack)
-			this.calculateAttackStates(attack)
 		},
 		setAttacks (events) {
 			Object.values(events).forEach(this.setAttack)
@@ -158,23 +142,6 @@ export default {
 					.catch(() => { this.attackGetError = true })
 			}
 		},
-		setBarWidth (attack) {
-			return event => {
-				if (attack.startPrice === 0) {
-					return
-				}
-				const data = JSON.parse(event.data)
-				const price = Number(data.p)
-				let widthDifference = Number(((price / attack.startPrice - 1) / 0.0002).toFixed(2))
-				const width = 50 + (attack.side ? widthDifference : -widthDifference)
-				this.battles[attack.id].price = price
-				this.battles[attack.id].width = width
-				if ((attack.startingMinute + 60) * 1000 < data.T) {
-					this.socket.removeEventListener('message', this.listeners[attack.id])
-					delete this.listeners[attack.id]
-				}
-			}
-		},
 		openSocket () {
 			this.socket = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@trade'),
 			this.socket.addEventListener('error', error => {
@@ -183,26 +150,17 @@ export default {
 			})
 		},
 		closeSocket () {
-			Object.values(this.listeners).forEach(listener => {
-				this.socket.removeEventListener('message', listener)
-			})
-			this.listeners = {}
 			this.socket.close()
-		},
-		startBattle (attack) {
-			this.listeners[attack.id] = this.setBarWidth(attack)
-			this.socket.addEventListener('message', this.listeners[attack.id])
 		}
 	},
 
 	watch: {
-		playerState () {
-			this.getPastAttacks()
-			this.listenAttacks()
-		},
-		currentMinute () {
-			this.attacks.forEach(attack => { setTimeout(this.calculateAttackStates, 2000, attack) })
-			this.attacks.forEach(attack => { setTimeout(this.setMinutePrices, 1000, attack) })
+		playerState: {
+			handler () {
+				this.getPastAttacks()
+				this.listenAttacks()
+			},
+			immediate: true
 		}
 	},
 
@@ -247,11 +205,13 @@ export default {
 		</div>
 
 		<RegisteredAttack
-			v-for="initialAttack in attacks"
-			:key="initialAttack.id"
+			v-for="attack in attacks"
+			:key="attack.id"
+			:initialAttack="attack"
 			:currentMinute="currentMinute"
 			:minutePrices="minutePrices"
 			:playerNames="playerNames"
+			:socket="socket"
 		/>
 
 	</template>
@@ -261,8 +221,6 @@ export default {
 	</template>
 
 </template>
-<pre>{{battles}}</pre>
-<pre>{{listeners}}</pre>
 <pre>{{attacks.length}}</pre>
 <pre>{{attacks}}</pre>
 </template>
