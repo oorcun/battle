@@ -26,7 +26,7 @@ export default {
 			const timestamp = Math.floor(Date.now() / 1000)
 			if (this.attack.startingMinute > timestamp) {
 				this.attack.state = 'registered'
-			} else if (this.attack.startingMinute <= timestamp && timestamp <= this.attack.startingMinute + 60) {
+			} else if (this.attack.startingMinute <= timestamp && timestamp < this.attack.startingMinute + 60) {
 				this.attack.state = 'fighting'
 			} else if (this.attack.state !== 'finished') {
 				this.attack.state = 'finished'
@@ -44,7 +44,13 @@ export default {
 				this.attack.startPrice = this.minutePrices[this.attack.startingMinute]
 			} else {
 				this.$parent.fetchMinutePrice(this.attack.startingMinute)
-					.then(price => { this.attack.startPrice = price })
+					.then(price => {
+						if (price === 0) {
+							setTimeout(this.setStartPrice, 1000)
+						} else {
+							this.attack.startPrice = price
+						}
+					})
 			}
 		},
 		setEndPrice () {
@@ -52,7 +58,13 @@ export default {
 				this.attack.endPrice = this.minutePrices[this.attack.startingMinute + 60]
 			} else {
 				this.$parent.fetchMinutePrice(this.attack.startingMinute + 60)
-					.then(price => { this.attack.endPrice = price })
+					.then(price => {
+						if (price === 0) {
+							setTimeout(this.setEndPrice, 1000)
+						} else {
+							this.attack.endPrice = price
+						}
+					})
 			}
 		},
 		setPlayerNames () {
@@ -89,6 +101,28 @@ export default {
 		},
 		startBattle () {
 			this.socket.addEventListener('message', this.setBarWidth)
+		}
+	},
+
+	watch: {
+		currentMinute: {
+			handler () {
+				this.calculateAttackState()
+			},
+			immediate: true
+		},
+		attack: {
+			handler (attack) {
+				if (attack.state === 'fighting') {
+					this.setStartPrice()
+				} else if (attack.state === 'finished') {
+					if (attack.startPrice === 0) {
+						this.setStartPrice()
+					}
+					this.setEndPrice()
+				}
+			},
+			deep: true
 		}
 	}
 }

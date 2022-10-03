@@ -16,12 +16,8 @@ export default {
 	},
 
 	beforeUnmount () {
-		if (this.registeredAttacksAttackerListener !== undefined) {
-			this.registeredAttacksAttackerListener.unsubscribe()
-		}
-		if (this.registeredAttacksDefenderListener !== undefined) {
-			this.registeredAttacksDefenderListener.unsubscribe()
-		}
+		this.registeredAttacksAttackerListener.unsubscribe()
+		this.registeredAttacksDefenderListener.unsubscribe()
 		this.closeSocket()
 	},
 
@@ -55,16 +51,12 @@ export default {
 		},
 		listenAttacks () {
 			if (this.metamaskState === 'connected' && this.playerState === 'exist') {
-				if (this.registeredAttacksAttackerListener === undefined) {
-					this.registeredAttacksAttackerListener = this.listenEvent(
-						'AttackRegistered', { filter: { attacker: this.player[2] } }
-					).on('data', this.setAttack)
-				}
-				if (this.registeredAttacksDefenderListener === undefined) {
-					this.registeredAttacksDefenderListener = this.listenEvent(
-						'AttackRegistered', { filter: { defender: this.player[2] } }
-					).on('data', this.setAttack)
-				}
+				this.registeredAttacksAttackerListener = this.listenEvent(
+					'AttackRegistered', { filter: { attacker: this.player[2] } }
+				).on('data', this.setAttack)
+				this.registeredAttacksDefenderListener = this.listenEvent(
+					'AttackRegistered', { filter: { defender: this.player[2] } }
+				).on('data', this.setAttack)
 			}
 		},
 		fetchMinutePrice (minuteTimestamp) {
@@ -74,11 +66,10 @@ export default {
 				.then(response => response.json())
 				.then(data => {
 					if (data.length !== 2) {
-						setTimeout(this.fetchMinutePrice, 1000, minuteTimestamp)
 						return 0
 					}
-					this.minutePrices.minuteTimestamp = Number(Number(data[0][4]).toFixed(2))
-					return this.minutePrices.minuteTimestamp
+					this.minutePrices[minuteTimestamp] = Number(Number(data[0][4]).toFixed(2))
+					return this.minutePrices[minuteTimestamp]
 				})
 				.catch(error => {
 					console.error(error)
@@ -88,8 +79,8 @@ export default {
 		fetchPlayerName (address) {
 			return this.getAnyPlayer(address)
 				.then(player => {
-					this.playerNames.address = player[1]
-					return this.playerNames.address
+					this.playerNames[address] = player[1]
+					return this.playerNames[address]
 				})
 				.catch(() => { this.fetchPlayerNameError = true })
 		},
@@ -133,7 +124,7 @@ export default {
 			Object.values(events).forEach(this.setAttack)
 		},
 		getPastAttacks () {
-			if (this.attacks.length === 0 && this.metamaskState === 'connected' && this.playerState === 'exist') {
+			if (this.metamaskState === 'connected' && this.playerState === 'exist') {
 				this.getPastEvents('AttackRegistered', { filter: { attacker: this.player[2] } })
 					.then(this.setAttacks)
 					.catch(() => { this.attackGetError = true })
@@ -186,7 +177,8 @@ export default {
 <template v-if="metamaskState === 'connected'">
 
 	<template v-if="playerState === 'exist'">
-
+<pre>{{minutePrices}}</pre>
+<pre>{{attacks.length}}</pre>
 		<!-- <RegisterAttackForm /> -->
 
 		<hr>
@@ -221,7 +213,7 @@ export default {
 	</template>
 
 </template>
-<pre>{{attacks.length}}</pre>
+
 <pre>{{attacks}}</pre>
 </template>
 
