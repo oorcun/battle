@@ -7,6 +7,7 @@ export const usePlayerStore = defineStore('player', {
 		playerState: 'unknown',
 		attacks: [],
 		attacksState: 'pending',
+		setPlayerNameError: false,
 		attackerListener: undefined,
 		defenderListener: undefined
 	}),
@@ -33,12 +34,8 @@ export const usePlayerStore = defineStore('player', {
 			}
 		},
 		unlistenAttacks () {
-			if (this.attackerListener !== undefined) {
-				this.attackerListener.unsubscribe()
-			}
-			if (this.defenderListener !== undefined) {
-				this.defenderListener.unsubscribe()
-			}
+			this.attackerListener.unsubscribe()
+			this.defenderListener.unsubscribe()
 		},
 		setAttacks (events) {
 			Object.values(events).forEach(this.setAttack)

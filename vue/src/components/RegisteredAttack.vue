@@ -171,7 +171,10 @@ export default {
 			>
 				you won!
 			</template>
-			<template v-else>
+			<template
+				v-if="attack.winner === 'attacker' && attack.defender.isCurrentPlayer
+					|| attack.winner === 'defender' && attack.attacker.isCurrentPlayer"
+			>
 				you lost!
 			</template>
 		</p>
