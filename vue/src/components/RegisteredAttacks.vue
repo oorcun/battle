@@ -177,9 +177,8 @@ export default {
 <template v-if="metamaskState === 'connected'">
 
 	<template v-if="playerState === 'exist'">
-<pre>{{minutePrices}}</pre>
-<pre>{{attacks.length}}</pre>
-		<!-- <RegisterAttackForm /> -->
+
+		<RegisterAttackForm />
 
 		<hr>
 
@@ -214,7 +213,6 @@ export default {
 
 </template>
 
-<pre>{{attacks}}</pre>
 </template>
 
 

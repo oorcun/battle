@@ -7,7 +7,6 @@ export const usePlayerStore = defineStore('player', {
 		playerState: 'unknown',
 		attacks: [],
 		attacksState: 'pending',
-		setPlayerNameError: false,
 		attackerListener: undefined,
 		defenderListener: undefined
 	}),

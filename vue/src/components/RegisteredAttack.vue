@@ -17,7 +17,7 @@ export default {
 	data () {
 		return {
 			attack: this.initialAttack,
-			battle: { price: 0, width: 50 }
+			battle: { price: 0, width: 50, started: false }
 		}
 	},
 
@@ -39,6 +39,9 @@ export default {
 				this.attack.winner = this.attack.startPrice >= this.attack.endPrice ? 'attacker' : 'defender'
 			}
 		},
+		isWinnerSet () {
+			return this.attack.winner !== ''
+		},
 		setStartPrice () {
 			if (this.minutePrices[this.attack.startingMinute] !== undefined) {
 				this.attack.startPrice = this.minutePrices[this.attack.startingMinute]
@@ -52,6 +55,12 @@ export default {
 						}
 					})
 			}
+		},
+		isStartPriceSet () {
+			return this.attack.startPrice > 0
+		},
+		isEndPriceSet () {
+			return this.attack.endPrice > 0
 		},
 		setEndPrice () {
 			if (this.minutePrices[this.attack.startingMinute + 60] !== undefined) {
@@ -86,21 +95,23 @@ export default {
 			}
 		},
 		setBarWidth (event) {
-			if (this.attack.startPrice === 0) {
-				return
-			}
 			const data = JSON.parse(event.data)
 			const price = Number(data.p)
 			let widthDifference = Number(((price / this.attack.startPrice - 1) / 0.0002).toFixed(2))
 			const width = 50 + (this.attack.side ? widthDifference : -widthDifference)
 			this.battle.price = price
 			this.battle.width = width
-			if ((this.attack.startingMinute + 60) * 1000 < data.T) {
-				this.socket.removeEventListener('message', this.setBarWidth)
-			}
 		},
 		startBattle () {
 			this.socket.addEventListener('message', this.setBarWidth)
+			this.battle.started = true
+		},
+		stopBattle () {
+			this.socket.removeEventListener('message', this.setBarWidth)
+			this.battle.started = false
+		},
+		isBattleStarted () {
+			return this.battle.started
 		}
 	},
 
@@ -114,12 +125,24 @@ export default {
 		attack: {
 			handler (attack) {
 				if (attack.state === 'fighting') {
-					this.setStartPrice()
+					if (!this.isStartPriceSet()) {
+						this.setStartPrice()
+					} else if (!this.isBattleStarted()) {
+						this.startBattle()
+					}
 				} else if (attack.state === 'finished') {
-					if (attack.startPrice === 0) {
+					if (this.isBattleStarted()) {
+						this.stopBattle()
+					}
+					if (!this.isStartPriceSet()) {
 						this.setStartPrice()
 					}
-					this.setEndPrice()
+					if (!this.isEndPriceSet()) {
+						this.setEndPrice()
+					}
+					if (!this.isWinnerSet() && this.isStartPriceSet() && this.isEndPriceSet()) {
+						this.setWinner()
+					}
 				}
 			},
 			deep: true
@@ -224,7 +247,7 @@ export default {
 	>
 		<div
 			class="tile battle-bar"
-			:class="battle >= 50 ? 'has-background-primary' : 'has-background-danger'"
+			:class="battle.width >= 50 ? 'has-background-primary' : 'has-background-danger'"
 			:style="{ width: battle.width + '%' }"
 		></div>
 	</div>
