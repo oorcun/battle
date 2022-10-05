@@ -106,6 +106,19 @@ export const useWeb3Store = defineStore('web3', {
 					console.error(error)
 					throw error
 				})
+		},
+		getPrice (minuteTimestamp) {
+			return this.call('getPrice', minuteTimestamp)
+				.catch(error => {
+					const reason = this.getErrorReason(error)
+					if (reason !== '') {
+						console.info('getPrice', reason)
+						throw new Error(reason)
+					} else {
+						console.error(error)
+						throw error
+					}
+				})
 		}
 	}
 })

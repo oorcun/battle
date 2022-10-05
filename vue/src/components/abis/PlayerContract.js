@@ -115,7 +115,7 @@ export default [
 				"type": "uint256"
 			}
 		],
-		"name": "PriceRequestSetted",
+		"name": "PriceRequestSet",
 		"type": "event"
 	},
 	{
@@ -251,6 +251,26 @@ export default [
 				"internalType": "struct PriceRequestContract.PriceRequest[]",
 				"name": "",
 				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function",
+		"constant": true
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_minuteTimestamp",
+				"type": "uint256"
+			}
+		],
+		"name": "getPrice",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",

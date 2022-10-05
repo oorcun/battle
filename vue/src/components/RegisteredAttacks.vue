@@ -29,6 +29,8 @@ export default {
 			attackGetError: false,
 			fetchPlayerNameError: false,
 			fetchMinutePriceError: false,
+			fetchOraclePriceError: false,
+			fetchOraclePriceNotSetWarning: false,
 			registeredAttacksAttackerListener: undefined,
 			registeredAttacksDefenderListener: undefined,
 			socket: {},
@@ -41,12 +43,11 @@ export default {
 
 	computed: {
 		...mapState(useMetamaskStore, ['metamaskState']),
-		...mapState(usePlayerStore, ['playerState', 'player']),
-		...mapState(useWeb3Store, ['getAnyPlayer', 'listenEvent'])
+		...mapState(usePlayerStore, ['playerState', 'player'])
 	},
 
 	methods: {
-		...mapActions(useWeb3Store, ['getPastEvents']),
+		...mapActions(useWeb3Store, ['getPastEvents', 'getAnyPlayer', 'listenEvent', 'getPrice']),
 		setCurrentMinute () {
 			this.currentMinute = (new Date).getMinutes()
 		},
@@ -61,7 +62,7 @@ export default {
 			}
 		},
 		fetchMinutePrice (minuteTimestamp) {
-			return fetch(
+			fetch(
 				`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&startTime=${(minuteTimestamp - 60) * 1000}&endTime=${minuteTimestamp * 1000}`
 			)
 				.then(response => response.json())
@@ -77,7 +78,7 @@ export default {
 				})
 		},
 		fetchPlayerName (address) {
-			return this.getAnyPlayer(address)
+			this.getAnyPlayer(address)
 				.then(player => { this.playerNames[address] = player[1] })
 				.catch(() => { this.fetchPlayerNameError = true })
 		},
@@ -141,7 +142,16 @@ export default {
 			this.socket.close()
 		},
 		fetchOraclePrice (minuteTimestamp) {
-			// setTimeout(() => { this.oracleMinutePrices[minuteTimestamp] = minuteTimestamp }, 4000)
+			this.getPrice(minuteTimestamp)
+				.then(price => { this.oracleMinutePrices[minuteTimestamp] = price })
+				.catch(error => {
+					if (error.message === 'PriceRequestContract: price not set') {
+						this.fetchOraclePriceNotSetWarning = true
+						// set timeout
+					} else {
+						this.fetchOraclePriceError = true
+					}
+				})
 		}
 	},
 
@@ -193,6 +203,12 @@ export default {
 		</div>
 		<div v-if="socketError" class="notification is-light is-danger">
 			Error on socket connection, please check console.
+		</div>
+		<div v-if="fetchOraclePriceError" class="notification is-light is-danger">
+			Error on fetching oracle price, please check console.
+		</div>
+		<div v-if="fetchOraclePriceNotSetWarning" class="notification is-light is-warning">
+			Price not set, oracle may be down or has insufficient funds.
 		</div>
 
 		<RegisteredAttack
