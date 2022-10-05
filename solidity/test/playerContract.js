@@ -46,7 +46,7 @@ contract('PlayerContract', accounts => {
 
 			await utils.shouldThrow(
 				instance.createPlayer('orcun'),
-				'Player: player already exists for address'
+				'PlayerContract: player already exists for address'
 			)
 		})
 
@@ -85,14 +85,14 @@ contract('PlayerContract', accounts => {
 		it('should throw if player not exist', async () => {
 			await utils.shouldThrow(
 				instance.getAnyPlayer(account0),
-				'Player: player not exist'
+				'PlayerContract: player not exist'
 			)
 		})
 
 		it('should throw error if player not exist for address', async () => {
 			await utils.shouldThrow(
 				instance.getPlayer(),
-				'Player: player not exist for address'
+				'PlayerContract: player not exist for address'
 			)
 		})
 
@@ -124,7 +124,7 @@ contract('PlayerContract', accounts => {
 		it('should throw error if there are no players', async () => {
 			await utils.shouldThrow(
 				instance.getPlayers(0, 0),
-				'Player: start id must be less than end id'
+				'PlayerContract: start id must be less than end id'
 			)
 		})
 
@@ -173,7 +173,7 @@ contract('PlayerContract', accounts => {
 
 			await utils.shouldThrow(
 				instance.getPlayers(2, 0),
-				'Player: start id must be less than end id'
+				'PlayerContract: start id must be less than end id'
 			)
 		})
 
@@ -205,7 +205,7 @@ contract('PlayerContract', accounts => {
 
 			await utils.shouldThrow(
 				instance.getPlayers(2, 1),
-				'Player: start id must be less than end id'
+				'PlayerContract: start id must be less than end id'
 			)
 		})
 
@@ -216,7 +216,7 @@ contract('PlayerContract', accounts => {
 		it('should throw if sender does not have a player', async () => {
 			await utils.shouldThrow(
 				instance.registerAttack(account1, utils.getCurrentMinuteTimestamp() + 60, true),
-				'Player: player not exist for address'
+				'PlayerContract: player not exist for address'
 			)
 		})
 
@@ -225,7 +225,7 @@ contract('PlayerContract', accounts => {
 
 			await utils.shouldThrow(
 				instance.registerAttack(account1, utils.getCurrentMinuteTimestamp() + 60, true),
-				'Player: defender not exist'
+				'PlayerContract: defender not exist'
 			)
 		})
 
@@ -235,7 +235,7 @@ contract('PlayerContract', accounts => {
 
 			await utils.shouldThrow(
 				instance.registerAttack(account1, utils.getCurrentMinuteTimestamp() - 60, true),
-				'Player: starting minute must be a future time'
+				'PlayerContract: starting minute must be a future time'
 			)
 		})
 
@@ -245,7 +245,7 @@ contract('PlayerContract', accounts => {
 
 			await utils.shouldThrow(
 				instance.registerAttack(account1, utils.getCurrentMinuteTimestamp() + 60 * 60, true),
-				'Player: starting minute must not be far away'
+				'PlayerContract: starting minute must not be far away'
 			)
 		})
 
@@ -256,7 +256,7 @@ contract('PlayerContract', accounts => {
 
 			await utils.shouldThrow(
 				instance.registerAttack(account1, utils.getCurrentMinuteTimestamp() + 60, true),
-				'Player: already registered for an attack'
+				'PlayerContract: already registered for an attack'
 			)
 		})
 
@@ -265,7 +265,7 @@ contract('PlayerContract', accounts => {
 
 			await utils.shouldThrow(
 				instance.registerAttack(account0, 60, true),
-				'Player: defender and attacker are same'
+				'PlayerContract: defender and attacker are same'
 			)
 		})
 
@@ -345,7 +345,7 @@ contract('PlayerContract', accounts => {
 		it('should throw if attack not exists', async () => {
 			await utils.shouldThrow(
 				instance.finishAttack(account0, 0),
-				'Player: attack not exists'
+				'PlayerContract: attack not exists'
 			)
 		})
 
@@ -358,7 +358,7 @@ contract('PlayerContract', accounts => {
 
 			await utils.shouldThrow(
 				instance.finishAttack(account0, current + 60),
-				'Player: price request for battle starting time not exists'
+				'PlayerContract: price request for battle starting time not exists'
 			)
 		})
 
@@ -373,7 +373,7 @@ contract('PlayerContract', accounts => {
 
 			await utils.shouldThrow(
 				instance.finishAttack(account0, current + 60),
-				'Player: price request for battle finish time not exists'
+				'PlayerContract: price request for battle finish time not exists'
 			)
 		})
 

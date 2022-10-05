@@ -134,7 +134,7 @@ export default {
 				this.getAnyPlayer(newAddress)
 					.then(() => { this.addressState = 'ok' })
 					.catch(error => {
-						if (error.message === 'Player: player not exist') {
+						if (error.message === 'PlayerContract: player not exist') {
 							this.addressState = 'noPlayer'
 						} else {
 							this.addressState = 'networkError'

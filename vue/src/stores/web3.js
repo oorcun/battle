@@ -60,7 +60,7 @@ export const useWeb3Store = defineStore('web3', {
 					playerStore.playerState = 'unknown'
 					const reason = this.getErrorReason(error)
 					if (reason !== '') {
-						if (reason === 'Player: player not exist for address') {
+						if (reason === 'PlayerContract: player not exist for address') {
 							playerStore.playerState = 'notExist'
 						}
 						console.info('getPlayer', reason)

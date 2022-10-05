@@ -42,7 +42,7 @@ contract PlayerContract is PriceRequestContract
 
     modifier senderMustExists ()
     {
-        require(addressToPlayer[msg.sender].id > 0, "Player: player not exist for address");
+        require(addressToPlayer[msg.sender].id > 0, "PlayerContract: player not exist for address");
 
         _;
     }
@@ -52,7 +52,7 @@ contract PlayerContract is PriceRequestContract
 
     function createPlayer (string memory _name) public
     {
-    	require(addressToPlayer[msg.sender].id == 0, "Player: player already exists for address");
+    	require(addressToPlayer[msg.sender].id == 0, "PlayerContract: player already exists for address");
 
         uint id = players.length + 1;
     	Player memory player = Player(players.length + 1, _name, msg.sender, 0, 0, 0, 0, 0);
@@ -70,7 +70,7 @@ contract PlayerContract is PriceRequestContract
 
     function getAnyPlayer (address _owner) public view returns (Player memory)
     {
-        require(addressToPlayer[_owner].id > 0, "Player: player not exist");
+        require(addressToPlayer[_owner].id > 0, "PlayerContract: player not exist");
 
         return addressToPlayer[_owner];
     }
@@ -79,7 +79,7 @@ contract PlayerContract is PriceRequestContract
     {
         if (_startId == 0) _startId = 1;
         if (_endId == 0) _endId = players.length;
-        require(_startId <= _endId, "Player: start id must be less than end id");
+        require(_startId <= _endId, "PlayerContract: start id must be less than end id");
 
         Player[] memory returnData = new Player[](_endId - _startId + 1);
         uint index = 0;
@@ -94,17 +94,17 @@ contract PlayerContract is PriceRequestContract
 
     function registerAttack (address _defender, uint _startingMinute, bool _side) public senderMustExists
     {
-        require(addressToPlayer[_defender].id > 0, "Player: defender not exist");
+        require(addressToPlayer[_defender].id > 0, "PlayerContract: defender not exist");
 
-        require(_defender != msg.sender, "Player: defender and attacker are same");
+        require(_defender != msg.sender, "PlayerContract: defender and attacker are same");
 
         uint startingMinute = _getMinute(_startingMinute);
         uint currentMinute = _getMinute(block.timestamp);
 
-        require(startingMinute > currentMinute, "Player: starting minute must be a future time");
-        require(startingMinute < currentMinute + 1 hours, "Player: starting minute must not be far away");
+        require(startingMinute > currentMinute, "PlayerContract: starting minute must be a future time");
+        require(startingMinute < currentMinute + 1 hours, "PlayerContract: starting minute must not be far away");
 
-        require(!hasRegisteredAttack(msg.sender, startingMinute), "Player: already registered for an attack");
+        require(!hasRegisteredAttack(msg.sender, startingMinute), "PlayerContract: already registered for an attack");
 
         _registerAttack(startingMinute, Attack(_defender, _side, false, false));
 
@@ -116,13 +116,13 @@ contract PlayerContract is PriceRequestContract
 
     function finishAttack (address _attacker, uint _startingMinute) public
     {
-        require(hasRegisteredAttack(_attacker, _startingMinute), "Player: attack not exists");
+        require(hasRegisteredAttack(_attacker, _startingMinute), "PlayerContract: attack not exists");
 
-        require(minuteTimestampToPriceRequest[_startingMinute].minuteTimestamp != 0, "Player: price request for battle starting time not exists");
+        require(minuteTimestampToPriceRequest[_startingMinute].minuteTimestamp != 0, "PlayerContract: price request for battle starting time not exists");
 
         PriceRequest memory finishTimePriceRequest = minuteTimestampToPriceRequest[_startingMinute + 60];
 
-        require(finishTimePriceRequest.minuteTimestamp != 0, "Player: price request for battle finish time not exists");
+        require(finishTimePriceRequest.minuteTimestamp != 0, "PlayerContract: price request for battle finish time not exists");
 
         Attack memory attack = addressToMinuteTimestampToAttack[_attacker][_startingMinute];
 
