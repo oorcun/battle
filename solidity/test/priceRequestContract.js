@@ -14,7 +14,7 @@ contract('PriceRequestContract', accounts => {
 
 	context('PRICE FETCHING', async () => {
 
-		it('should successfully fetch all price requests', async () => {
+		it('should successfully fetch all pending price requests', async () => {
 			let current = utils.getCurrentMinuteTimestamp()
 
 			await instance.createPlayer('orcun')
@@ -44,6 +44,25 @@ contract('PriceRequestContract', accounts => {
 			expect(priceRequests.length).to.equal(2)
 		})
 
+		it('should successfully get the price of price request that has been set', async () => {
+			let current = utils.getCurrentMinuteTimestamp()
+
+			await instance.createPlayer('orcun')
+			await instance.createPlayer('orcun', { from: account1 })
+			await instance.registerAttack(account1, current + 60, true)
+			await instance.setPriceRequest(current + 60, 10000000)
+
+			let price = await instance.getPrice(current + 60)
+			expect(price.toNumber()).to.equal(10000000)
+		})
+
+		it('should throw error when getting the price of the price request that is not set', async () => {
+			await utils.shouldThrow(
+				instance.getPrice(60),
+				'PriceRequestContract: price not set'
+			)
+		})
+
 	})
 
 	context('PRICE SETTING', async () => {
@@ -57,7 +76,7 @@ contract('PriceRequestContract', accounts => {
 			)
 		})
 
-		it('should throw error if pending request exists', async () => {
+		it('should throw error if pending request not exists', async () => {
 			let current = utils.getCurrentMinuteTimestamp()
 
 			await utils.shouldThrow(
@@ -89,7 +108,7 @@ contract('PriceRequestContract', accounts => {
 			expect(priceRequest.increasePercent.toNumber()).to.equal(0)
 
 			expect(result.receipt.status).to.equal(true)
-			expect(result.logs[0].event).to.equal('PriceRequestSetted')
+			expect(result.logs[0].event).to.equal('PriceRequestSet')
 			expect(result.logs[0].args[0].toNumber()).to.equal(current + 60)
 			expect(result.logs[0].args[1].toNumber()).to.equal(10000000)
 		})

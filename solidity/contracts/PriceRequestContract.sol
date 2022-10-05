@@ -21,7 +21,7 @@ contract PriceRequestContract is Oracle
 
 
     event PriceRequested(uint startingMinute);
-    event PriceRequestSetted(uint startingMinute, uint price);
+    event PriceRequestSet(uint startingMinute, uint price);
 
 
 
@@ -46,7 +46,14 @@ contract PriceRequestContract is Oracle
 
         minuteTimestampToPriceRequest[_minuteTimestamp] = PriceRequest(_minuteTimestamp, _price, increasePercent);
 
-        emit PriceRequestSetted(_minuteTimestamp, _price);
+        emit PriceRequestSet(_minuteTimestamp, _price);
+    }
+
+    function getPrice (uint _minuteTimestamp) public view returns (uint)
+    {
+        require(minuteTimestampToPriceRequest[_minuteTimestamp].price != 0, "PriceRequestContract: price not set");
+
+        return minuteTimestampToPriceRequest[_minuteTimestamp].price;
     }
 
 
