@@ -34,7 +34,8 @@ export default {
 			socket: {},
 			socketError: false,
 			minutePrices: {},
-			playerNames: {}
+			playerNames: {},
+			oracleMinutePrices: {}
 		}
 	},
 
@@ -117,6 +118,12 @@ export default {
 				endPrice: 0,
 				winner: ''
 			}
+			if (this.oracleMinutePrices[attack.startingMinute] === undefined) {
+				this.oracleMinutePrices[attack.startingMinute] = 0
+			}
+			if (this.oracleMinutePrices[attack.startingMinute + 60] === undefined) {
+				this.oracleMinutePrices[attack.startingMinute + 60] = 0
+			}
 			this.attacks.push(attack)
 			this.attacks.sort((attack1, attack2) => attack1.startingMinute - attack2.startingMinute)
 		},
@@ -142,6 +149,9 @@ export default {
 		},
 		closeSocket () {
 			this.socket.close()
+		},
+		fetchOraclePrice (minuteTimestamp) {
+			// setTimeout(() => { this.oracleMinutePrices[minuteTimestamp] = minuteTimestamp }, 4000)
 		}
 	},
 
@@ -169,7 +179,7 @@ export default {
 
 
 <template>
-
+{{oracleMinutePrices}}
 <MetamaskNotification />
 
 <hr>
@@ -203,6 +213,8 @@ export default {
 			:minutePrices="minutePrices"
 			:playerNames="playerNames"
 			:socket="socket"
+			:oracleStartPrice="oracleMinutePrices[attack.startingMinute]"
+			:oracleEndPrice="oracleMinutePrices[attack.startingMinute + 60]"
 		/>
 
 	</template>

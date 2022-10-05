@@ -7,7 +7,9 @@ export default {
 		currentMinute: Number,
 		minutePrices: Object,
 		playerNames: Object,
-		socket: Object
+		socket: Object,
+		oracleStartPrice: Number,
+		oracleEndPrice: Number
 	},
 
 	mounted () {
@@ -112,6 +114,28 @@ export default {
 		},
 		isBattleStarted () {
 			return this.battle.started
+		},
+		isOracleStartPriceSet () {
+			return this.oracleStartPrice > 0
+		},
+		isOracleEndPriceSet () {
+			return this.oracleEndPrice > 0
+		},
+		isCurrentPlayerWon () {
+			return this.attack.winner === 'attacker' && this.attack.attacker.isCurrentPlayer
+				|| this.attack.winner === 'defender' && this.attack.defender.isCurrentPlayer
+		},
+		setOraclePrice (minuteTimestamp) {
+			this.$parent.fetchOraclePrice(minuteTimestamp)
+		}
+	},
+
+	computed: {
+		claimWinButtonDisplay () {
+			return this.attack.state === 'finished'
+				&& this.isOracleStartPriceSet()
+				&& this.isOracleEndPriceSet()
+				&& this.isCurrentPlayerWon()
 		}
 	},
 
@@ -143,9 +167,31 @@ export default {
 					if (!this.isWinnerSet() && this.isStartPriceSet() && this.isEndPriceSet()) {
 						this.setWinner()
 					}
+					if (!this.isOracleStartPriceSet() && this.isStartPriceSet()) {
+						this.setOraclePrice(attack.startingMinute)
+					}
+					if (!this.isOracleEndPriceSet() && this.isEndPriceSet()) {
+						this.setOraclePrice(attack.startingMinute + 60)
+					}
 				}
 			},
 			deep: true
+		},
+		oracleStartPrice (price) {
+			if (this.attack.startPrice !== price) {
+				this.attack.startPrice = price
+				if (this.isEndPriceSet()) {
+					this.setWinner()
+				}
+			}
+		},
+		oracleEndPrice (price) {
+			if (this.attack.endPrice !== price) {
+				this.attack.endPrice = price
+				if (this.isStartPriceSet()) {
+					this.setWinner()
+				}
+			}
 		}
 	}
 }
@@ -165,18 +211,9 @@ export default {
 		</p>
 		<p v-else-if="attack.state === 'finished'" class="title">
 			Battle finished,
-			<template
-				v-if="attack.winner === 'attacker' && attack.attacker.isCurrentPlayer
-					|| attack.winner === 'defender' && attack.defender.isCurrentPlayer"
-			>
-				you won!
-			</template>
-			<template
-				v-if="attack.winner === 'attacker' && attack.defender.isCurrentPlayer
-					|| attack.winner === 'defender' && attack.attacker.isCurrentPlayer"
-			>
-				you lost!
-			</template>
+			<template v-if="isCurrentPlayerWon()"> you won!</template>
+			<template v-if="!isCurrentPlayerWon()"> you lost!</template>
+			<button v-if="claimWinButtonDisplay">Claim Win</button>
 		</p>
 		<p v-else class="title">
 			Fighting...
@@ -207,7 +244,7 @@ export default {
 		</div>
 		<div class="tile is-2 is-parent is-vertical has-text-centered">
 			<div class="tile is-child">
-				<p class="title">{{ attack.startPrice }}</p>
+				<p class="title">{{ isStartPriceSet() ? attack.startPrice : '' }}</p>
 				<p
 					class="title"
 					:class="{
@@ -217,7 +254,7 @@ export default {
 							|| attack.state === 'fighting' && attack.startPrice > battle.price
 					}"
 				>
-					{{ attack.state === 'fighting' ? battle.price : attack.endPrice }}
+					{{ attack.state === 'fighting' ? battle.price : isEndPriceSet() ? attack.endPrice : '' }}
 				</p>
 			</div>
 		</div>

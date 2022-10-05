@@ -18,17 +18,18 @@ export const usePlayerStore = defineStore('player', {
 				web3Store.getPastEvents('AttackResulted', { filter: { attacker: this.player[2] } })
 					.then(this.setAttacks)
 					.catch(this.handleError)
-				this.getPastEvents('AttackResulted', { filter: { defender: this.player[2] } })
+				web3Store.getPastEvents('AttackResulted', { filter: { defender: this.player[2] } })
 					.then(this.setAttacks)
 					.catch(this.handleError)
 			}
 		},
 		listenAttacks () {
 			if (this.playerState === 'exist') {
-				this.attackerListener = this.listenEvent(
+				const web3Store = useWeb3Store()
+				this.attackerListener = web3Store.listenEvent(
 					'AttackResulted', { filter: { attacker: this.player[2] } }
 				).on('data', this.setAttack)
-				this.defenderListener = this.listenEvent(
+				this.defenderListener = web3Store.listenEvent(
 					'AttackResulted', { filter: { defender: this.player[2] } }
 				).on('data', this.setAttack)
 			}

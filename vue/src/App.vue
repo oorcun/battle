@@ -5,6 +5,7 @@ import { mapState, mapActions } from 'pinia'
 import NavBar from './components/NavBar.vue'
 import { useMetamaskStore } from './stores/metamask.js'
 import { useWeb3Store } from './stores/web3.js'
+import { usePlayerStore } from './stores/player.js'
 
 export default {
 
@@ -37,17 +38,25 @@ export default {
 	},
 
 	computed: {
-		...mapState(useMetamaskStore, ['metamaskState'])
+		...mapState(useMetamaskStore, ['metamaskState']),
+		...mapState(usePlayerStore, ['playerState', 'attacks']),
 	},
 
 	methods: {
-		...mapActions(useWeb3Store, ['getPlayer'])
+		...mapActions(useWeb3Store, ['getPlayer']),
+		...mapActions(usePlayerStore, ['setFinishedAttacks', 'listenAttacks'])
 	},
 
 	watch: {
 		metamaskState (newMetamaskState) {
 			if (newMetamaskState === 'connected') {
 				this.getPlayer()
+			}
+		},
+		playerState (newPlayerState) {
+			if (newPlayerState === 'exist') {
+				this.setFinishedAttacks()
+				this.listenAttacks()
 			}
 		}
 	},
@@ -65,7 +74,7 @@ export default {
 
 
 <template>
-
+{{attacks}}
 	<section class="section">
 		<div class="container">
 
