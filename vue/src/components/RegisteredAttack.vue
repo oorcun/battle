@@ -5,11 +5,13 @@ export default {
 	props: {
 		initialAttack: Object,
 		currentMinute: Number,
-		minutePrices: Object,
-		playerNames: Object,
+		startPrice: Number,
+		endPrice: Number,
 		socket: Object,
 		oracleStartPrice: Number,
-		oracleEndPrice: Number
+		oracleEndPrice: Number,
+		attackerName: String,
+		defenderName: String
 	},
 
 	mounted () {
@@ -44,19 +46,8 @@ export default {
 		isWinnerSet () {
 			return this.attack.winner !== ''
 		},
-		setStartPrice () {
-			if (this.minutePrices[this.attack.startingMinute] !== undefined) {
-				this.attack.startPrice = this.minutePrices[this.attack.startingMinute]
-			} else {
-				this.$parent.fetchMinutePrice(this.attack.startingMinute)
-					.then(price => {
-						if (price === 0) {
-							setTimeout(this.setStartPrice, 1000)
-						} else {
-							this.attack.startPrice = price
-						}
-					})
-			}
+		setPrice (minuteTimestamp) {
+			this.$parent.fetchMinutePrice(minuteTimestamp)
 		},
 		isStartPriceSet () {
 			return this.attack.startPrice > 0
@@ -64,37 +55,9 @@ export default {
 		isEndPriceSet () {
 			return this.attack.endPrice > 0
 		},
-		setEndPrice () {
-			if (this.minutePrices[this.attack.startingMinute + 60] !== undefined) {
-				this.attack.endPrice = this.minutePrices[this.attack.startingMinute + 60]
-			} else {
-				this.$parent.fetchMinutePrice(this.attack.startingMinute + 60)
-					.then(price => {
-						if (price === 0) {
-							setTimeout(this.setEndPrice, 1000)
-						} else {
-							this.attack.endPrice = price
-						}
-					})
-			}
-		},
 		setPlayerNames () {
-			if (this.attack.attacker.name === '') {
-				if (this.playerNames[this.attack.attacker.address] !== undefined) {
-					this.attack.attacker.name = this.playerNames[this.attack.attacker.address]
-				} else {
-					this.$parent.fetchPlayerName(this.attack.attacker.address)
-						.then(name => { this.attack.attacker.name = name })
-				}
-			}
-			if (this.attack.defender.name === '') {
-				if (this.playerNames[this.attack.defender.address] !== undefined) {
-					this.attack.defender.name = this.playerNames[this.attack.defender.address]
-				} else {
-					this.$parent.fetchPlayerName(this.attack.defender.address)
-						.then(name => { this.attack.defender.name = name })
-				}
-			}
+			this.$parent.fetchPlayerName(this.attack.attacker.address)
+			this.$parent.fetchPlayerName(this.attack.defender.address)
 		},
 		setBarWidth (event) {
 			const data = JSON.parse(event.data)
@@ -150,19 +113,24 @@ export default {
 			handler (attack) {
 				if (attack.state === 'fighting') {
 					if (!this.isStartPriceSet()) {
-						this.setStartPrice()
-					} else if (!this.isBattleStarted()) {
-						this.startBattle()
+						this.setPrice(attack.startingMinute)
+					} else {
+						if (!this.isBattleStarted()) {
+							this.startBattle()
+						}
+						if (!this.isOracleStartPriceSet()) {
+							this.setOraclePrice(attack.startingMinute)
+						}
 					}
 				} else if (attack.state === 'finished') {
 					if (this.isBattleStarted()) {
 						this.stopBattle()
 					}
 					if (!this.isStartPriceSet()) {
-						this.setStartPrice()
+						this.setPrice(attack.startingMinute)
 					}
 					if (!this.isEndPriceSet()) {
-						this.setEndPrice()
+						this.setPrice(attack.startingMinute + 60)
 					}
 					if (!this.isWinnerSet() && this.isStartPriceSet() && this.isEndPriceSet()) {
 						this.setWinner()
@@ -192,6 +160,18 @@ export default {
 					this.setWinner()
 				}
 			}
+		},
+		startPrice (price) {
+			this.attack.startPrice = price
+		},
+		endPrice (price) {
+			this.attack.endPrice = price
+		},
+		attackerName (name) {
+			this.attack.attacker.name = name
+		},
+		defenderName (name) {
+			this.attack.defender.name = name
 		}
 	}
 }

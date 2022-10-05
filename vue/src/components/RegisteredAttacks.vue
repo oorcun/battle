@@ -67,10 +67,9 @@ export default {
 				.then(response => response.json())
 				.then(data => {
 					if (data.length !== 2) {
-						return 0
+						setTimeout(this.fetchMinutePrice, 1000, minuteTimestamp)
 					}
 					this.minutePrices[minuteTimestamp] = Number(Number(data[0][4]).toFixed(2))
-					return this.minutePrices[minuteTimestamp]
 				})
 				.catch(error => {
 					console.error(error)
@@ -79,10 +78,7 @@ export default {
 		},
 		fetchPlayerName (address) {
 			return this.getAnyPlayer(address)
-				.then(player => {
-					this.playerNames[address] = player[1]
-					return this.playerNames[address]
-				})
+				.then(player => { this.playerNames[address] = player[1] })
 				.catch(() => { this.fetchPlayerNameError = true })
 		},
 		setAttack (event) {
@@ -117,12 +113,6 @@ export default {
 				startPrice: 0,
 				endPrice: 0,
 				winner: ''
-			}
-			if (this.oracleMinutePrices[attack.startingMinute] === undefined) {
-				this.oracleMinutePrices[attack.startingMinute] = 0
-			}
-			if (this.oracleMinutePrices[attack.startingMinute + 60] === undefined) {
-				this.oracleMinutePrices[attack.startingMinute + 60] = 0
 			}
 			this.attacks.push(attack)
 			this.attacks.sort((attack1, attack2) => attack1.startingMinute - attack2.startingMinute)
@@ -210,11 +200,13 @@ export default {
 			:key="attack.id"
 			:initialAttack="attack"
 			:currentMinute="currentMinute"
-			:minutePrices="minutePrices"
-			:playerNames="playerNames"
 			:socket="socket"
 			:oracleStartPrice="oracleMinutePrices[attack.startingMinute]"
 			:oracleEndPrice="oracleMinutePrices[attack.startingMinute + 60]"
+			:startPrice="minutePrices[attack.startingMinute]"
+			:endPrice="minutePrices[attack.startingMinute + 60]"
+			:attackerName="playerNames[attack.attacker.address]"
+			:defenderName="playerNames[attack.defender.address]"
 		/>
 
 	</template>
