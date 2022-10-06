@@ -181,6 +181,9 @@ export default {
 						this.fetchOraclePriceError = true
 					}
 				})
+		},
+		removeAttack (removedAttack) {
+			this.attacks = this.attacks.filter(attack => attack.id !== removedAttack.id)
 		}
 	},
 

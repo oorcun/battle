@@ -107,6 +107,9 @@ export default {
 		},
 		setOraclePrice (minuteTimestamp) {
 			this.$parent.fetchOraclePrice(minuteTimestamp)
+		},
+		removeAttack () {
+			this.$parent.removeAttack(this.initialAttack)
 		}
 	},
 
@@ -221,7 +224,7 @@ export default {
 		</p>
 		<p v-else-if="attack.state === 'finished'" class="title">
 			Battle finished,
-			<template v-if="isCurrentPlayerWon()"> you won!</template>
+			<template v-if="isCurrentPlayerWon()"> you won! </template>
 			<template v-if="!isCurrentPlayerWon()"> you lost!</template>
 			<template v-if="isCurrentPlayerWon() && waitOracleLoadingDisplay">
 				<img src="src/components/gifs/loading-loading-forever.gif">
@@ -230,6 +233,7 @@ export default {
 				v-if="claimWinButtonDisplay"
 				:method="finishAttack"
 				:params="[attack.attacker.address, attack.startingMinute]"
+				@processed="removeAttack"
 			>Claim Win</SubmitButton>
 		</p>
 		<p v-else class="title">

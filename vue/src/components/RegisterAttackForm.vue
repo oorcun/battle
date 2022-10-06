@@ -114,7 +114,7 @@ export default {
 		},
 		playerhasRegisteredAttack (playerAddress, startingMinute) {
 			this.hasRegisteredAttack(playerAddress, startingMinute)
-				.then(receipt => { this.minuteState = receipt ? 'registered' : 'ok' })
+				.then(isRegistered => { this.minuteState = isRegistered ? 'registered' : 'ok' })
 				.catch(() => { this.minuteState = 'networkError' })
 		}
 	},

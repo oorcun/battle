@@ -16,13 +16,14 @@ export default {
 
 	methods: {
 		submit () {
+			// todo error check to all places in submit button
+			// improve success scenarios in all places
+			// get player after attack finished
 			this.$emit('clicked')
 			this.waiting = true
 			this.method(...this.params)
-				.finally(() => {
-					this.waiting = false
-					this.$emit('processed')
-				})
+				.then(() => { this.$emit('processed') })
+				.finally(() => { this.waiting = false })
 		}
 	}
 
@@ -37,7 +38,7 @@ export default {
 
 	<button
 		class="button is-primary is-rounded"
-		:class="{ 'is-loading ': waiting }"
+		:class="{ 'is-loading': waiting }"
 		:disabled="waiting || disabled"
 		@click="submit()"
 	>
