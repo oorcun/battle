@@ -33,15 +33,6 @@ export const useMetamaskStore = defineStore('metamask', {
 					this.metamaskState = 'notConnected'
 					console.error(error)
 				})
-		},
-		handleAccountsChanged (accounts) {
-			if (accounts.length > 0) {
-				this.account = accounts[0]
-				this.metamaskState = 'connected'
-			} else {
-				this.account = ''
-				this.metamaskState = 'notConnected'
-			}
 		}
 	},
 	getters: {

@@ -1,5 +1,9 @@
 <script>
 
+import { mapActions } from 'pinia'
+import { useWeb3Store } from '../stores/web3.js'
+import SubmitButton from './SubmitButton.vue'
+
 export default {
 
 	props: {
@@ -18,6 +22,10 @@ export default {
 		this.setPlayerNames()
 	},
 
+	components: {
+		SubmitButton
+	},
+
 	data () {
 		return {
 			attack: this.initialAttack,
@@ -26,6 +34,7 @@ export default {
 	},
 
 	methods: {
+		...mapActions(useWeb3Store, ['finishAttack']),
 		calculateAttackState () {
 			const timestamp = Math.floor(Date.now() / 1000)
 			if (this.attack.startingMinute > timestamp) {
@@ -217,7 +226,11 @@ export default {
 			<template v-if="isCurrentPlayerWon() && waitOracleLoadingDisplay">
 				<img src="src/components/gifs/loading-loading-forever.gif">
 			</template>
-			<button v-if="claimWinButtonDisplay">Claim Win</button>
+			<SubmitButton
+				v-if="claimWinButtonDisplay"
+				:method="finishAttack"
+				:params="[attack.attacker.address, attack.startingMinute]"
+			>Claim Win</SubmitButton>
 		</p>
 		<p v-else class="title">
 			Fighting...

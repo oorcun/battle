@@ -95,6 +95,14 @@ export default {
 		setAttack (event) {
 			const attacker = event.returnValues.attacker
 			const defender = event.returnValues.defender
+			const startingMinute = Number(event.returnValues.startingMinute)
+			if(this.attacks.some(
+				attack => attack.attacker.address === attacker
+					&& attack.defender.address === defender
+					&& attack.startingMinute === startingMinute
+			)) {
+				return
+			}
 			let attackerName = ''
 			let defenderName = ''
 			let attackerIsCurrentPlayer = false
@@ -119,7 +127,7 @@ export default {
 					isCurrentPlayer: defenderIsCurrentPlayer
 				},
 				side: event.returnValues.side,
-				startingMinute: Number(event.returnValues.startingMinute),
+				startingMinute: startingMinute,
 				state: 'registered',
 				startPrice: 0,
 				endPrice: 0,

@@ -23,8 +23,8 @@ export default {
 			window.ethereum.on('message', () => {
 				console.log('message')
 			})
-			window.ethereum.on('accountsChanged', accounts => {
-				metamaskStore.handleAccountsChanged(accounts)
+			window.ethereum.on('accountsChanged', () => {
+				window.location.reload()
 				console.log('accountsChanged')
 			})
 			window.ethereum.on('chainChanged', () => {
