@@ -18,6 +18,7 @@ export default {
 	beforeUnmount () {
 		this.registeredAttacksAttackerListener.unsubscribe()
 		this.registeredAttacksDefenderListener.unsubscribe()
+		this.priceRequestSetListener.unsubscribe()
 		this.closeSocket()
 	},
 
@@ -33,6 +34,7 @@ export default {
 			fetchOraclePriceNotSetWarning: false,
 			registeredAttacksAttackerListener: undefined,
 			registeredAttacksDefenderListener: undefined,
+			priceRequestSetListener: undefined,
 			socket: {},
 			socketError: false,
 			minutePrices: {},
@@ -59,6 +61,14 @@ export default {
 				this.registeredAttacksDefenderListener = this.listenEvent(
 					'AttackRegistered', { filter: { defender: this.player[2] } }
 				).on('data', this.setAttack)
+			}
+		},
+		listenPriceRequestSet () {
+			if (this.metamaskState === 'connected') {
+				this.priceRequestSetListener = this.listenEvent('PriceRequestSet')
+					.on('data', event => {
+						this.oracleMinutePrices[event.returnValues.startingMinute] = event.returnValues.price / 100
+					})
 			}
 		},
 		fetchMinutePrice (minuteTimestamp) {
@@ -161,6 +171,7 @@ export default {
 			handler () {
 				this.getPastAttacks()
 				this.listenAttacks()
+				this.listenPriceRequestSet()
 			},
 			immediate: true
 		}

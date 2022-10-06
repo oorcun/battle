@@ -112,7 +112,6 @@ export default {
 			return this.attack.state === 'finished'
 				&& (!this.isOracleStartPriceSet() || !this.isOracleEndPriceSet())
 		}
-		// please wait oracle message
 	},
 
 	watch: {
