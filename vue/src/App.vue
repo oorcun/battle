@@ -37,14 +37,18 @@ export default {
 		web3Store.assignStates()
 	},
 
+	unmounted () {
+		this.unlistenAttacks()
+	},
+
 	computed: {
 		...mapState(useMetamaskStore, ['metamaskState']),
-		...mapState(usePlayerStore, ['playerState', 'attacks']),
+		...mapState(usePlayerStore, ['playerState', 'attacks', 'attacksState']),
 	},
 
 	methods: {
 		...mapActions(useWeb3Store, ['getPlayer']),
-		...mapActions(usePlayerStore, ['setFinishedAttacks', 'listenAttacks'])
+		...mapActions(usePlayerStore, ['setFinishedAttacks', 'listenAttacks', 'unlistenAttacks'])
 	},
 
 	watch: {
@@ -81,6 +85,10 @@ export default {
 			<NavBar />
 
 			<hr>
+
+			<div v-if="attacksState === 'error'" class="notification is-danger">
+				Error on attacks fetching, please check console.
+			</div>
 
 			<RouterView />
 

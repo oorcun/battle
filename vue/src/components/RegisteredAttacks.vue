@@ -45,16 +45,20 @@ export default {
 
 	computed: {
 		...mapState(useMetamaskStore, ['metamaskState']),
-		...mapState(usePlayerStore, ['playerState', 'player'])
+		...mapState(usePlayerStore, ['playerState', 'player', 'attacksState'])
 	},
 
 	methods: {
 		...mapActions(useWeb3Store, ['getPastEvents', 'getAnyPlayer', 'listenEvent', 'getPrice']),
+		...mapActions(usePlayerStore, ['isAttackFinished']),
 		setCurrentMinute () {
 			this.currentMinute = (new Date).getMinutes()
 		},
 		listenAttacks () {
-			if (this.metamaskState === 'connected' && this.playerState === 'exist') {
+			if (this.metamaskState === 'connected' &&
+				this.playerState === 'exist' &&
+				this.attacksState === 'fetched'
+			) {
 				this.registeredAttacksAttackerListener = this.listenEvent(
 					'AttackRegistered', { filter: { attacker: this.player[2] } }
 				).on('data', this.setAttack)
@@ -133,6 +137,9 @@ export default {
 				endPrice: 0,
 				winner: ''
 			}
+			if (this.isAttackFinished(attack)) {
+				return
+			}
 			this.attacks.push(attack)
 			this.attacks.sort((attack1, attack2) => attack1.startingMinute - attack2.startingMinute)
 		},
@@ -140,7 +147,10 @@ export default {
 			Object.values(events).forEach(this.setAttack)
 		},
 		getPastAttacks () {
-			if (this.metamaskState === 'connected' && this.playerState === 'exist') {
+			if (this.metamaskState === 'connected' &&
+				this.playerState === 'exist' &&
+				this.attacksState === 'fetched'
+			) {
 				this.getPastEvents('AttackRegistered', { filter: { attacker: this.player[2] } })
 					.then(this.setAttacks)
 					.catch(() => { this.attackGetError = true })
@@ -175,11 +185,13 @@ export default {
 	},
 
 	watch: {
-		playerState: {
-			handler () {
-				this.getPastAttacks()
-				this.listenAttacks()
-				this.listenPriceRequestSet()
+		attacksState: {
+			handler (state) {
+				if (state === 'fetched') {
+					this.getPastAttacks()
+					this.listenAttacks()
+					this.listenPriceRequestSet()
+				}
 			},
 			immediate: true
 		}
@@ -231,19 +243,21 @@ export default {
 			Price not set, oracle may be down or has insufficient funds.
 		</div>
 
-		<RegisteredAttack
-			v-for="attack in attacks"
-			:key="attack.id"
-			:initialAttack="attack"
-			:currentMinute="currentMinute"
-			:socket="socket"
-			:oracleStartPrice="oracleMinutePrices[attack.startingMinute]"
-			:oracleEndPrice="oracleMinutePrices[attack.startingMinute + 60]"
-			:startPrice="minutePrices[attack.startingMinute]"
-			:endPrice="minutePrices[attack.startingMinute + 60]"
-			:attackerName="playerNames[attack.attacker.address]"
-			:defenderName="playerNames[attack.defender.address]"
-		/>
+		<template v-if="attacksState === 'fetched'">
+			<RegisteredAttack
+				v-for="attack in attacks"
+				:key="attack.id"
+				:initialAttack="attack"
+				:currentMinute="currentMinute"
+				:socket="socket"
+				:oracleStartPrice="oracleMinutePrices[attack.startingMinute]"
+				:oracleEndPrice="oracleMinutePrices[attack.startingMinute + 60]"
+				:startPrice="minutePrices[attack.startingMinute]"
+				:endPrice="minutePrices[attack.startingMinute + 60]"
+				:attackerName="playerNames[attack.attacker.address]"
+				:defenderName="playerNames[attack.defender.address]"
+			/>
+		</template>
 
 	</template>
 

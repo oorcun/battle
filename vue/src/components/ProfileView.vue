@@ -17,7 +17,7 @@ export default {
 
 	computed: {
 		...mapState(useMetamaskStore, ['metamaskState']),
-		...mapState(usePlayerStore, ['player', 'playerState'])
+		...mapState(usePlayerStore, ['player', 'playerState', 'setPlayerNameError'])
 	},
 
 	methods: {
@@ -44,6 +44,7 @@ export default {
 <div v-if="metamaskState === 'connected'" class="box">
 
 	<template v-if="playerState === 'exist'">
+
 		<table class="table is-fullwidth is-striped is-hoverable">
 			<tbody>
 				<tr><th>ID</th><td>{{ player[0] }}</td></tr>
@@ -55,10 +56,16 @@ export default {
 				<tr><th>Defending Losses</th><td>{{ player[6] }}</td></tr>
 				<tr><th>Total Wins</th><td>{{ parseInt(player[3]) + parseInt(player[5]) }}</td></tr>
 				<tr><th>Total Losses</th><td>{{ parseInt(player[4]) + parseInt(player[6]) }}</td></tr>
-				<tr><th>Points</th><td>{{ player[6] }}</td></tr>
+				<tr><th>Points</th><td>{{ player[7] }}</td></tr>
 			</tbody>
 		</table>
+
+		<div v-if="setPlayerNameError" class="notification is-light is-warning">
+			Some player names cannot be fetched, please check console.
+		</div>
+
 		<div>getpastevents</div>
+
 	</template>
 
 	<template v-else-if="playerState === 'notExist'">

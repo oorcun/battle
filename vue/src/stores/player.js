@@ -40,6 +40,7 @@ export const usePlayerStore = defineStore('player', {
 		},
 		setAttacks (events) {
 			Object.values(events).forEach(this.setAttack)
+			this.attacksState = 'fetched'
 		},
 		setAttack (event) {
 			const attacker = event.returnValues.attacker
@@ -86,7 +87,13 @@ export const usePlayerStore = defineStore('player', {
 					? true
 					: false
 			})
-			this.attacksState = 'fetched'
+		},
+		isAttackFinished (registeredAttack) {
+			return this.attacks.some(
+				attack => attack.attacker.address === registeredAttack.attacker.address
+					&& attack.defender.address === registeredAttack.defender.address
+					&& attack.startingMinute === registeredAttack.startingMinute
+			)
 		},
 		handleError (error) {
 			console.error(error)
