@@ -95,6 +95,7 @@ export const useWeb3Store = defineStore('web3', {
 		},
 		getPrice (minuteTimestamp) {
 			return this.call('getPrice', minuteTimestamp)
+				.then(price => price / 100)
 		}
 	}
 })

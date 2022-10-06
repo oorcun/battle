@@ -40,7 +40,6 @@ export default {
 
 img {
 	height: 1em;
-	width: auto;
 }
 
 </style>

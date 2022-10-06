@@ -56,8 +56,16 @@ export default {
 			return this.attack.endPrice > 0
 		},
 		setPlayerNames () {
-			this.$parent.fetchPlayerName(this.attack.attacker.address)
-			this.$parent.fetchPlayerName(this.attack.defender.address)
+			if (this.attackerName === undefined) {
+				this.$parent.fetchPlayerName(this.attack.attacker.address)
+			} else {
+				this.attack.attacker.name = this.attackerName
+			}
+			if (this.defenderName === undefined) {
+				this.$parent.fetchPlayerName(this.attack.defender.address)
+			} else {
+				this.attack.defender.name = this.defenderName
+			}
 		},
 		setBarWidth (event) {
 			const data = JSON.parse(event.data)
@@ -99,6 +107,10 @@ export default {
 				&& this.isOracleStartPriceSet()
 				&& this.isOracleEndPriceSet()
 				&& this.isCurrentPlayerWon()
+		},
+		waitOracleLoadingDisplay () {
+			return this.attack.state === 'finished'
+				&& (!this.isOracleStartPriceSet() || !this.isOracleEndPriceSet())
 		}
 		// please wait oracle message
 	},
@@ -106,8 +118,16 @@ export default {
 	watch: {
 		currentMinute: {
 			handler () {
-				// check attack state is finished
-				this.calculateAttackState()
+				if (this.attack.state === 'finished') {
+					if (this.isStartPriceSet() && !this.isOracleStartPriceSet()) {
+						this.setOraclePrice(this.attack.startingMinute)
+					}
+					if (this.isEndPriceSet() && !this.isOracleEndPriceSet()) {
+						this.setOraclePrice(this.attack.startingMinute + 60)
+					}
+				} else {
+					this.calculateAttackState()
+				}
 			},
 			immediate: true
 		},
@@ -195,6 +215,9 @@ export default {
 			Battle finished,
 			<template v-if="isCurrentPlayerWon()"> you won!</template>
 			<template v-if="!isCurrentPlayerWon()"> you lost!</template>
+			<template v-if="isCurrentPlayerWon() && waitOracleLoadingDisplay">
+				<img src="src/components/gifs/loading-loading-forever.gif">
+			</template>
 			<button v-if="claimWinButtonDisplay">Claim Win</button>
 		</p>
 		<p v-else class="title">
@@ -300,6 +323,10 @@ export default {
 
 .battle-bar {
 	height: 36px;
+}
+
+img {
+	height: 1em;
 }
 
 </style>
