@@ -100,11 +100,13 @@ export default {
 				&& this.isOracleEndPriceSet()
 				&& this.isCurrentPlayerWon()
 		}
+		// please wait oracle message
 	},
 
 	watch: {
 		currentMinute: {
 			handler () {
+				// check attack state is finished
 				this.calculateAttackState()
 			},
 			immediate: true

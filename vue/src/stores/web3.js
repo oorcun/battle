@@ -38,87 +38,63 @@ export const useWeb3Store = defineStore('web3', {
 		},
 		listenEvent (event, filter) {
 			return this.playerContract.events[event](filter)
-				.on('error', console.log)
+				.on('error', console.error)
 		},
 		call (method, ...params) {
 			const metamaskStore = useMetamaskStore()
 			return this.playerContract.methods[method](...params).call({ from: metamaskStore.account })
+				.catch(error => {
+					const reason = this.getErrorReason(error)
+					if (reason !== '') {
+						console.info(method, reason)
+						throw new Error(reason)
+					}
+					console.error(error)
+					throw error
+				})
 		},
 		send (method, ...params) {
 			const metamaskStore = useMetamaskStore()
 			return this.playerContract.methods[method](...params).send({ from: metamaskStore.account })
+				.catch(error => {
+					console.error(error)
+					throw error
+				})
 		},
 		getPlayer () {
 			const playerStore = usePlayerStore()
-			this.call('getPlayer')
+			return this.call('getPlayer')
 				.then(result => {
 					playerStore.player = result
 					playerStore.playerState = 'exist'
 				})
 				.catch(error => {
 					playerStore.player = []
-					playerStore.playerState = 'unknown'
-					const reason = this.getErrorReason(error)
-					if (reason !== '') {
-						if (reason === 'PlayerContract: player not exist for address') {
-							playerStore.playerState = 'notExist'
-						}
-						console.info('getPlayer', reason)
+					if (error.message === 'PlayerContract: player not exist for address') {
+						playerStore.playerState = 'notExist'
 					} else {
-						console.error(error)
+						playerStore.playerState = 'unknown'
 					}
 				})
 		},
 		createPlayer (name) {
 			return this.send('createPlayer', name)
-				.then(() => {
-					this.getPlayer()
-				})
-				.catch(console.error)
+				.then(() => { this.getPlayer() })
 		},
 		getPlayers (startId, endId) {
 			return this.call('getPlayers', startId, endId)
-				.catch(error => {
-					console.error(error)
-					throw error
-				})
 		},
 		registerAttack (defenderAddress, startingMinuteTimestamp, side) {
 			return this.send('registerAttack', defenderAddress, startingMinuteTimestamp, side)
-				.catch(console.error)
 		},
 		getAnyPlayer (owner) {
 			return this.call('getAnyPlayer', owner)
-				.catch(error => {
-					const reason = this.getErrorReason(error)
-					if (reason !== '') {
-						console.info('getAnyPlayer', reason)
-						throw new Error(reason)
-					} else {
-						console.error(error)
-						throw error
-					}
-				})
 		},
 		hasRegisteredAttack (attacker, startingMinute) {
 			return this.call('hasRegisteredAttack', attacker, startingMinute)
-				.catch(error => {
-					console.error(error)
-					throw error
-				})
 		},
 		getPrice (minuteTimestamp) {
 			return this.call('getPrice', minuteTimestamp)
-				.catch(error => {
-					const reason = this.getErrorReason(error)
-					if (reason !== '') {
-						console.info('getPrice', reason)
-						throw new Error(reason)
-					} else {
-						console.error(error)
-						throw error
-					}
-				})
 		}
 	}
 })

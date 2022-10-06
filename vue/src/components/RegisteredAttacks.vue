@@ -142,16 +142,16 @@ export default {
 			this.socket.close()
 		},
 		fetchOraclePrice (minuteTimestamp) {
-			this.getPrice(minuteTimestamp)
-				.then(price => { this.oracleMinutePrices[minuteTimestamp] = price })
-				.catch(error => {
-					if (error.message === 'PriceRequestContract: price not set') {
-						this.fetchOraclePriceNotSetWarning = true
-						// set timeout
-					} else {
-						this.fetchOraclePriceError = true
-					}
-				})
+			// this.getPrice(minuteTimestamp)
+			// 	.then(price => { this.oracleMinutePrices[minuteTimestamp] = price })
+			// 	.catch(error => {
+			// 		if (error.message === 'PriceRequestContract: price not set') {
+			// 			// make something smart maybe look at dates
+			// 			this.fetchOraclePriceNotSetWarning = true
+			// 		} else {
+			// 			this.fetchOraclePriceError = true
+			// 		}
+			// 	})
 		}
 	},
 
