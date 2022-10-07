@@ -78,7 +78,7 @@ export default {
 
 
 <template>
-{{attacks}}
+
 	<section class="section">
 		<div class="container">
 

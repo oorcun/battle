@@ -108,9 +108,6 @@ export default {
 		},
 		setOraclePrice (minuteTimestamp) {
 			this.$parent.fetchOraclePrice(minuteTimestamp)
-		},
-		removeAttack () {
-			this.$parent.removeAttack(this.initialAttack)
 		}
 	},
 
@@ -234,7 +231,6 @@ export default {
 				v-if="claimWinButtonDisplay"
 				:method="finishAttack"
 				:params="[attack.attacker.address, attack.startingMinute]"
-				@processed="removeAttack"
 				@errored="finishAttackError = true"
 			>Claim Win</SubmitButton>
 		</p>

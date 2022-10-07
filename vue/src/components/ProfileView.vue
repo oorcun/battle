@@ -65,6 +65,8 @@ export default {
 			Some player names cannot be fetched, please check console.
 		</div>
 
+		<hr>
+
 		<div>getpastevents</div>
 
 	</template>

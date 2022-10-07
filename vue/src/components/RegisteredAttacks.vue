@@ -45,7 +45,8 @@ export default {
 
 	computed: {
 		...mapState(useMetamaskStore, ['metamaskState']),
-		...mapState(usePlayerStore, ['playerState', 'player', 'attacksState'])
+		...mapState(usePlayerStore, ['playerState', 'player', 'attacksState']),
+		...mapState(usePlayerStore, { finishedAttacks: 'attacks' })
 	},
 
 	methods: {
@@ -182,8 +183,12 @@ export default {
 					}
 				})
 		},
-		removeAttack (removedAttack) {
-			this.attacks = this.attacks.filter(attack => attack.id !== removedAttack.id)
+		removeAttack (finishedAttack) {
+			this.attacks = this.attacks.filter(
+				attack => attack.attacker.address !== finishedAttack.attacker.address
+					|| attack.defender.address !== finishedAttack.defender.address
+					|| attack.startingMinute !== finishedAttack.startingMinute
+			)
 		}
 	},
 
@@ -197,6 +202,12 @@ export default {
 				}
 			},
 			immediate: true
+		},
+		finishedAttacks: {
+			handler (attack) {
+				this.removeAttack(attack[attack.length - 1])
+			},
+			deep: true
 		}
 	},
 
