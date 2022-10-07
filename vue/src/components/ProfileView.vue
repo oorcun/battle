@@ -89,7 +89,7 @@ export default {
 					<th>Attacker Address</th>
 					<th>Defender Name</th>
 					<th>Defender Address</th>
-					<th>Result</th>
+					<th>Winner</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -117,12 +117,23 @@ export default {
 		<div class="field">
 			<label class="label">Name</label>
 			<div class="control">
-				<input class="input is-primary is-rounded" type="text" placeholder="Enter your player name..." v-model="input" />
+				<input
+					class="input is-rounded"
+					type="text"
+					placeholder="Enter your player name..."
+					v-model="input"
+					:class="input.length > 0 ? 'is-primary' : 'is-danger'"
+				/>
 			</div>
 		</div>
 		<div class="field is-grouped">
 			<div class="control">
-				<SubmitButton :method="createPlayer" :params="[input]" @errored="createPlayerError = true" />
+				<SubmitButton
+					:disabled="input.length === 0"
+					:method="createPlayer"
+					:params="[input]"
+					@errored="createPlayerError = true"
+				/>
 			</div>
 		</div>
 		<div v-if="createPlayerError" class="notification is-light is-danger">

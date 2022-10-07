@@ -53,6 +53,7 @@ contract PlayerContract is PriceRequestContract
     function createPlayer (string memory _name) public
     {
     	require(addressToPlayer[msg.sender].id == 0, "PlayerContract: player already exists for address");
+        require(keccak256(abi.encode(_name)) != keccak256(abi.encode("")), "PlayerContract: name is empty");
 
         uint id = players.length + 1;
     	Player memory player = Player(players.length + 1, _name, msg.sender, 0, 0, 0, 0, 0);

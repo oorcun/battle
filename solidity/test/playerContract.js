@@ -50,6 +50,13 @@ contract('PlayerContract', accounts => {
 			)
 		})
 
+		it('should throw error if player name is empty', async () => {
+			await utils.shouldThrow(
+				instance.createPlayer(''),
+				'PlayerContract: name is empty'
+			)
+		})
+
 	})
 
 	context('PLAYER FETCHING', async () => {
