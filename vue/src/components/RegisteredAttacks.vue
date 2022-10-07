@@ -102,9 +102,7 @@ export default {
 			const defender = event.returnValues.defender
 			const startingMinute = Number(event.returnValues.startingMinute)
 			if(this.attacks.some(
-				attack => attack.attacker.address === attacker
-					&& attack.defender.address === defender
-					&& attack.startingMinute === startingMinute
+				attack => attack.attacker.address === attacker && attack.startingMinute === startingMinute
 			)) {
 				return
 			}
@@ -186,7 +184,6 @@ export default {
 		removeAttack (finishedAttack) {
 			this.attacks = this.attacks.filter(
 				attack => attack.attacker.address !== finishedAttack.attacker.address
-					|| attack.defender.address !== finishedAttack.defender.address
 					|| attack.startingMinute !== finishedAttack.startingMinute
 			)
 		}
@@ -204,8 +201,8 @@ export default {
 			immediate: true
 		},
 		finishedAttacks: {
-			handler (attack) {
-				this.removeAttack(attack[attack.length - 1])
+			handler (attacks) {
+				this.removeAttack(attacks[attacks.length - 1])
 			},
 			deep: true
 		}

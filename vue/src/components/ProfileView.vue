@@ -18,11 +18,25 @@ export default {
 
 	computed: {
 		...mapState(useMetamaskStore, ['metamaskState']),
-		...mapState(usePlayerStore, ['player', 'playerState', 'setPlayerNameError'])
+		...mapState(usePlayerStore, ['player', 'playerState', 'setPlayerNameError', 'attacks', 'attacksState']),
+		sortedAttacks () {
+			return [...this.attacks].sort((attack1, attack2) => attack2.startingMinute - attack1.startingMinute)
+		}
 	},
 
 	methods: {
-		...mapActions(useWeb3Store, ['createPlayer', 'decToHex'])
+		...mapActions(useWeb3Store, ['createPlayer', 'decToHex']),
+		parseDatetime (timestamp) {
+			const date = new Date(timestamp * 1000)
+			return `${date.getFullYear()}-${date.getMonth()}-${date.getDay()} ${date.getHours()}:${date.getMinutes()}`
+		},
+		cellClass (attack, side) {
+			return {
+				'has-text-weight-bold': attack[side].isCurrentPlayer,
+				'has-text-primary-dark': attack[side].isCurrentPlayer && attack.isPlayerWon,
+				'has-text-danger-dark': attack[side].isCurrentPlayer && !attack.isPlayerWon
+			}
+		}
 	},
 
 	components: {
@@ -67,7 +81,32 @@ export default {
 
 		<hr>
 
-		<div>getpastevents</div>
+		<table v-if="attacksState === 'fetched'" class="table is-fullwidth">
+			<thead>
+				<tr>
+					<th>Datetime</th>
+					<th>Attacker Name</th>
+					<th>Attacker Address</th>
+					<th>Defender Name</th>
+					<th>Defender Address</th>
+					<th>Result</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr
+					v-for="attack in sortedAttacks"
+					:key="attack.id"
+					:class="attack.isPlayerWon ? 'has-background-primary-light' : 'has-background-danger-light'"
+				>
+					<td>{{ parseDatetime(attack.startingMinute) }}</td>
+					<td :class="cellClass(attack, 'attacker')">{{ attack.attacker.name }}</td>
+					<td :class="cellClass(attack, 'attacker')">{{ attack.attacker.address }}</td>
+					<td :class="cellClass(attack, 'defender')">{{ attack.defender.name }}</td>
+					<td :class="cellClass(attack, 'defender')">{{ attack.defender.address }}</td>
+					<td>{{ attack.winner }}</td>
+				</tr>
+			</tbody>
+		</table>
 
 	</template>
 

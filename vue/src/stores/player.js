@@ -7,6 +7,7 @@ export const usePlayerStore = defineStore('player', {
 		playerState: 'unknown',
 		attacks: [],
 		attacksState: 'pending',
+		attackId: 1,
 		setPlayerNameError: false,
 		attackerListener: undefined,
 		defenderListener: undefined
@@ -47,9 +48,7 @@ export const usePlayerStore = defineStore('player', {
 			const defender = event.returnValues.defender
 			const startingMinute = Number(event.returnValues.startingMinute)
 			if(this.attacks.some(
-				attack => attack.attacker.address === attacker
-					&& attack.defender.address === defender
-					&& attack.startingMinute === startingMinute
+				attack => attack.attacker.address === attacker && attack.startingMinute === startingMinute
 			)) {
 				return
 			}
@@ -70,6 +69,7 @@ export const usePlayerStore = defineStore('player', {
 			}
 			const winner = event.returnValues.won ? 'attacker' : 'defender'
 			this.attacks.push({
+				id: this.attackId++,
 				attacker: {
 					name: attackerName,
 					address: attacker,
@@ -91,7 +91,6 @@ export const usePlayerStore = defineStore('player', {
 		isAttackFinished (registeredAttack) {
 			return this.attacks.some(
 				attack => attack.attacker.address === registeredAttack.attacker.address
-					&& attack.defender.address === registeredAttack.defender.address
 					&& attack.startingMinute === registeredAttack.startingMinute
 			)
 		},
