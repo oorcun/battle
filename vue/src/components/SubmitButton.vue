@@ -16,13 +16,11 @@ export default {
 
 	methods: {
 		submit () {
-			// todo error check to all places in submit button
-			// improve success scenarios in all places
-			// get player after attack finished
 			this.$emit('clicked')
 			this.waiting = true
 			this.method(...this.params)
 				.then(() => { this.$emit('processed') })
+				.catch(() => { this.$emit('errored') })
 				.finally(() => { this.waiting = false })
 		}
 	}

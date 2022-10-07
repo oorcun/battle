@@ -11,7 +11,8 @@ export default {
 
 	data () {
 		return {
-			input: ''
+			input: '',
+			createPlayerError: false
 		}
 	},
 
@@ -80,8 +81,11 @@ export default {
 		</div>
 		<div class="field is-grouped">
 			<div class="control">
-				<SubmitButton :method="createPlayer" :params="[input]"/>
+				<SubmitButton :method="createPlayer" :params="[input]" @errored="createPlayerError = true" />
 			</div>
+		</div>
+		<div v-if="createPlayerError" class="notification is-light is-danger">
+			Error on creating a player, please check console.
 		</div>
 	</template>
 

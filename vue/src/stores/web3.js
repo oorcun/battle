@@ -99,6 +99,7 @@ export const useWeb3Store = defineStore('web3', {
 		},
 		finishAttack (attacker, startingMinute) {
 			return this.send('finishAttack', attacker, startingMinute)
+				.then(() => { this.getPlayer() })
 		}
 	}
 })

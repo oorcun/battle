@@ -29,7 +29,8 @@ export default {
 	data () {
 		return {
 			attack: this.initialAttack,
-			battle: { price: 0, width: 50, started: false }
+			battle: { price: 0, width: 50, started: false },
+			finishAttackError: false
 		}
 	},
 
@@ -234,11 +235,15 @@ export default {
 				:method="finishAttack"
 				:params="[attack.attacker.address, attack.startingMinute]"
 				@processed="removeAttack"
+				@errored="finishAttackError = true"
 			>Claim Win</SubmitButton>
 		</p>
 		<p v-else class="title">
 			Fighting...
 		</p>
+	</div>
+	<div v-if="finishAttackError" class="notification is-light is-danger">
+		Error finishing an attack, please check console.
 	</div>
 
 	<div class="tile is-ancestor">

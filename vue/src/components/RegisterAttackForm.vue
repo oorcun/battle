@@ -22,7 +22,8 @@ export default {
 			selectedMinute: '',
 			minuteState: 'unknown',
 			selectedPrediction: 'increase',
-			isSecondHalfInMinute: undefined
+			isSecondHalfInMinute: undefined,
+			registerAttackError: false
 		}
 	},
 
@@ -225,11 +226,16 @@ export default {
 				:method="registerAttack"
 				:params="[address, getMinuteTimestamp(selectedMinute), selectedPrediction === 'increase' ? true : false]"
 				:disabled="isDisabled"
-				@processed="playerhasRegisteredAttack(player[2], getMinuteTimestamp(selectedMinute))"
+				@processed="minuteState = 'registered'"
+				@errored="registerAttackError = true"
 			>
 				Register Attack
 			</SubmitButton>
 		</div>
+	</div>
+
+	<div v-if="registerAttackError" class="notification is-light is-danger">
+		Error on registering an attack, please check console.
 	</div>
 
 </div>
