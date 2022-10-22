@@ -3,8 +3,24 @@ pragma solidity >=0.8.10;
 
 import "./PriceRequestContract.sol";
 
+/**
+ * @title      Contract for player operations
+ * @author     Orçun Altınsoy
+ * @notice     This contract deals with operations for players and interactions between them
+ * @dev        Currently, players can only attack each others.
+ */
 contract PlayerContract is PriceRequestContract
 {
+    /**
+     * @dev        id:              Unique ID of player. Starting from 1 and incremented by 1 for every player
+     *             name:            Name of player.
+     *             owner:           Owner address of player.
+     *             attackWinCount:  Number of times player attacks and wins. Gives 2 points.
+     *             attackLossCount: Number of times player attacks and loses. Takes 1 point.
+     *             defendWinCount:  Number of times player is attacked and wins. Gives 1 point.
+     *             defendLossCount: Number of times player is attacked and loses. Takes 2 points.
+     *             points:          Points of player calculated from winnings and losses.
+     */
 	struct Player {
 		uint id;
         string name;
@@ -16,6 +32,13 @@ contract PlayerContract is PriceRequestContract
         int points;
     }
 
+    /**
+     * @dev        defender: Address of attacked player.
+     *             side:     Attacker price prediction. This is true if and only if attacker predicted an increase.
+     *             finished: This value is true if and only if the battle is finished.
+     *             won:      This value is true if and only if the attacker is won.
+     *                       This value is meaningless if the battle is not finished.
+     */
     struct Attack {
         address defender;
         bool side;
@@ -26,8 +49,22 @@ contract PlayerContract is PriceRequestContract
 
 
 
+    /**
+     * @notice     List of all players
+     * @dev        Warning! Can become very big.
+     */
     Player[] public players;
+
+    /**
+     * @notice     Mapping of addresses to players.
+     * @dev        Every address can only have one player.
+     */
     mapping (address => Player) public addressToPlayer;
+
+    /**
+     * @notice     Mapping of addresses and minute timestamps to attacks.
+     * @dev        Every player can only attack one player for each minute.
+     */
     mapping (address => mapping (uint => Attack)) public addressToMinuteTimestampToAttack;
 
 
