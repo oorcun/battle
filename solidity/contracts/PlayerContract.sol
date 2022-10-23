@@ -70,8 +70,29 @@ contract PlayerContract is PriceRequestContract
 
 
 
+    /**
+     * @notice     Emitted when a player is created
+     * @param      id    ID of the created player
+     * @param      name  Name of the created player
+     */
     event NewPlayerCreated(uint id, string name);
+
+    /**
+     * @notice     Emitted when a player registered a battle
+     * @param      attacker        Address of the registrerer
+     * @param      defender        Address of the registrant
+     * @param      startingMinute  Starting minute timestamp of the battle
+     * @param      side            Attacker price prediction which is true if and only if attacker predicted an increase.
+     */
     event AttackRegistered(address indexed attacker, address indexed defender, uint startingMinute, bool side);
+
+    /**
+     * @notice     Emitted when a battle is concluded
+     * @param      attacker        Address of the attacker
+     * @param      defender        Address of the defender
+     * @param      startingMinute  Starting minute timestamp of the battle
+     * @param      won             True if and only if attacker has won the battle
+     */
     event AttackResulted(address indexed attacker, address indexed defender, uint startingMinute, bool won);
 
 
@@ -87,6 +108,12 @@ contract PlayerContract is PriceRequestContract
 
 
 
+    /**
+     * @notice     Creates a new player
+     * @dev        One address can only create one player.
+     *             Name cannot be empty string.
+     * @param      _name  Name of player
+     */
     function createPlayer (string memory _name) public
     {
     	require(addressToPlayer[msg.sender].id == 0, "PlayerContract: player already exists for address");
@@ -101,11 +128,22 @@ contract PlayerContract is PriceRequestContract
         emit NewPlayerCreated(id, _name);
     }
 
+    /**
+     * @notice     Returns the player struct of the sender address
+     * @dev        Sender must have a player.
+     * @return     Player belongs to the sender address
+     */
     function getPlayer () public view senderMustExists returns (Player memory)
     {
         return addressToPlayer[msg.sender];
     }
 
+    /**
+     * @notice     Returns the player struct of the given address
+     * @dev        Given address must have a player.
+     * @param      _owner  Address of the owner
+     * @return     Player belongs to the given address
+     */
     function getAnyPlayer (address _owner) public view returns (Player memory)
     {
         require(addressToPlayer[_owner].id > 0, "PlayerContract: player not exist");
@@ -113,6 +151,15 @@ contract PlayerContract is PriceRequestContract
         return addressToPlayer[_owner];
     }
 
+    /**
+     * @notice     Returns the players optionally given closed interval of IDs
+     * @dev        Start ID of 0 means there is no lower limit while end ID of 0 means there is no upper limit.
+     *             This is sort of like a pagination since the players array can become quite big.
+     *             Start ID cannot be greater than the end ID.
+     * @param      _startId  ID of lower limit
+     * @param      _endId    ID of upper limit
+     * @return     Players belongs to the given ID interval
+     */
     function getPlayers (uint _startId, uint _endId) public view returns (Player[] memory)
     {
         if (_startId == 0) _startId = 1;
@@ -121,15 +168,26 @@ contract PlayerContract is PriceRequestContract
 
         Player[] memory returnData = new Player[](_endId - _startId + 1);
         uint index = 0;
-
-        for (uint i = 0; i < _endId; i++) {
-            if (i + 1 < _startId) continue;
+        for (uint i = _startId - 1; i < _endId; i++) {
             returnData[index++] = players[i];
         }
 
         return returnData;
     }
 
+    /**
+     * @notice     Registers a battle.
+     * @dev        Sender address is an attacker of battle and it must have a player.
+     *             Defender must have a player.
+     *             Player cannot attack itself.
+     *             Player can only register one attack for a given starting minute.
+     *             Starting minute of battle must be greater than current minute.
+     *             Starting minute of battle must not be too much greater than current minute (currently 1 hour).
+     *             This function adds a pending price request for a starting minute and the next (ending) minute.
+     * @param      _defender        Address of the attacked player
+     * @param      _startingMinute  Starting minute timestamp of the battle
+     * @param      _side            Attacker price prediction which is true if and only if attacker predicted an increase
+     */
     function registerAttack (address _defender, uint _startingMinute, bool _side) public senderMustExists
     {
         require(addressToPlayer[_defender].id > 0, "PlayerContract: defender not exist");
@@ -144,7 +202,7 @@ contract PlayerContract is PriceRequestContract
 
         require(!hasRegisteredAttack(msg.sender, startingMinute), "PlayerContract: already registered for an attack");
 
-        _registerAttack(startingMinute, Attack(_defender, _side, false, false));
+        addressToMinuteTimestampToAttack[msg.sender][startingMinute] = Attack(_defender, _side, false, false);
 
         _addPendingRequest(PriceRequest(startingMinute, 0, 0));
         _addPendingRequest(PriceRequest(startingMinute + 60, 0, 0));
@@ -152,6 +210,15 @@ contract PlayerContract is PriceRequestContract
         emit AttackRegistered(msg.sender, _defender, startingMinute, _side);
     }
 
+    /**
+     * @notice     Finishes a battle.
+     * @dev        Player should finish their won battles to increase its points.
+     *             Attack must exists for a given attacker and starting minute.
+     *             Bitcoin prices for both the starting and ending minutes must be set.
+     *             Updates the corresponding attack and player structs.
+     * @param      _attacker        Address of the attacked player
+     * @param      _startingMinute  Starting minute timestamp of the battle
+     */
     function finishAttack (address _attacker, uint _startingMinute) public
     {
         require(hasRegisteredAttack(_attacker, _startingMinute), "PlayerContract: attack not exists");
@@ -197,6 +264,12 @@ contract PlayerContract is PriceRequestContract
         emit AttackResulted(_attacker, attack.defender, _startingMinute, attack.won);
     }
 
+    /**
+     * @notice     Checks if the given address has registered attack for a given minute
+     * @param      _attacker        Address of the attacking player
+     * @param      _startingMinute  Starting minute timestamp of the battle
+     * @return     True if and only if attack has been registered
+     */
     function hasRegisteredAttack (address _attacker, uint _startingMinute) public view returns (bool)
     {
         return addressToMinuteTimestampToAttack[_attacker][_startingMinute].defender != address(0);
@@ -205,13 +278,14 @@ contract PlayerContract is PriceRequestContract
 
 
 
+    /**
+     * @notice     Get given timestamp's minute timestamp
+     * @dev        This function effectively zeroes the seconds in a datetime (e.g. 23:59:59 become 23:59:00.).
+     * @param      _datetime        Timestamp value
+     * @return     Given timestamp's minute timestamp
+     */
     function _getMinute (uint _datetime) internal pure returns (uint)
     {
         return (_datetime / 60) * 60;
-    }
-
-    function _registerAttack (uint _startingMinute, Attack memory _attack) internal
-    {
-        addressToMinuteTimestampToAttack[msg.sender][_startingMinute] = _attack;
     }
 }

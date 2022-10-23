@@ -31,11 +31,13 @@ contract PriceRequestContract is Oracle
     /**
      * @notice     Stores pending requests
      * @dev        This array should never become too big.
+     *             This array holds only requests that has a price of 0.
      */
     PriceRequest[] public pendingRequests;
 
     /**
-     * @notice     Mapping of minute timestamps to price requests
+     * @notice     Mapping of minute timestamps to finished price requests
+     * @dev        Prices are set for these price requests.
      */
     mapping (uint => PriceRequest) public minuteTimestampToPriceRequest;
 
