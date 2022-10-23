@@ -29,6 +29,7 @@ export default {
 	methods: {
 		...mapActions(useWeb3Store, ['getPlayers', 'decToHex']),
 		getPlayerList () {
+			// If this became too slow, update a paginated view.
 			this.getPlayers(0, 0)
 				.then(result => this.players = result)
 				.catch(() => { this.error = true })

@@ -9,8 +9,9 @@
 
 <ol>
 	<li>Install <a href="https://metamask.io" target="_blank">Metamask <ion-icon name="arrow-redo"></ion-icon></a></li>
-	<li>Select Rinkeby network for testing</li>
+	<li>Select Goerli network for testing</li>
 	<li>Connect wallet</li>
+	<li>Get some <a href="https://faucets.chain.link" target="_blank">funds<ion-icon name="arrow-redo"></ion-icon></a></li>
 	<li>Go to <i>Players</i> and click <i>Attack</i></li>
 	<li>Select <i>Starting Minute</i> for the attack</li>
 	<li>Choose <i>Prediction</i> for the Bitcoin price for your selected minute</li>

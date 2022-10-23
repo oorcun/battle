@@ -1,3 +1,4 @@
+// Run this script after every migration.
 const fs = require('fs')
 
 const playerContract = require('../../../../solidity/build/contracts/PlayerContract.json')

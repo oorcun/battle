@@ -30,6 +30,7 @@ export const useWeb3Store = defineStore('web3', {
 			}
 		},
 		getPastEvents (event, options) {
+			// Currently fetches all past events. It should be changed if this became too slow.
 			return this.playerContract.getPastEvents(event, { fromBlock: 'earliest', ...options })
 				.catch(error => {
 					console.error(error)

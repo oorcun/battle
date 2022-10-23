@@ -33,10 +33,10 @@ module.exports = async function (callback) {
 				console.log({ priceRequestTimestamps })
 			})
 
-	} catch (e) {
+	} catch (error) {
 
 		console.log('oracled.js error')
-		console.log(e)
+		console.log(error)
 
 		callback()
 

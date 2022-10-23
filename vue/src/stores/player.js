@@ -47,7 +47,9 @@ export const usePlayerStore = defineStore('player', {
 			const attacker = event.returnValues.attacker
 			const defender = event.returnValues.defender
 			const startingMinute = Number(event.returnValues.startingMinute)
-			if(this.attacks.some(
+			// If the attack is set, do not set it again.
+			// This is due to the bug of events sometimes fired two times in succession.
+			if (this.attacks.some(
 				attack => attack.attacker.address === attacker && attack.startingMinute === startingMinute
 			)) {
 				return
@@ -80,7 +82,7 @@ export const usePlayerStore = defineStore('player', {
 					address: defender,
 					isCurrentPlayer: defenderIsCurrentPlayer
 				},
-				startingMinute: Number(startingMinute),
+				startingMinute: startingMinute,
 				winner: winner,
 				isPlayerWon: attackerIsCurrentPlayer && winner === 'attacker'
 					|| defenderIsCurrentPlayer && winner === 'defender'

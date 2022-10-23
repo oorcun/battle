@@ -12,11 +12,13 @@ function getDate (timestamp) {
 async function requestPrice (PlayerContract, priceRequestTimestamps) {
 	let firstRequestTimestamp = priceRequestTimestamps.first()
 	if (firstRequestTimestamp <= getCurrentMinuteTimestamp()) {
+		// Since this function called every second, make sure another request isn't sent in the next call.
 		priceRequestTimestamps.delete(firstRequestTimestamp)
 		try {
 			console.log('sending price request')
 			await sendRequest(PlayerContract, firstRequestTimestamp)
 		} catch (error) {
+			// Because of error, make sure same request is sent again in the next call.
 			priceRequestTimestamps.add(firstRequestTimestamp)
 			console.log('sendRequest error')
 			console.log(error)
