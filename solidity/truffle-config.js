@@ -18,10 +18,17 @@
  *
  */
 
-// const HDWalletProvider = require('@truffle/hdwallet-provider');
-//
-// const fs = require('fs');
-// const mnemonic = fs.readFileSync(".secret").toString().trim();
+const HDWalletProvider = require('@truffle/hdwallet-provider')
+
+const fs = require('fs')
+let mnemonic, projectId
+try {
+	mnemonic = fs.readFileSync('.secret').toString().trim()
+	projectId = fs.readFileSync('.project_id').toString().trim()
+} catch (error) {
+	console.error(error)
+}
+
 
 module.exports = {
 	/**
@@ -51,7 +58,7 @@ module.exports = {
 			port: 9545,
 			network_id: '*',
 			websockets: true
-		}
+		},
 		// Another network with more advanced options...
 		// advanced: {
 		// port: 8777,             // Custom port
@@ -77,6 +84,10 @@ module.exports = {
 		// network_id: 2111,   // This network is yours, in the cloud.
 		// production: true    // Treats this network as if it was a public net. (default: false)
 		// }
+		goerli: {
+			provider: () => new HDWalletProvider(mnemonic, `https://goerli.infura.io/v3/${projectId}`),
+			network_id: '*'
+		}
 	},
 
 	// Set default mocha options here, use special reporters etc.
