@@ -14,22 +14,11 @@ export default {
 		const web3Store = useWeb3Store()
 
 		if (metamaskStore.isMetamaskInstalled()) {
-			window.ethereum.on('connected', () => {
-				console.log('connected')
-			})
-			window.ethereum.on('disconnect', () => {
-				console.log('disconnect')
-			})
-			window.ethereum.on('message', () => {
-				console.log('message')
-			})
 			window.ethereum.on('accountsChanged', () => {
 				window.location.reload()
-				console.log('accountsChanged')
 			})
 			window.ethereum.on('chainChanged', () => {
 				window.location.reload()
-				console.log('chainChanged')
 			})
 		}
 
