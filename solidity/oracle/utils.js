@@ -9,14 +9,14 @@ function getDate (timestamp) {
 	return new Date(timestamp * 1000)
 }
 
-async function requestPrice (PlayerContract, priceRequestTimestamps) {
+async function requestPrice (PlayerContract, priceRequestTimestamps, oracle) {
 	let firstRequestTimestamp = priceRequestTimestamps.first()
 	if (firstRequestTimestamp <= getCurrentMinuteTimestamp()) {
 		// Since this function called every second, make sure another request isn't sent in the next call.
 		priceRequestTimestamps.delete(firstRequestTimestamp)
 		try {
 			console.log('sending price request')
-			await sendRequest(PlayerContract, firstRequestTimestamp)
+			await sendRequest(PlayerContract, firstRequestTimestamp, oracle)
 		} catch (error) {
 			// Because of error, make sure same request is sent again in the next call.
 			priceRequestTimestamps.add(firstRequestTimestamp)
@@ -26,7 +26,7 @@ async function requestPrice (PlayerContract, priceRequestTimestamps) {
 	}
 }
 
-async function sendRequest (PlayerContract, firstRequestTimestamp) {
+async function sendRequest (PlayerContract, firstRequestTimestamp, oracle) {
 	const response = await (
 		await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&startTime=${(firstRequestTimestamp - 60) * 1000}&endTime=${firstRequestTimestamp * 1000}`)
 	).json()
@@ -37,7 +37,7 @@ async function sendRequest (PlayerContract, firstRequestTimestamp) {
 	console.log('successfully fetched price')
 	console.log({ price })
 	console.log('setting price request')
-	await PlayerContract.setPriceRequest(firstRequestTimestamp, price)
+	await PlayerContract.setPriceRequest(firstRequestTimestamp, price, { from: oracle })
 	console.log('successfully setted price request')
 	console.log({ firstRequestTimestamp, price, firstRequestDatetime: getDate(firstRequestTimestamp) })
 }

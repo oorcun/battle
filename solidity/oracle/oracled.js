@@ -7,6 +7,8 @@ module.exports = async function (callback) {
 
 		console.log('oracled started')
 
+		const oracle = (await web3.eth.getAccounts())[8]
+
 		const PlayerContract = await artifacts.require('PlayerContract').deployed()
 
 		console.log('fetching pending price requests')
@@ -19,7 +21,7 @@ module.exports = async function (callback) {
 		console.log('fetched pending price requests')
 		console.log({ priceRequestTimestamps })
 
-		setInterval(utils.requestPrice, 1000, PlayerContract, priceRequestTimestamps)
+		setInterval(utils.requestPrice, 1000, PlayerContract, priceRequestTimestamps, oracle)
 
 		setInterval(() => { console.log({ priceRequestTimestamps }) }, 30000)
 

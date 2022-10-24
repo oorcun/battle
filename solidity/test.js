@@ -16,7 +16,7 @@ module.exports = async function (callback) {
 		// await PlayerContract.registerAttack(accounts[0], utils.getCurrentMinuteTimestamp() + 60, false, { from: accounts[1] })
 		// await PlayerContract.registerAttack(accounts[2], utils.getCurrentMinuteTimestamp() + 120, true, { from: accounts[1] })
 
-		await PlayerContract.finishAttack(accounts[1], 1665165120)
+		console.log(await PlayerContract.oracle())
 
 		// console.log(s)
 
