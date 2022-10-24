@@ -4,6 +4,7 @@ import { mapActions } from 'pinia'
 import { useWeb3Store } from '../stores/web3.js'
 import SubmitButton from './SubmitButton.vue'
 
+// This component uses parent functions, so it is not reusable.
 export default {
 
 	props: {

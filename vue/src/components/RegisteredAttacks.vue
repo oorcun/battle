@@ -83,7 +83,9 @@ export default {
 				.then(response => response.json())
 				.then(data => {
 					if (data.length !== 2) {
+						// Request sent too soon, send again at the next second.
 						setTimeout(this.fetchMinutePrice, 1000, minuteTimestamp)
+						return
 					}
 					this.minutePrices[minuteTimestamp] = Number(Number(data[0][4]).toFixed(2))
 				})
@@ -101,6 +103,8 @@ export default {
 			const attacker = event.returnValues.attacker
 			const defender = event.returnValues.defender
 			const startingMinute = Number(event.returnValues.startingMinute)
+			// If the attack is set, do not set it again.
+			// This is due to the bug of events sometimes fired two times in succession.
 			if(this.attacks.some(
 				attack => attack.attacker.address === attacker && attack.startingMinute === startingMinute
 			)) {
@@ -173,6 +177,7 @@ export default {
 				.then(price => { this.oracleMinutePrices[minuteTimestamp] = price })
 				.catch(error => {
 					if (error.message === 'PriceRequestContract: price not set') {
+						// If oracle not set prices for over one minute, something must have gone wrong.
 						if (Math.floor(Date.now() / 1000) - minuteTimestamp >= 60) {
 							this.fetchOraclePriceNotSetWarning = true
 						}
