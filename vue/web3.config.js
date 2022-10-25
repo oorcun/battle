@@ -2,14 +2,15 @@ export default {
 
 	networks: {
 		develop: {
-			provider: 'ws://localhost:9545'
+			playerContract: import.meta.env.VITE_DEVELOP_PLAYER_CONTRACT_ADDRESS,
+			errorDetectionString: '"reason": "' // Used for error message detection.
+		},
+		goerli: {
+			playerContract: import.meta.env.VITE_GOERLI_PLAYER_CONTRACT_ADDRESS,
+			errorDetectionString: '"message": "execution reverted: '
 		}
 	},
 
-	currentNetwork: import.meta.env.VITE_NETWORK,
-
-	addresses: {
-		playerContract: import.meta.env.VITE_PLAYER_CONTRACT_ADDRESS
-	}
+	currentNetwork: import.meta.env.VITE_NETWORK
 
 }

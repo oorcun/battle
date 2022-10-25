@@ -7,14 +7,15 @@ import { usePlayerStore } from './player.js'
 export const useWeb3Store = defineStore('web3', {
 	state: () => ({
 		web3: {},
-		playerContract: {}
+		playerContract: {},
+		network: config.currentNetwork
 	}),
 	actions: {
 		assignStates () {
 			this.web3 = new Web3(window.ethereum)
 			this.playerContract = new this.web3.eth.Contract(
 				playerContractAbi,
-				config.addresses.playerContract
+				config.networks[this.network].playerContract
 			)
 		},
 		decToHex (number) {
@@ -22,8 +23,9 @@ export const useWeb3Store = defineStore('web3', {
 		},
 		getErrorReason (error) {
 			try {
+				const errorDetectionString = config.networks[this.network].errorDetectionString
 				const string = error.toString()
-				const start = string.substring(string.indexOf('"reason"') + 11)
+				const start = string.substring(string.indexOf(errorDetectionString) + errorDetectionString.length)
 				return start.substring(0, start.indexOf('"'))
 			} catch {
 				return ''
