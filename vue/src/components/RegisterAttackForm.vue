@@ -226,7 +226,7 @@ export default {
 				:method="registerAttack"
 				:params="[address, getMinuteTimestamp(selectedMinute), selectedPrediction === 'increase' ? true : false]"
 				:disabled="isDisabled"
-				@processed="minuteState = 'registered'"
+				@processed="(minuteState = 'registered') && (registerAttackError = false)"
 				@errored="registerAttackError = true"
 			>
 				Register Attack

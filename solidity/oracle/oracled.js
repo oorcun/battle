@@ -25,12 +25,13 @@ module.exports = async function (callback) {
 
 		setInterval(() => { console.log({ priceRequestTimestamps }) }, 30000)
 
-		PlayerContract
+		// Because HDWalletProvider doesn't support event listening, had to resort to this.
+		config.networks[config.network].eventListener(PlayerContract)
 			.AttackRegistered()
 			.on('data', event => {
 				console.log('attack registered')
-				priceRequestTimestamps.add(event.args.startingMinute.toNumber())
-					.add(event.args.startingMinute.toNumber() + 60)
+				priceRequestTimestamps.add(Number(event.returnValues.startingMinute))
+					.add(Number(event.returnValues.startingMinute) + 60)
 				console.log('fetched new price requests')
 				console.log({ priceRequestTimestamps })
 			})

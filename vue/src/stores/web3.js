@@ -23,9 +23,9 @@ export const useWeb3Store = defineStore('web3', {
 		},
 		getErrorReason (error) {
 			try {
-				const errorDetectionString = config.networks[this.network].errorDetectionString
+				const errorReasonDetectionString = config.networks[this.network].errorReasonDetectionString
 				const string = error.toString()
-				const start = string.substring(string.indexOf(errorDetectionString) + errorDetectionString.length)
+				const start = string.substring(string.indexOf(errorReasonDetectionString) + errorReasonDetectionString.length)
 				return start.substring(0, start.indexOf('"'))
 			} catch {
 				return ''

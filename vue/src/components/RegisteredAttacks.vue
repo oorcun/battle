@@ -16,9 +16,15 @@ export default {
 	},
 
 	beforeUnmount () {
-		this.registeredAttacksAttackerListener.unsubscribe()
-		this.registeredAttacksDefenderListener.unsubscribe()
-		this.priceRequestSetListener.unsubscribe()
+		if (this.registeredAttacksAttackerListener !== undefined) {
+			this.registeredAttacksAttackerListener.unsubscribe()
+		}
+		if (this.registeredAttacksDefenderListener !== undefined) {
+			this.registeredAttacksDefenderListener.unsubscribe()
+		}
+		if (this.priceRequestSetListener !== undefined) {
+			this.priceRequestSetListener.unsubscribe()
+		}
 		this.closeSocket()
 	},
 

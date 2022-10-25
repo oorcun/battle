@@ -38,7 +38,7 @@ async function sendRequest (PlayerContract, firstRequestTimestamp, oracle) {
 	console.log({ price })
 	console.log('setting price request')
 	await PlayerContract.setPriceRequest(firstRequestTimestamp, price, { from: oracle })
-	console.log('successfully setted price request')
+	console.log('successfully set price request')
 	console.log({ firstRequestTimestamp, price, firstRequestDatetime: getDate(firstRequestTimestamp) })
 }
 

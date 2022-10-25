@@ -3,11 +3,11 @@ export default {
 	networks: {
 		develop: {
 			playerContract: import.meta.env.VITE_DEVELOP_PLAYER_CONTRACT_ADDRESS,
-			errorDetectionString: '"reason": "' // Used for error message detection.
+			errorReasonDetectionString: '"reason": "' // Used for error reason detection.
 		},
 		goerli: {
 			playerContract: import.meta.env.VITE_GOERLI_PLAYER_CONTRACT_ADDRESS,
-			errorDetectionString: '"message": "execution reverted: '
+			errorReasonDetectionString: '"message": "execution reverted: '
 		}
 	},
 

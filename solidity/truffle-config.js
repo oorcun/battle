@@ -19,6 +19,7 @@
  */
 
 const HDWalletProvider = require('@truffle/hdwallet-provider')
+const Web3 = require('web3')
 
 const fs = require('fs')
 let mnemonic, projectId
@@ -56,7 +57,8 @@ module.exports = {
 			host: '127.0.0.1',
 			port: 9545,
 			network_id: '*',
-			websockets: true
+			websockets: true,
+			eventListener: playerContract => playerContract
 		},
 		// Another network with more advanced options...
 		// advanced: {
@@ -84,8 +86,15 @@ module.exports = {
 		// production: true    // Treats this network as if it was a public net. (default: false)
 		// }
 		goerli: {
-			provider: () => new HDWalletProvider(mnemonic, `https://goerli.infura.io/v3/${projectId}`),
-			network_id: '*'
+			provider: () => {
+				return new HDWalletProvider(mnemonic, `wss://goerli.infura.io/ws/v3/${projectId}`)
+			},
+			network_id: 5,
+			eventListener: playerContract => {
+				const web3 = new Web3(`wss://goerli.infura.io/ws/v3/${projectId}`)
+				const contract = new web3.eth.Contract(playerContract.abi, playerContract.address)
+				return contract.events
+			}
 		}
 	},
 
