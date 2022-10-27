@@ -58,7 +58,7 @@ module.exports = {
 			port: 9545,
 			network_id: '*',
 			websockets: true,
-			eventListener: playerContract => playerContract
+			eventListener: contract => contract
 		},
 		// Another network with more advanced options...
 		// advanced: {
@@ -86,14 +86,12 @@ module.exports = {
 		// production: true    // Treats this network as if it was a public net. (default: false)
 		// }
 		goerli: {
-			provider: () => {
-				return new HDWalletProvider(mnemonic, `wss://goerli.infura.io/ws/v3/${projectId}`)
-			},
+			provider: () => new HDWalletProvider(mnemonic, `wss://goerli.infura.io/ws/v3/${projectId}`),
 			network_id: 5,
-			eventListener: playerContract => {
+			eventListener: contract => {
 				const web3 = new Web3(`wss://goerli.infura.io/ws/v3/${projectId}`)
-				const contract = new web3.eth.Contract(playerContract.abi, playerContract.address)
-				return contract.events
+				const contractInstance = new web3.eth.Contract(contract.abi, contract.address)
+				return contractInstance.events
 			}
 		}
 	},

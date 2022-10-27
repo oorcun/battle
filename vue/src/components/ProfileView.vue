@@ -26,9 +26,12 @@ export default {
 
 	methods: {
 		...mapActions(useWeb3Store, ['createPlayer', 'decToHex']),
+		sanitizeDateTimePart (value) {
+			return value < 10 ? '0' + value : value
+		},
 		parseDatetime (timestamp) {
 			const date = new Date(timestamp * 1000)
-			return `${date.getFullYear()}-${date.getMonth()}-${date.getDay()} ${date.getHours()}:${date.getMinutes()}`
+			return `${date.getFullYear()}-${this.sanitizeDateTimePart(date.getMonth())}-${this.sanitizeDateTimePart(date.getDay())} ${this.sanitizeDateTimePart(date.getHours())}:${this.sanitizeDateTimePart(date.getMinutes())}`
 		},
 		cellClass (attack, side) {
 			return {
@@ -81,7 +84,7 @@ export default {
 
 		<hr>
 
-		<table v-if="attacksState === 'fetched'" class="table is-fullwidth">
+		<table v-if="attacksState === 'fetched'" class="table is-fullwidth battles">
 			<thead>
 				<tr>
 					<th>Datetime</th>
@@ -159,6 +162,16 @@ export default {
 img {
 	height: 1em;
 	width: auto;
+}
+
+.battles {
+	table-layout: fixed;
+	white-space: nowrap;
+}
+
+.battles td {
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 </style>
