@@ -24,6 +24,9 @@ function stopOracle () {
 
 function startOracle () {
 	try {
+		if (isOracleRunning()) {
+			return false
+		}
 		const subProcess = childProcess.spawn(
 			'truffle',
 			['exec', 'oracle/oracled.js', '--network', 'goerli', '>', 'log/oracle.log'],
@@ -39,18 +42,24 @@ function startOracle () {
 	}
 }
 
-if (process.argv.length !== 3) {
-	console.info('Usage: node oracleOperations.js --[start|stop|check]')
+module.exports = {
+	isOracleRunning,
+	startOracle,
+	stopOracle
 }
 
-switch (process.argv[2]) {
-case '--start':
-	console.info(startOracle())
-	break
-case '--stop':
-	console.info(stopOracle())
-	break
-case '--check':
-	console.info(isOracleRunning())
-	break
-}
+// if (process.argv.length !== 3) {
+// 	console.info('Usage: node oracleOperations.js --[start|stop|check]')
+// }
+
+// switch (process.argv[2]) {
+// case '--start':
+// 	console.info(startOracle())
+// 	break
+// case '--stop':
+// 	console.info(stopOracle())
+// 	break
+// case '--check':
+// 	console.info(isOracleRunning())
+// 	break
+// }
