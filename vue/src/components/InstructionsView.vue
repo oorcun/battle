@@ -20,7 +20,8 @@
 </ol>
 
 <footer class="footer">
-	More information on <a href="https://github.com/oorcun/battle" target="_blank">GitHub <ion-icon name="arrow-redo"></ion-icon></a>
+	<p>More information on <a href="https://github.com/oorcun/battle" target="_blank">GitHub <ion-icon name="arrow-redo"></ion-icon></a></p>
+	<p>Check out the contract in <a href="https://goerli.etherscan.io/address/0x18a7f9109a906617a2dc7c904d5e218b28192f82#code" target="_blank">Goerli<ion-icon name="arrow-redo"></ion-icon></a></p>
 </footer>
 
 </template>

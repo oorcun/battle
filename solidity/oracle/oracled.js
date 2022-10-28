@@ -1,11 +1,15 @@
 const utils = require('./utils.js')
+const fs = require('fs')
 const { OrderedSet } = utils
+const pidFile = __dirname + '/pid'
 
 module.exports = async function (callback) {
 
 	try {
 
 		console.log('oracled started')
+
+		fs.writeFileSync(pidFile, process.pid.toString())
 
 		const oracle = (await web3.eth.getAccounts())[8]
 
