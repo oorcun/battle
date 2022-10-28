@@ -8,22 +8,29 @@ export const useWeb3Store = defineStore('web3', {
 	state: () => ({
 		web3: {},
 		playerContract: {},
-		network: config.currentNetwork
+		network: config.networks[config.currentNetwork]
 	}),
 	actions: {
 		assignStates () {
 			this.web3 = new Web3(window.ethereum)
 			this.playerContract = new this.web3.eth.Contract(
 				playerContractAbi,
-				config.networks[this.network].playerContract
+				this.network.playerContract
 			)
 		},
 		decToHex (number) {
 			return this.web3.utils.toHex(number)
 		},
+		getBalance (address) {
+			return this.web3.eth.getBalance(address)
+				.catch(error => {
+					console.error(error)
+					throw error
+				})
+		},
 		getErrorReason (error) {
 			try {
-				const errorReasonDetectionString = config.networks[this.network].errorReasonDetectionString
+				const errorReasonDetectionString = this.network.errorReasonDetectionString
 				const string = error.toString()
 				const start = string.substring(string.indexOf(errorReasonDetectionString) + errorReasonDetectionString.length)
 				return start.substring(0, start.indexOf('"'))

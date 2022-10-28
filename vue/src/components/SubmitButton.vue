@@ -10,7 +10,13 @@ export default {
 
 	props: {
 		method: Function,
-		params: Array,
+		params: {
+			type: Array,
+			required: false,
+			default () {
+				return []
+			}
+		},
 		disabled: Boolean
 	},
 

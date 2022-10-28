@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import PlayerList from '../components/PlayerList.vue'
-import InstructionsView from '../components/InstructionsView.vue'
+import InfoView from '../components/InfoView.vue'
 import ProfileView from '../components/ProfileView.vue'
 import RegisteredAttacks from '../components/RegisteredAttacks.vue'
 
@@ -21,10 +21,10 @@ const router = createRouter({
 			component: RegisteredAttacks
 		},
 		{
-			path: '/instructions',
-			name: 'instructions',
-			meta: { text: 'Instructions', order: 3 },
-			component: InstructionsView
+			path: '/info',
+			name: 'info',
+			meta: { text: 'Info', order: 3 },
+			component: InfoView
 		},
 		{
 			path: '/profile',
