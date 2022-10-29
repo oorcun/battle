@@ -60,6 +60,7 @@ export default {
 				.then(data => {
 					if (data === '1') {
 						this.oracleStartError = false
+						this.oracleRunning = true
 					} else if (data === '0') {
 						this.oracleStartError = true
 					}
