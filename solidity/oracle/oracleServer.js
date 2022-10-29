@@ -3,6 +3,8 @@ const fs = require('fs')
 const childProcess = require('child_process')
 const pidFile = __dirname + '/pid'
 
+let starting = false
+
 function isOracleRunning () {
 	try {
 		const processId = Number(fs.readFileSync(pidFile))
@@ -23,7 +25,30 @@ function stopOracle () {
 	}
 }
 
-function startOracle () {
+function oracleStartPromise (resolve) {
+	if (isOracleRunning()) {
+		resolve()
+	} else {
+		setTimeout(oracleStartPromise, 1000, resolve)
+	}
+}
+
+// Starting the oracle takes time. Oracle became started if `isOracleRunning` returns true (e.g. PID recorded).
+// After the process starts, there is a time period until the process records its PID.
+// During this period another calls to start must be prevented in order to prevent running more than one oracle.
+async function startOracle () {
+	if (starting) {
+		return false
+	}
+	starting = true
+	const result = await processStart()
+	starting = false
+	return result
+}
+
+// It takes time for oracle to record its PID and expose itself for control checks.
+// Therefore we must wait until `isOracleRunning` returns true.
+async function processStart () {
 	try {
 		if (isOracleRunning()) {
 			return false
@@ -33,10 +58,12 @@ function startOracle () {
 			['exec', 'oracle/oracled.js', '--network', 'goerli', '>', 'log/oracle.log'],
 			{
 				stdio: 'ignore',
-				shell: true
+				shell: true,
+				detached: true
 			}
 		)
 		subProcess.unref()
+		await new Promise(oracleStartPromise)
 		return true
 	} catch {
 		return false
@@ -44,11 +71,11 @@ function startOracle () {
 }
 
 const server = http.createServer()
-	.on('request', (request, response) => {
+	.on('request', async (request, response) => {
 		let result = false
 		switch (request.url) {
 		case '/start':
-			result = startOracle()
+			result = await startOracle()
 			break
 		case '/stop':
 			result = stopOracle()
