@@ -28,7 +28,7 @@ export default {
 	Please connect MetaMask.
 </div>
 <div v-else class="notification is-info">
-	Please wait while waiting data from MetaMask. <img src="src/components/gifs/loading-loading-forever.gif">
+	Please wait while waiting data from MetaMask. <img src="/src/components/gifs/loading-loading-forever.gif">
 </div>
 
 </template>

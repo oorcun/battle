@@ -146,7 +146,7 @@ export default {
 
 	<template v-else>
 		<div class="notification is-info is-light">
-			Please wait while your player is fetching from the network. <img src="src/components/gifs/loading-loading-forever.gif">
+			Please wait while your player is fetching from the network. <img src="/src/components/gifs/loading-loading-forever.gif">
 		</div>
 	</template>
 

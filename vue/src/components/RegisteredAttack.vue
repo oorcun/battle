@@ -226,7 +226,7 @@ export default {
 			<template v-if="isCurrentPlayerWon()"> you won! </template>
 			<template v-if="!isCurrentPlayerWon()"> you lost!</template>
 			<template v-if="isCurrentPlayerWon() && waitOracleLoadingDisplay">
-				<img src="src/components/gifs/loading-loading-forever.gif">
+				<img src="/src/components/gifs/loading-loading-forever.gif">
 			</template>
 			<SubmitButton
 				v-if="claimWinButtonDisplay"
