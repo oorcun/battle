@@ -4,6 +4,7 @@ const childProcess = require('child_process')
 const pidFile = __dirname + '/pid'
 
 let starting = false
+let network = 'goerli'
 
 function isOracleRunning () {
 	try {
@@ -55,7 +56,7 @@ async function processStart () {
 		}
 		const subProcess = childProcess.spawn(
 			'truffle',
-			['exec', 'oracle/oracled.js', '--network', 'goerli', '>', 'log/oracle.log'],
+			['exec', 'oracle/oracled.js', '--network', network, '>', 'log/oracle.log'],
 			{
 				stdio: 'ignore',
 				shell: true,
@@ -68,6 +69,10 @@ async function processStart () {
 	} catch {
 		return false
 	}
+}
+
+if (process.argv[3] !== undefined) {
+	network = process.argv[3]
 }
 
 const server = http.createServer()
