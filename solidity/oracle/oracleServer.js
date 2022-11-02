@@ -82,9 +82,9 @@ const server = http.createServer()
 		case '/start':
 			result = await startOracle()
 			break
-		case '/stop':
-			result = stopOracle()
-			break
+		// case '/stop':
+		// 	result = stopOracle()
+		// 	break
 		case '/check':
 			result = isOracleRunning()
 			break
