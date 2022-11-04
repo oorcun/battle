@@ -10,7 +10,7 @@ export default {
 		goerli: {
 			playerContract: '0x18A7F9109A906617A2DC7c904d5e218B28192F82',
 			oracleAddress: '0xf2AF85AaA9B6217030029C8eC88a9A99fA243a42',
-			oracleNetworkUrl: 'http://localhost:8001',
+			oracleNetworkUrl: import.meta.env.VITE_TEST_ORACLE_NETWORK_HOST + ':' + import.meta.env.VITE_TEST_ORACLE_NETWORK_PORT,
 			errorReasonDetectionString: '"message": "execution reverted: '
 		}
 	},
