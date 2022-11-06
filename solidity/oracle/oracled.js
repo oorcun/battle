@@ -8,6 +8,14 @@ module.exports = async function (callback) {
 
 		console.log('oracled started')
 
+		// Config object may be different because of a bug in Truffle.
+		let truffleConfig
+		if (config.config === undefined) {
+			truffleConfig = config
+		} else {
+			truffleConfig = config.config
+		}
+
 		// Write process ID to easily process operations with oracle;
 		// like starting, stopping or checking it is running or not.
 		fs.writeFileSync(__dirname + '/pid', process.pid.toString())
@@ -31,7 +39,7 @@ module.exports = async function (callback) {
 		setInterval(() => { console.log({ priceRequestTimestamps }) }, 30000)
 
 		// Because HDWalletProvider doesn't support event listening, had to resort to this.
-		config.networks[config.network].eventListener(PlayerContract)
+		truffleConfig.networks[truffleConfig.network].eventListener(PlayerContract)
 			.AttackRegistered()
 			.on('data', event => {
 				console.log('attack registered')
