@@ -11,20 +11,21 @@ function isOracleRunning () {
 		const processId = Number(fs.readFileSync(pidFile))
 		process.kill(processId, 0)
 		return true
-	} catch {
+	} catch (error) {
+		console.error(error)
 		return false
 	}
 }
 
-function stopOracle () {
-	try {
-		const processId = Number(fs.readFileSync(pidFile))
-		process.kill(processId, 'SIGINT')
-		return true
-	} catch {
-		return false
-	}
-}
+// function stopOracle () {
+// 	try {
+// 		const processId = Number(fs.readFileSync(pidFile))
+// 		process.kill(processId, 'SIGINT')
+// 		return true
+// 	} catch {
+// 		return false
+// 	}
+// }
 
 function oracleStartPromise (resolve) {
 	if (isOracleRunning()) {
@@ -66,7 +67,8 @@ async function processStart () {
 		subProcess.unref()
 		await new Promise(oracleStartPromise)
 		return true
-	} catch {
+	} catch (error) {
+		console.error(error)
 		return false
 	}
 }
