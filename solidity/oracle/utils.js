@@ -15,7 +15,7 @@ async function requestPrice (PlayerContract, priceRequestTimestamps, oracle) {
 		// Since this function called every second, make sure another request isn't sent in the next call.
 		priceRequestTimestamps.delete(firstRequestTimestamp)
 		try {
-			console.log('sending price request')
+			console.log('sending price request to binance')
 			await sendRequest(PlayerContract, firstRequestTimestamp, oracle)
 		} catch (error) {
 			// Because of error, make sure same request is sent again in the next call.
@@ -31,19 +31,28 @@ async function sendRequest (PlayerContract, firstRequestTimestamp, oracle) {
 		await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&startTime=${(firstRequestTimestamp - 60) * 1000}&endTime=${firstRequestTimestamp * 1000}`)
 	).json()
 	if (response.length !== 2) {
-		throw Error('request sent too soon')
+		throw Error('binance request sent too soon')
 	}
 	const price = parseInt(Number(response[0][4]) * 100)
-	console.log('successfully fetched price')
+	console.log('successfully fetched price from binance')
 	console.log({ price })
-	console.log('setting price request')
+	console.log('setting price request in contract')
 	await PlayerContract.setPriceRequest(firstRequestTimestamp, price, { from: oracle })
-	console.log('successfully set price request')
+	console.log('successfully set price request in contract')
 	console.log({ firstRequestTimestamp, price, firstRequestDatetime: getDate(firstRequestTimestamp) })
+}
+
+async function fetchPendingPriceRequests(PlayerContract, priceRequestTimestamps) {
+	console.log('fetching pending price requests from contract')
+	let pendingRequests = await PlayerContract.getPendingRequests()
+	pendingRequests.forEach(request => priceRequestTimestamps.add(Number(request.minuteTimestamp)))
+	console.log('fetched pending price requests from contract')
+	console.log({ priceRequestTimestamps })
 }
 
 module.exports = {
 	requestPrice,
 	OrderedSet,
-	getCurrentMinuteTimestamp
+	getCurrentMinuteTimestamp,
+	fetchPendingPriceRequests
 }
