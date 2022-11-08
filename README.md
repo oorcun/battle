@@ -11,4 +11,4 @@ Software consists of three parts:
 
 # Where?
 
-[here](http://arbitror.me/battle)
+[Here](http://arbitror.me/battle){:target="_blank"}.
