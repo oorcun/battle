@@ -6,7 +6,7 @@ module.exports = async function (callback) {
 
 	try {
 
-		console.log('oracled started')
+		utils._console.log('oracled started')
 
 		// Config object may be different because of a bug in Truffle.
 		let truffleConfig
@@ -32,11 +32,11 @@ module.exports = async function (callback) {
 		truffleConfig.networks[truffleConfig.network].eventListener(PlayerContract)
 			.AttackRegistered()
 			.on('data', event => {
-				console.log('attack registered')
+				utils._console.log('attack registered')
 				priceRequestTimestamps.add(Number(event.returnValues.startingMinute))
 					.add(Number(event.returnValues.startingMinute) + 60)
-				console.log('fetched new price requests')
-				console.log({ priceRequestTimestamps })
+				utils._console.log('fetched new price requests')
+				utils._console.log({ priceRequestTimestamps })
 			})
 
 		// Try to fetch pending requests between reasonable intervals instead of event listening.
@@ -45,8 +45,8 @@ module.exports = async function (callback) {
 
 	} catch (error) {
 
-		console.log('oracled.js error')
-		console.log(error)
+		utils._console.log('oracled.js error')
+		utils._console.log(error)
 
 		callback()
 

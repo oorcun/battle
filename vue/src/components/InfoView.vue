@@ -129,7 +129,7 @@ export default {
 		There was an error when reaching the oracle, please check console.
 	</div>
 	<div v-if="oracleStartError" class="notification is-warning is-light">
-		There was an error when starting the oracle, please try again later.
+		There was an error when starting the oracle, Infura limit may be reached, please try again later.
 	</div>
 </div>
 

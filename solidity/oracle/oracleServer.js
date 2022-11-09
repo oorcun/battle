@@ -12,20 +12,20 @@ function isOracleRunning () {
 		process.kill(processId, 0)
 		return true
 	} catch (error) {
-		console.error(error)
+		_console.error(error)
 		return false
 	}
 }
 
-// function stopOracle () {
-// 	try {
-// 		const processId = Number(fs.readFileSync(pidFile))
-// 		process.kill(processId, 'SIGINT')
-// 		return true
-// 	} catch {
-// 		return false
-// 	}
-// }
+function stopOracle () {
+	try {
+		const processId = Number(fs.readFileSync(pidFile))
+		process.kill(processId, 'SIGINT')
+		return true
+	} catch {
+		return false
+	}
+}
 
 function oracleStartPromise (resolve) {
 	if (isOracleRunning()) {
@@ -68,26 +68,26 @@ async function processStart () {
 		await new Promise(oracleStartPromise)
 		return true
 	} catch (error) {
-		console.error(error)
+		_console.error(error)
 		return false
 	}
 }
 
-if (process.argv[3] !== undefined) {
-	network = process.argv[3]
-}
-
 const server = http.createServer()
 	.on('request', async (request, response) => {
+		_console.log('request came')
 		let result = false
 		switch (request.url) {
 		case '/start':
+			_console.log('requested start')
 			result = await startOracle()
 			break
-		// case '/stop':
-		// 	result = stopOracle()
-		// 	break
+		case '/stop':
+			_console.log('requested stop')
+			result = stopOracle()
+			break
 		case '/check':
+			_console.log('requested check')
 			result = isOracleRunning()
 			break
 		}
@@ -96,3 +96,15 @@ const server = http.createServer()
 	})
 
 server.listen(8001)
+
+if (process.argv[3] !== undefined) {
+	network = process.argv[3]
+}
+
+const _console = {
+	log: param => { console.log(Date() + '    ' + param) },
+	error: param => {
+		console.error(Date() + '    error')
+		console.error(param)
+	}
+}
