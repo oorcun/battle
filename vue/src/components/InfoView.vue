@@ -16,7 +16,8 @@ export default {
 			balance: undefined,
 			oracleRunning: undefined,
 			oracleError: false,
-			oracleStartError: false
+			oracleStartError: false,
+			oracleStopError: false
 		}
 	},
 
@@ -63,6 +64,23 @@ export default {
 						this.oracleRunning = true
 					} else if (data === '0') {
 						this.oracleStartError = true
+					}
+					this.oracleError = false
+				})
+				.catch(error => {
+					this.oracleError = true
+					console.error(error)
+				})
+		},
+		stopOracle () {
+			return fetch(this.url + '/stop')
+				.then(response => response.text())
+				.then(data => {
+					if (data === '1') {
+						this.oracleStopError = false
+						this.oracleRunning = false
+					} else if (data === '0') {
+						this.oracleStopError = true
 					}
 					this.oracleError = false
 				})
@@ -117,7 +135,7 @@ export default {
 
 <div class="box">
 	<template v-if="oracleRunning === true">
-		Oracle running
+		Oracle running <div class="box"><SubmitButton :method="stopOracle">Stop</SubmitButton></div>
 	</template>
 	<template v-else-if="oracleRunning === false">
 		Oracle not running <div class="box"><SubmitButton :method="startOracle">Start</SubmitButton></div>
@@ -129,7 +147,10 @@ export default {
 		There was an error when reaching the oracle, please check console.
 	</div>
 	<div v-if="oracleStartError" class="notification is-warning is-light">
-		There was an error when starting the oracle, Infura limit may be reached, please try again later.
+		There was an error when starting the oracle, Infura may be down or limit may be reached, please try again later.
+	</div>
+	<div v-if="oracleStopError" class="notification is-warning is-light">
+		There was an error when stopping the oracle, it may have been closed, please refresh the page.
 	</div>
 </div>
 
