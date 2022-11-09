@@ -86,7 +86,11 @@ module.exports = {
 		// production: true    // Treats this network as if it was a public net. (default: false)
 		// }
 		goerli: {
-			provider: () => new HDWalletProvider(mnemonic, `wss://goerli.infura.io/ws/v3/${projectId}`),
+			provider: () => new HDWalletProvider({
+				mnemonic: mnemonic,
+				providerOrUrl: `wss://goerli.infura.io/ws/v3/${projectId}`,
+				pollingInterval: 40000, // Because of Infura daily limits, polling must not be too frequent.
+			}),
 			network_id: 5,
 			eventListener: contract => {
 				const web3 = new Web3(`wss://goerli.infura.io/ws/v3/${projectId}`)
