@@ -39,6 +39,7 @@ async function sendRequest (PlayerContract, firstRequestTimestamp, oracle) {
 	const response = await (
 		await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&startTime=${(firstRequestTimestamp - 60) * 1000}&endTime=${firstRequestTimestamp * 1000}`)
 	).json()
+	_console.log({ response })
 	if (response.length !== 2) {
 		throw Error('binance request sent too soon')
 	}
