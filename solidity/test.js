@@ -5,11 +5,27 @@ module.exports = async function (callback) {
 	try {
 
 		const accounts = await web3.eth.getAccounts()
+		let result
 
 		const PlayerContract = await artifacts.require('PlayerContract').deployed()
 
-		// await PlayerContract.createPlayer('orcun')
-		await PlayerContract.createPlayer('orcun2', { from: accounts[1] })
+		result = await PlayerContract.setOracle(accounts[8])
+		console.log(result)
+
+		result = await PlayerContract.createPlayer('orcun')
+		console.log(result)
+
+		result = await PlayerContract.createPlayer('orcun2', { from: accounts[2] })
+		console.log(result)
+
+		// try {
+		// 	result = await PlayerContract.setPriceRequest(1, 1, { from: accounts[8] })
+		// } catch (error) {
+		// 	console.log(getReason(error))
+		// 	console.log(getReason(error) === 'PriceRequestContract: price request not exists')
+		// 	console.log(error)
+		// }
+
 		// await PlayerContract.createPlayer('orcun3', { from: accounts[2] })
 
 		// await PlayerContract.registerAttack(accounts[1], utils.getCurrentMinuteTimestamp() + 60, true)
@@ -17,8 +33,6 @@ module.exports = async function (callback) {
 		// await PlayerContract.registerAttack(accounts[2], utils.getCurrentMinuteTimestamp() + 120, true, { from: accounts[1] })
 
 		// console.log(await PlayerContract.oracle())
-
-		// console.log(s)
 
 	} catch (e) {
 
@@ -28,4 +42,19 @@ module.exports = async function (callback) {
 
 	callback()
 
+}
+
+function getReason (error) {
+	// Error: execution reverted: PriceRequestContract: price request not exists
+	try {
+		if (error.reason) {
+			return error.reason
+		}
+		const errorReasonDetectionString = 'Error: execution reverted: '
+		const string = error.toString()
+		const start = string.substring(string.indexOf(errorReasonDetectionString) + errorReasonDetectionString.length)
+		return start
+	} catch {
+		return 'not found'
+	}
 }

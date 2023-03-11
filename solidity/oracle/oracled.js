@@ -9,12 +9,13 @@ module.exports = async function (callback) {
 		utils._console.log('oracled started')
 
 		// Config object may be different because of a bug in Truffle.
-		let truffleConfig
-		if (config.config === undefined) {
-			truffleConfig = config
-		} else {
-			truffleConfig = config.config
-		}
+		// This is not necessary if event listening won't be used.
+		// let truffleConfig
+		// if (config.config === undefined) {
+		// 	truffleConfig = config
+		// } else {
+		// 	truffleConfig = config.config
+		// }
 
 		// Write process ID to easily process operations with oracle;
 		// like starting, stopping or checking it is running or not.

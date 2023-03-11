@@ -27,8 +27,10 @@ async function requestPrice (PlayerContract, priceRequestTimestamps, oracle) {
 			_console.log('sending price request to binance')
 			await sendRequest(PlayerContract, firstRequestTimestamp, oracle)
 		} catch (error) {
-			// Because of error, make sure same request is sent again in the next call.
-			priceRequestTimestamps.add(firstRequestTimestamp)
+			if (getReason(error) !== 'PriceRequestContract: price request not exists') {
+				// Because of error, make sure same request is sent again in the next call.
+				priceRequestTimestamps.add(firstRequestTimestamp)
+			}
 			_console.log('sendRequest error')
 			_console.log(error)
 		}
@@ -60,10 +62,23 @@ async function fetchPendingPriceRequests(PlayerContract, priceRequestTimestamps)
 	_console.log({ priceRequestTimestamps })
 }
 
+function getReason (error) {
+	try {
+		if (error.reason) {
+			return error.reason
+		}
+		const errorReasonDetectionString = 'Error: execution reverted: '
+		const string = error.toString()
+		const start = string.substring(string.indexOf(errorReasonDetectionString) + errorReasonDetectionString.length)
+		return start
+	} catch {
+		return 'not found'
+	}
+}
+
 module.exports = {
 	requestPrice,
 	OrderedSet,
-	getCurrentMinuteTimestamp,
 	fetchPendingPriceRequests,
 	_console
 }
