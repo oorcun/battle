@@ -29,19 +29,22 @@ module.exports = async function (callback) {
 		setInterval(utils.requestPrice, 1000, PlayerContract, priceRequestTimestamps, oracle)
 
 		// Because HDWalletProvider doesn't support event listening, had to resort to this.
-		truffleConfig.networks[truffleConfig.network].eventListener(PlayerContract)
-			.AttackRegistered()
-			.on('data', event => {
-				utils._console.log('attack registered')
-				priceRequestTimestamps.add(Number(event.returnValues.startingMinute))
-					.add(Number(event.returnValues.startingMinute) + 60)
-				utils._console.log('fetched new price requests')
-				utils._console.log({ priceRequestTimestamps })
-			})
+		// While it is ideal to listen events, listener lost connection after a while
+		// because of a bug in web3 package. So, until that is fixed, this code should be commented out.
+		// truffleConfig.networks[truffleConfig.network].eventListener(PlayerContract)
+		// 	.AttackRegistered()
+		// 	.on('data', event => {
+		// 		utils._console.log('attack registered')
+		// 		priceRequestTimestamps.add(Number(event.returnValues.startingMinute))
+		// 			.add(Number(event.returnValues.startingMinute) + 60)
+		// 		utils._console.log('fetched new price requests')
+		// 		utils._console.log({ priceRequestTimestamps })
+		// 	})
 
 		// Try to fetch pending requests between reasonable intervals instead of event listening.
 		// This is not ideal, but it may be necessary to avoid Infura daily limits.
-		// setInterval(utils.fetchPendingPriceRequests, 30000, PlayerContract, priceRequestTimestamps)
+		// This is used because of a bug in web3 package that lose connections.
+		setInterval(utils.fetchPendingPriceRequests, 30000, PlayerContract, priceRequestTimestamps)
 
 	} catch (error) {
 
