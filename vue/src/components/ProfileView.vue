@@ -31,7 +31,7 @@ export default {
 		},
 		parseDatetime (timestamp) {
 			const date = new Date(timestamp * 1000)
-			return `${date.getFullYear()}-${this.sanitizeDateTimePart(date.getMonth())}-${this.sanitizeDateTimePart(date.getDay())} ${this.sanitizeDateTimePart(date.getHours())}:${this.sanitizeDateTimePart(date.getMinutes())}`
+			return `${date.getFullYear()}-${this.sanitizeDateTimePart(date.getMonth() + 1)}-${this.sanitizeDateTimePart(date.getDate())} ${this.sanitizeDateTimePart(date.getHours())}:${this.sanitizeDateTimePart(date.getMinutes())}`
 		},
 		cellClass (attack, side) {
 			return {
