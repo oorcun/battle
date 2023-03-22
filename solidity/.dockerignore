@@ -1,0 +1,5 @@
+node_modules
+.secret
+.project_id
+oracle/pid
+log/*.log

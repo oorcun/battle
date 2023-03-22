@@ -9,14 +9,18 @@ module.exports = async function (callback) {
 
 		const PlayerContract = await artifacts.require('PlayerContract').deployed()
 
+		// result = await web3.eth.sendTransaction({ to: '0x6f9eB65FC703dd3D9e5251ae581f3612f9289A7a', value: web3.utils.toWei('50', 'ether'), from: accounts[0] })
+
+		// console.log(PlayerContract.address)
+
 		result = await PlayerContract.setOracle(accounts[8])
 		console.log(result)
 
-		result = await PlayerContract.createPlayer('orcun')
-		console.log(result)
+		// result = await PlayerContract.createPlayer('orcun')
+		// console.log(result)
 
-		result = await PlayerContract.createPlayer('orcun2', { from: accounts[2] })
-		console.log(result)
+		// result = await PlayerContract.createPlayer('orcun2', { from: accounts[1] })
+		// console.log(result)
 
 		// try {
 		// 	result = await PlayerContract.setPriceRequest(1, 1, { from: accounts[8] })
@@ -28,7 +32,7 @@ module.exports = async function (callback) {
 
 		// await PlayerContract.createPlayer('orcun3', { from: accounts[2] })
 
-		// await PlayerContract.registerAttack(accounts[1], utils.getCurrentMinuteTimestamp() + 60, true)
+		// await PlayerContract.registerAttack(accounts[2], getCurrentMinuteTimestamp() + 60, true)
 		// await PlayerContract.registerAttack(accounts[0], utils.getCurrentMinuteTimestamp() + 60, false, { from: accounts[1] })
 		// await PlayerContract.registerAttack(accounts[2], utils.getCurrentMinuteTimestamp() + 120, true, { from: accounts[1] })
 
@@ -57,4 +61,8 @@ function getReason (error) {
 	} catch {
 		return 'not found'
 	}
+}
+
+function getCurrentMinuteTimestamp () {
+	return Math.floor(Math.floor(Date.now() / 1000) / 60) * 60
 }

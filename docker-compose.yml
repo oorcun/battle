@@ -1,0 +1,29 @@
+services:
+    truffle:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: truffle-dev
+        container_name: truffle
+        ports:
+            - target: 8001
+              published: 8001
+            - target: 9545
+              published: 9545
+        volumes:
+            - type: bind
+              source: solidity
+              target: /battle
+    vue:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: vue-dev
+        container_name: vue
+        ports:
+            - target: 8000
+              published: 8000
+        volumes:
+            - type: bind
+              source: vue
+              target: /battle

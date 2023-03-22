@@ -5,7 +5,7 @@ export default {
 			playerContract: import.meta.env.VITE_DEVELOP_PLAYER_CONTRACT_ADDRESS,
 			oracleAddress: import.meta.env.VITE_DEVELOP_ORACLE_ADDRESS,
 			oracleNetworkUrl: import.meta.env.VITE_DEVELOP_ORACLE_NETWORK_HOST + ':' + import.meta.env.VITE_DEVELOP_ORACLE_NETWORK_PORT,
-			errorReasonDetectionString: '"reason": "' // Used for error reason detection.
+			errorReasonDetectionString: 'revert ' // Used for error reason detection.
 		},
 		goerli: {
 			playerContract: '0x18A7F9109A906617A2DC7c904d5e218B28192F82',

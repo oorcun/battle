@@ -55,11 +55,11 @@ export const useWeb3Store = defineStore('web3', {
 			return this.playerContract.methods[method](...params).call({ from: metamaskStore.account })
 				.catch(error => {
 					const reason = this.getErrorReason(error)
+					console.error(error)
 					if (reason !== '') {
 						console.info(method, reason)
 						throw new Error(reason)
 					}
-					console.error(error)
 					throw error
 				})
 		},

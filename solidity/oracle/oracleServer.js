@@ -56,10 +56,10 @@ async function processStart () {
 			return false
 		}
 		const subProcess = childProcess.spawn(
-			'truffle',
-			['exec', 'oracle/oracled.js', '--network', network, '>', 'log/oracle.log'],
+			'npm',
+			['run', 'oracle', '--', '--network', network],
 			{
-				stdio: 'ignore',
+				stdio: 'inherit',
 				shell: true,
 				detached: true
 			}

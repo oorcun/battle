@@ -1,0 +1,13 @@
+services:
+    truffle:
+        build:
+            context: solidity
+            dockerfile: ../Dockerfile
+            target: truffle-prod
+        container_name: truffle
+    vue:
+        build:
+            context: vue
+            dockerfile: ../Dockerfile
+            target: vue-prod
+        container_name: vue
