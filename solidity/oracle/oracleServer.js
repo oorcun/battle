@@ -91,7 +91,6 @@ const server = http.createServer()
 			result = isOracleRunning()
 			break
 		}
-		response.setHeader('Access-Control-Allow-Origin', '*')
 		response.end(result ? '1' : '0')
 	})
 
