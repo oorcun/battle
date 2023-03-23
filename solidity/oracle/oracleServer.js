@@ -95,7 +95,7 @@ const server = http.createServer()
 		response.end(result ? '1' : '0')
 	})
 
-server.listen(8001)
+server.listen(80)
 
 if (process.argv[3] !== undefined) {
 	network = process.argv[3]

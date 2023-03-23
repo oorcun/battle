@@ -6,7 +6,7 @@ services:
             target: truffle-dev
         container_name: truffle
         ports:
-            - target: 8001
+            - target: 80
               published: 8001
             - target: 9545
               published: 9545
@@ -18,7 +18,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-            target: vue-dev
+            target: vue
         container_name: vue
         ports:
             - target: 8000

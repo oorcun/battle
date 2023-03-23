@@ -4,10 +4,10 @@ services:
             context: solidity
             dockerfile: ../Dockerfile
             target: truffle-prod
-        container_name: truffle
+        container_name: battle-truffle
     vue:
         build:
             context: vue
             dockerfile: ../Dockerfile
             target: vue-prod
-        container_name: vue
+        container_name: battle-vue
