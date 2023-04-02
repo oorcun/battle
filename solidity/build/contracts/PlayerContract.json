@@ -30804,10 +30804,16 @@
       "links": {},
       "address": "0x8f161DC29717Db71a1311Ed918C8ee8269B265FE",
       "transactionHash": "0x165a835bac23b7a24e95fdaf62b4f928db18cad35620c920082fbe5efb4dbb11"
+    },
+    "1680468210723": {
+      "events": {},
+      "links": {},
+      "address": "0x8f161DC29717Db71a1311Ed918C8ee8269B265FE",
+      "transactionHash": "0x165a835bac23b7a24e95fdaf62b4f928db18cad35620c920082fbe5efb4dbb11"
     }
   },
   "schemaVersion": "3.4.11",
-  "updatedAt": "2023-04-02T20:08:03.089Z",
+  "updatedAt": "2023-04-02T20:43:32.993Z",
   "networkType": "ethereum",
   "devdoc": {
     "author": "Orçun Altınsoy",
