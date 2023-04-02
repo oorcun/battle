@@ -89,7 +89,7 @@ module.exports = {
 			provider: () => new HDWalletProvider({
 				mnemonic: mnemonic,
 				providerOrUrl: `wss://goerli.infura.io/ws/v3/${projectId}`,
-				pollingInterval: 40000, // Because of Infura daily limits, polling must not be too frequent.
+				// pollingInterval: 40000, // Because of Infura daily limits, polling must not be too frequent.
 			}),
 			network_id: 5,
 			eventListener: contract => {

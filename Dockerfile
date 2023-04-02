@@ -8,14 +8,15 @@ FROM truffle AS truffle-dev
 CMD truffle develop & \
 	npm run migrate & \
 	truffle migrate --network develop && \
+	truffle exec oracle/setOracle.js --network develop && \
 	npm run oracle -- --network develop & \
 	npm run oracleserver -- --network develop
 
 FROM truffle AS truffle-prod
 COPY . .
 RUN npm install
-CMD npm run oracle -- --network goerli & \
-	npm run oracleserver -- --network goerli
+CMD npm run oracle & \
+	npm run oracleserver
 
 FROM node:19.8.1-bullseye AS vue
 WORKDIR /battle

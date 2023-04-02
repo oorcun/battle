@@ -13,8 +13,8 @@ module.exports = async function (callback) {
 
 		// console.log(PlayerContract.address)
 
-		result = await PlayerContract.setOracle(accounts[8])
-		console.log(result)
+		// result = await PlayerContract.setOracle(accounts[8])
+		// console.log(result)
 
 		// result = await PlayerContract.createPlayer('orcun')
 		// console.log(result)
@@ -32,7 +32,7 @@ module.exports = async function (callback) {
 
 		// await PlayerContract.createPlayer('orcun3', { from: accounts[2] })
 
-		// await PlayerContract.registerAttack(accounts[2], getCurrentMinuteTimestamp() + 60, true)
+		await PlayerContract.registerAttack(accounts[1], getCurrentMinuteTimestamp() + 60, true)
 		// await PlayerContract.registerAttack(accounts[0], utils.getCurrentMinuteTimestamp() + 60, false, { from: accounts[1] })
 		// await PlayerContract.registerAttack(accounts[2], utils.getCurrentMinuteTimestamp() + 120, true, { from: accounts[1] })
 

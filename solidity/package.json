@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "oracleserver": "nodemon --watch oracle/oracleServer.js oracle/oracleServer.js",
     "migrate": "nodemon --watch contracts --ext sol --exec truffle migrate --network develop",
-    "oracle": "nodemon --signal SIGTERM --watch oracle/oracled.js --watch oracle/utils.js --exec truffle exec oracle/oracled.js"
+    "oracle": "nodemon --watch oracle/oracled.js --watch oracle/utils.js oracle/oracled.js"
   },
   "author": "",
   "license": "ISC",
