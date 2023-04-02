@@ -14,7 +14,7 @@ utils._console.log('oracled started')
 fs.writeFileSync(__dirname + '/pid', process.pid.toString())
 
 utils.fetchPendingPriceRequests(network)
-// setInterval(utils.fetchPendingPriceRequests, 30000, network)
+setInterval(utils.fetchPendingPriceRequests, 30000, network)
 
 utils.eventEmitter.on('fetchedPendingPriceRequests', utils.sendRequest)
 utils.eventEmitter.on('fetchedPrice', (minuteTimestamp, price) => {
