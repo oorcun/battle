@@ -42,6 +42,10 @@ function sendRequest (minuteTimestamp) {
 function spawnProcess (file, network, ...params) {
 	_console.log(`${file}.js starting`)
 	const process = spawn('truffle', ['exec', `oracle/${file}.js`, '--network', network, ...params])
+	const killTimeoutId = setTimeout(() => {
+		process.kill()
+		_console.log(`${file}.js | killed after unresponsive`)
+	}, 30000)
 	process.stdout.on('data', data => {
 		_console.log(`${file}.js | ${data.toString()}`)
 		// eslint-disable-next-line quotes
@@ -55,6 +59,7 @@ function spawnProcess (file, network, ...params) {
 			}
 			const minuteTimestamps = data.toString().slice(0, -1).split(',').sort()
 			_console.log({ minuteTimestamps })
+			clearTimeout(killTimeoutId)
 			eventEmitter.emit('fetchedPendingPriceRequests', minuteTimestamps[0])
 		}
 	})
